@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "871759111340",
+    "project_id": "travel-5e270",
+    "storage_bucket": "travel-5e270.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:871759111340:android:62c90393618e0f91b62b09",
+        "android_client_info": {
+          "package_name": "com.hehe.travel"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "871759111340-hl1hpepm12l1p3bhghi0iag3ock45bm7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hehe.travel",
+            "certificate_hash": "3aacdf2e1c1d5247130185356876a71c9b479b44"
+          }
+        },
+        {
+          "client_id": "871759111340-13o8e24j66itqc8gbsqdjh4tcdfhfi65.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyD1N2bsshIjJ-yEH_rQ6vpiHYdCVFTRA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "871759111340-13o8e24j66itqc8gbsqdjh4tcdfhfi65.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

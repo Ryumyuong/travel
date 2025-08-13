@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors -->
+    <color name="purple_primary">#6366F1</color>
+    <color name="purple_primary_dark">#4F46E5</color>
+    <color name="purple_secondary">#8B5CF6</color>
+    <color name="orange_accent">#F59E0B</color>
+    <color name="orange_accent_dark">#D97706</color>
+
+    <!-- Background Colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="gray_50">#F9FAFB</color>
+    <color name="gray_100">#F3F4F6</color>
+    <color name="gray_200">#E5E7EB</color>
+    <color name="gray_300">#D1D5DB</color>
+    <color name="gray_400">#9CA3AF</color>
+    <color name="gray_500">#6B7280</color>
+    <color name="gray_600">#4B5563</color>
+    <color name="gray_700">#374151</color>
+    <color name="gray_800">#1F2937</color>
+    <color name="gray_900">#111827</color>
+
+    <!-- System Colors -->
+    <color name="colorPrimary">@color/purple_primary</color>
+    <color name="colorPrimaryDark">@color/purple_primary_dark</color>
+    <color name="colorAccent">@color/orange_accent</color>
+
+    <!-- Status Colors -->
+    <color name="success">#10B981</color>
+    <color name="warning">#F59E0B</color>
+    <color name="error">#EF4444</color>
+    <color name="info">#3B82F6</color>
+
+    <!-- Transparent Colors -->
+    <color name="black_50">#80000000</color>
+    <color name="white_50">#80FFFFFF</color>
+
+    <!-- Card Colors -->
+    <color name="card_background">@color/white</color>
+    <color name="card_shadow">#1A000000</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">@color/gray_900</color>
+    <color name="text_secondary">@color/gray_600</color>
+    <color name="text_hint">@color/gray_400</color>
+    <color name="text_on_primary">@color/white</color>
+</resources>
