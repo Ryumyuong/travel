@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "871759111340-9vijs7u8d01t7t4fbqb7g7e44ulk0g96.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hehe.travel",
+            "certificate_hash": "f88ecc2c428474e7ae12747ba9c0fcdc29e0216c"
+          }
+        },
+        {
           "client_id": "871759111340-hl1hpepm12l1p3bhghi0iag3ock45bm7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

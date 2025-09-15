@@ -69,7 +69,7 @@
     <string name="country_japan">일본</string>
 
     <!-- Destinations -->
-    <string name="destinations_title">🏛️ 추천 관광지</string>
+    <string name="destinations_title">추천 관광지</string>
     <string name="destinations_italy_summary">포지타노, 카프리섬, 폼페이, 나폴리</string>
 
     <string name="destination_positano">포지타노 (Positano)</string>
@@ -85,7 +85,7 @@
     <string name="destination_naples_desc">활기찬 도시와 맛있는 음식으로 유명</string>
 
     <!-- Cuisine -->
-    <string name="cuisine_title">🍝 미식 체험</string>
+    <string name="cuisine_title">미식 체험</string>
     <string name="cuisine_italy_summary">마르게리타 피자, 라자냐, 티라미수, 프루티 디 마레</string>
 
     <string name="cuisine_margherita">마르게리타 피자 (Margherita Pizza)</string>

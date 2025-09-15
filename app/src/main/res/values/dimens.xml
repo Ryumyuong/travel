@@ -26,7 +26,7 @@
 
     <!-- Button Properties -->
     <dimen name="button_height">48dp</dimen>
-    <dimen name="button_corner_radius">8dp</dimen>
+    <dimen name="button_corner_radius">40dp</dimen>
     <dimen name="button_elevation">2dp</dimen>
 
     <!-- Progress Bar -->

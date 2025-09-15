@@ -1,14 +1,17 @@
 package com.hehe.travel
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.firebase.auth.FirebaseAuth
 import com.hehe.travel.databinding.ActivitySearchBinding
 
 class SearchActivity : AppCompatActivity() {
@@ -155,10 +158,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun applyCountryInfo(info: CountryInfo) {
-        binding.countryTitle.text = info.displayName
-        binding.place.text = info.places
-        binding.food.text = info.foods
-        binding.trip.text = info.firstDayPlan
+
     }
 
     private fun hideKeyboard() {
@@ -177,6 +177,12 @@ class SearchActivity : AppCompatActivity() {
             if (result != null) {
                 applyCountryInfo(result)
                 hideKeyboard()
+
+                val intent = Intent(this, DateRangeActivity::class.java)
+                intent.putExtra("country", q)
+                intent.putExtra("login",auth.currentUser?.displayName)
+                startActivity(intent)
+
             } else {
                 Toast.makeText(this, "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
             }
@@ -190,11 +196,45 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+    private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setupSearch()
+        setupBottomNav(R.id.tab_country)
+
+        auth = FirebaseAuth.getInstance()
+        findViewById<TextView>(R.id.name1).text =
+            auth.currentUser?.displayName?.let { "$it" }
+        findViewById<TextView>(R.id.travel).text =
+            auth.currentUser?.displayName?.let { "어디로 떠나실래요?" } ?: "어디로 떠나실래요?"
+    }
+
+    private fun AppCompatActivity.setupBottomNav(selectedId: Int) {
+        val bottom = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottomNav)
+        bottom.selectedItemId = selectedId
+
+        bottom.setOnItemSelectedListener { item ->
+            if (item.itemId == selectedId) return@setOnItemSelectedListener true
+            when (item.itemId) {
+                R.id.tab_country -> {
+                    true
+                }
+                R.id.tab_search -> {
+                    startActivity(Intent(this, StartActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+                    true
+                }
+                R.id.tab_profile -> {
+                    startActivity(Intent(this, MyInfoActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+                    true
+                }
+                else -> false
+            }
+        }
     }
 }

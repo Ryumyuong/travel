@@ -4,8 +4,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/gradient_background"
-    android:padding="24dp">
+    android:background="#ffffff">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingTop="24dp"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
     <!-- Header -->
     <LinearLayout
@@ -21,18 +32,7 @@
             android:text="@string/questionnaire_header"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="#F59E0B" />
-
-        <Button
-            android:id="@+id/btnLogout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="로그아웃"
-            android:textSize="12sp"
-            android:textColor="#FFFFFF"
-            android:background="@drawable/button_orange_small"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp" />
+            android:textColor="#3653AE" />
 
     </LinearLayout>
 
@@ -67,7 +67,7 @@
                     android:layout_height="8dp"
                     android:layout_weight="1"
                     style="?android:attr/progressBarStyleHorizontal"
-                    android:progressTint="#F59E0B"
+                    android:progressTint="#3653AE"
                     android:progressBackgroundTint="#E5E7EB" />
 
                 <TextView
@@ -94,7 +94,7 @@
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:textColor="#FFFFFF"
-                android:background="@drawable/question_number_bg"
+                android:background="#3653AE"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="8dp"
                 android:layout_marginBottom="16dp" />
@@ -118,7 +118,7 @@
                 android:text="아무 계획 없이 카페에 앉아 조용히 하루를 보내고 싶다."
                 android:textSize="16sp"
                 android:textColor="#ffffff"
-                android:background="@drawable/option_button_bg"
+                android:background="#3653AE"
                 android:padding="16dp"
                 android:layout_marginVertical="6dp"
                 android:gravity="start|center_vertical" />
@@ -130,7 +130,7 @@
                 android:text="하루에 몇 군데라도 더 돌아다니며 알차게 시간을 쓰고 싶다."
                 android:textSize="16sp"
                 android:textColor="#ffffff"
-                android:background="@drawable/option_button_bg"
+                android:background="#3653AE"
                 android:padding="16dp"
                 android:layout_marginVertical="6dp"
                 android:gravity="start|center_vertical" />
@@ -150,8 +150,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="← 이전"
-                    android:background="@drawable/button_outline"
-                    android:textColor="#6B7280" />
+                    android:textColor="#ffffff" />
 
                 <View
                     android:layout_width="0dp"
@@ -163,13 +162,27 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="다음 →"
-                    android:background="@drawable/button_gray"
                     android:textColor="#FFFFFF" />
 
             </LinearLayout>
 
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
 
+    </androidx.cardview.widget.CardView>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:menu="@menu/menu_bottom_three"
+        app:itemIconTint="@null"
+        app:itemTextColor="@color/bnv_text_color"
+
+        app:itemRippleColor="@android:color/transparent"
+        app:itemBackground="@android:color/transparent"
+        android:background="@color/white"
+        app:itemActiveIndicatorStyle="@style/NoActiveIndicator"/>
 </LinearLayout>

@@ -20,7 +20,7 @@ import com.hehe.travel.databinding.ActivityQuestionnaireBinding
 class QuestionnaireActivity : AppCompatActivity() {
 
     private var currentStep = 1
-    private val totalSteps = 10
+    private val totalSteps = 12
     private lateinit var binding: ActivityQuestionnaireBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
@@ -38,54 +38,66 @@ class QuestionnaireActivity : AppCompatActivity() {
     // 질문 리스트 정의
     private val questions = listOf(
         Question(
-            text = "휴가 첫날, 당신의 이상적인 하루는?",
-            option1 = "아무 계획 없이 카페에 앉아 조용히 하루를 보내고 싶다.",
-            option2 = "하루에 몇 군데라도 더 돌아다니며 알차게 시간을 쓰고 싶다."
+            text = "[퇴사 D-1] 사직서 던지고 내일 출국하는 당신, 오늘은?",
+            option1 = "여행 전 체크리스트를 만들어 하나 씩 짐을 챙긴다.",
+            option2 = "짐은 여행 출발 전에만 챙기면 되지~"
         ),
         Question(
-            text = "여행지에서 가장 중요하게 생각하는 것은?",
-            option1 = "현지 문화와 역사를 깊이 있게 체험하는 것",
-            option2 = "인스타그램에 올릴 멋진 사진을 찍는 것"
+            text = "[출국 당일] 설렘 가득한 공항, 비행기 안에서 당신은?",
+            option1 = "우선 도착했을 때 해야 할 것들 체크하기",
+            option2 = "도착하면 일단 뭐 먹을까? (아무 생각 없음)"
         ),
         Question(
-            text = "숙소를 선택할 때 가장 우선순위는?",
-            option1 = "편의시설과 서비스가 완벽한 고급 호텔",
-            option2 = "현지 분위기를 느낄 수 있는 독특한 숙소"
+            text = "[여행 첫날 아침] 드디어 도착! 첫날 계획은?",
+            option1 = "'아 몰랑~' 첫날은 호텔에서 푹 쉰다.",
+            option2 = "여행까지 왔는데 근처 맛집과 카페를 찾아 떠난다."
         ),
         Question(
-            text = "음식 체험에서 중요한 것은?",
-            option1 = "미슐랭 가이드에 나온 유명 레스토랑",
-            option2 = "현지인들이 자주 가는 로컬 맛집"
+            text = "[이동 시간] 체크인 하러 호텔 가는 중 교통편을 고른다면?",
+            option1 = "편하고 안전한 교통수단이 최고!",
+            option2 = "조금 불편해도 현지 느낌 나는 방법이 좋다."
         ),
         Question(
-            text = "여행 예산 범위는?",
-            option1 = "1인당 300만원 이상 (프리미엄)",
-            option2 = "1인당 150-300만원 (스탠다드)"
+            text = "[함께 온 친구의 완벽한 일정표] 그때 당신의 반응은?",
+            option1 = "와, 귀찮았을 텐데 대단하다! 그냥 따라가야지~",
+            option2 = "여행은 그때그때 분위기 따라 가야지."
         ),
         Question(
-            text = "여행 스타일은?",
-            option1 = "여유롭게 휴식 중심의 여행",
-            option2 = "액티비티와 체험 중심의 여행"
+            text = "[밤이 찾아오고] 친구가 핫한 술집에 가자고 한다면?",
+            option1 = "힝… 오늘은 조용히 쉬고 싶어.",
+            option2 = "좋아! 사람 많으면 나야 좋지~"
         ),
         Question(
-            text = "쇼핑에 대한 관심도는?",
-            option1 = "명품 쇼핑과 면세점이 중요",
-            option2 = "현지 기념품과 수공예품 선호"
+            text = "[예상 못 한 제안] 친구가 새로운 곳을 가자고 한다면?",
+            option1 = "익숙한 곳이 좋아… 안정감이 최고야.",
+            option2 = "여행 아니면 언제 해보겠어? 당연히 가야지!"
         ),
         Question(
-            text = "교통수단 선호도는?",
-            option1 = "편안한 개인 차량이나 프리미엄 교통",
-            option2 = "현지 대중교통으로 현지 문화 체험"
+            text = "[맛집 투어] 친구가 하루에 2~3곳을 가자고 한다면?",
+            option1 = "진짜 맛있는 집 하나만 가도 만족해.",
+            option2 = "다양한 곳을 가봐야지~ 먹방 여행이잖아."
         ),
         Question(
-            text = "여행 동반자는?",
-            option1 = "연인 또는 배우자와 로맨틱한 여행",
-            option2 = "가족 또는 친구들과 함께하는 여행"
+            text = "[사진 찍기 타임] 가는 곳마다 사진 찍자는 친구",
+            option1 = "그만.. 사진 지옥 그만..",
+            option2 = "SNS 없으면 무슨 재미? 바로 스토리 + 게시물 올린다. "
         ),
         Question(
-            text = "가장 기대하는 여행 경험은?",
-            option1 = "평생 잊지 못할 특별한 순간",
-            option2 = "일상에서 벗어난 완전한 휴식"
+            text = "[날씨 변수] 비가 와서 일정이 모두 취소됐다면?",
+            option1 = "비가 와도 여행엔 문제 없어! 플랜 B로 가야지 ㄱㄱ",
+            option2 = "그냥 우리 호텔에서 쉴까?"
+        ),
+
+        Question(
+            text = "[쇼핑 스타일] 쇼핑을 하러 현지 시장에 가면 당신은?",
+            option1 = "여행 오기 전 계획한 것만 사고 바로 나온다.",
+            option2 = "구경하다가 마음에 드는 건 다 사야지~"
+        ),
+
+        Question(
+            text = "[여행 마지막 날] 친구가 호텔에 있자고 한다면?",
+            option1 = "호캉스도 여행이지~ 호텔에서 여유 즐긴다.",
+            option2 = "숙소는 잠만 자는 곳이지… 마지막까지 밖에서 즐겨야지."
         )
     )
 
@@ -99,11 +111,8 @@ class QuestionnaireActivity : AppCompatActivity() {
         setupClickListeners()
 
         initAuthAndGoogleClient()
+        setupBottomNav(R.id.tab_search)
 
-        // 로그아웃 버튼 클릭 리스너
-        binding.btnLogout.setOnClickListener {
-            signOut() // 또는 disconnectGoogle()
-        }
     }
 
     private fun initViews() {
@@ -203,20 +212,31 @@ class QuestionnaireActivity : AppCompatActivity() {
         googleSignInClient = GoogleSignIn.getClient(this, gso)
     }
 
-    private fun signOut() {
-        googleSignInClient.signOut().addOnCompleteListener {
-            auth.signOut()
-            goToLogin()
-        }.addOnFailureListener {
-            auth.signOut()
-            goToLogin()
-        }
-    }
+    private fun AppCompatActivity.setupBottomNav(selectedId: Int) {
+        val bottom = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottomNav)
+        bottom.selectedItemId = selectedId
 
-    private fun goToLogin() {
-        val intent = Intent(this, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-        finish()
+        bottom.setOnItemSelectedListener { item ->
+            if (item.itemId == selectedId) return@setOnItemSelectedListener true
+            when (item.itemId) {
+                R.id.tab_country -> {
+                    startActivity(
+                        Intent(this, SearchActivity::class.java)
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+                    true
+                }
+                R.id.tab_search -> {
+                    startActivity(Intent(this, QuestionnaireActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+                    true
+                }
+                R.id.tab_profile -> {
+                    startActivity(Intent(this, MyInfoActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+                    true
+                }
+                else -> false
+            }
+        }
     }
 }

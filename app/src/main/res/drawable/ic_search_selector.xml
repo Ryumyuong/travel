@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 선택됨(체크됨) -->
+    <item android:state_checked="true" android:drawable="@drawable/ic_search_color"/>
+    <!-- 선택 안됨 -->
+    <item android:drawable="@drawable/ic_search_gray"/>
+</selector>

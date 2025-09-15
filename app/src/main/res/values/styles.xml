@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base application theme -->
-    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/purple_primary</item>
-        <item name="colorPrimaryDark">@color/purple_primary_dark</item>
-        <item name="colorAccent">@color/orange_accent</item>
-        <item name="android:statusBarColor">@color/purple_primary</item>
-        <item name="android:navigationBarColor">@color/purple_primary</item>
-    </style>
-
     <!-- Text Styles -->
     <style name="TextAppearance.App.Headline" parent="TextAppearance.Material3.HeadlineLarge">
         <item name="android:textSize">@dimen/text_size_display</item>
@@ -41,7 +32,7 @@
     </style>
 
     <style name="Widget.App.Button.Primary" parent="Widget.App.Button">
-        <item name="backgroundTint">@color/orange_accent</item>
+        <item name="backgroundTint">#3653AE</item>
         <item name="android:textColor">@color/white</item>
     </style>
 
@@ -49,8 +40,9 @@
         <item name="android:minHeight">@dimen/button_height</item>
         <item name="cornerRadius">@dimen/button_corner_radius</item>
         <item name="android:textAllCaps">false</item>
-        <item name="strokeColor">@color/gray_300</item>
+        <item name="strokeColor">#263653AE</item>
         <item name="android:textColor">@color/text_primary</item>
+        <item name="backgroundTint">#EBEEF8</item>
     </style>
 
     <!-- Card Styles -->
@@ -68,4 +60,64 @@
         <item name="trackColor">@color/gray_200</item>
         <item name="trackCornerRadius">4dp</item>
     </style>
+
+    <style name="NoActiveIndicator">
+        <item name="android:color">@android:color/transparent</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="CalendarHeaderText" parent="TextAppearance.Material3.TitleMedium"/>
+    <style name="CalendarDateText" parent="TextAppearance.Material3.BodyMedium"/>
+    <style name="CalendarWeekText" parent="TextAppearance.Material3.LabelMedium"/>
+
+    <!-- 비어 있어도 됨: Cal 기본 스타일 -->
+    <style name="Cal"/>
+
+    <!-- 요일 텍스트 스타일: Cal을 부모로 지정(선택) -->
+    <style name="Cal.Week" parent="Cal">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>  <!-- ← 0 이 아니라 1 이어야 칼럼이 나눠집니다 -->
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <!-- 칩을 알약 모양으로 -->
+    <!-- Shape.Chip.Pill 스타일을 이렇게 수정 -->
+    <style name="Shape.Chip.Pill" parent="ShapeAppearance.Material3.Corner.Full">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">20dp</item>
+    </style>
+
+    <!-- “선택 시 채움, 미선택 외곽선” 필터 칩 -->
+    <style name="Widget.App.TagChip" parent="Widget.Material3.Chip.Filter">
+        <item name="checkedIcon">@null</item>
+
+        <!-- 여러 속성으로 배경 강제 설정 -->
+        <item name="android:backgroundTint">@color/selector_chip_bg</item>
+        <item name="android:background">@color/selector_chip_bg</item>
+
+        <!-- 테두리도 같이 설정 -->
+        <item name="android:checkable">true</item>
+        <item name="checkedIconVisible">false</item>               <!-- ✔ 체크 표시 숨김 -->
+        <item name="chipBackgroundColor">@color/selector_chip_bg</item>
+        <item name="chipStrokeColor">@color/selector_chip_stroke</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="android:textColor">@color/selector_chip_text</item>
+        <item name="shapeAppearance">@style/Shape.Chip.Pill</item>
+        <item name="chipMinHeight">40dp</item>
+        <item name="chipStartPadding">12dp</item>
+        <item name="chipEndPadding">12dp</item>
+        <item name="textStartPadding">6dp</item>
+        <item name="textEndPadding">6dp</item>
+        <item name="rippleColor">@android:color/transparent</item> <!-- (옵션) 물결 제거 -->
+        <item name="ensureMinTouchTargetSize">false</item>         <!-- 실제 높이 유지 -->
+    </style>
+
+
+    <style name="TabText" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:textStyle">bold</item>
+    </style>
+
 </resources>

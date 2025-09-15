@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/tab_country"
+        android:icon="@drawable/ic_country_selector"
+        android:title="나라검색" />
+    <item
+        android:id="@+id/tab_search"
+        android:icon="@drawable/ic_search_selector"
+        android:title="취향찾기" />
+    <item
+        android:id="@+id/tab_profile"
+        android:icon="@drawable/ic_profile_selector"
+        android:title="내정보" />
+</menu>

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/gradient_background">
+    android:background="@color/white">
 
     <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
@@ -50,9 +50,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/cuisine_title"
-                    android:textAppearance="@style/TextAppearance.App.Headline"
+
                     android:textSize="24sp"
-                    android:textColor="@color/orange_accent" />
+                    android:textColor="#3653AE" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -82,7 +82,8 @@
                 android:text="전통음식"
                 android:textSize="12sp"
                 android:layout_marginEnd="8dp"
-                style="@style/Widget.App.Button.Primary" />
+                android:background="@drawable/bg_toggle_button"
+                android:textColor="@color/toggle_text_color"/>
 
             <Button
                 android:id="@+id/btn_dessert"
@@ -91,7 +92,8 @@
                 android:layout_weight="1"
                 android:text="디저트"
                 android:textSize="12sp"
-                style="@style/Widget.App.Button.Secondary" />
+                android:textColor="@color/toggle_text_color"
+                android:background="@drawable/bg_toggle_button" />
 
         </LinearLayout>
 
@@ -105,15 +107,20 @@
             android:paddingBottom="16dp" />
 
         <!-- Floating Action Button -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_map"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:gravity="right"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="end|bottom"
-            android:layout_margin="16dp"
-            android:src="@drawable/ic_map"
-            app:backgroundTint="@color/orange_accent"
-            app:tint="@color/white" />
+            android:orientation="vertical"
+            android:layout_marginBottom="50dp">
+            <Button
+                android:id="@+id/home"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="home"
+                android:textSize="16sp"
+                android:textColor="#ffffff"/>
+        </LinearLayout>
 
     </LinearLayout>
 
