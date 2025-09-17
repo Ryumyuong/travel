@@ -40,6 +40,11 @@ class PlanActivity : AppCompatActivity() {
 
         val startUtc = intent.getLongExtra("startUtcMillis", 0L)
         val endUtc = intent.getLongExtra("endUtcMillis", 0L)
+
+        // 일정표시 테스트 코드
+        // val startUtc = intent.getLongExtra("startUtcMillis", System.currentTimeMillis())
+        // val endUtc = intent.getLongExtra("endUtcMillis", System.currentTimeMillis() + (4 * 24 * 60 * 60 * 1000L))
+
         country = intent.getStringExtra("country").toString()
         name = intent.getStringExtra("login").toString()
         binding.headcountry.text = country
@@ -95,15 +100,15 @@ class PlanActivity : AppCompatActivity() {
             toggleSelectionMode()
         }
 
-        // "선택완료" 버튼 (선택 모드일 때만 보임)
-        binding.btnComplete.setOnClickListener {
-            completeSelection()
-        }
-
-        // "선택취소" 버튼
-        binding.btnCancel.setOnClickListener {
-            cancelSelection()
-        }
+//        // "선택완료" 버튼 (선택 모드일 때만 보임)
+//        binding.btnComplete.setOnClickListener {
+//            completeSelection()
+//        }
+//
+//        // "선택취소" 버튼
+//        binding.btnCancel.setOnClickListener {
+//            cancelSelection()
+//        }
     }
 
     private fun toggleSelectionMode() {
@@ -208,5 +213,8 @@ class PlanActivity : AppCompatActivity() {
 
         // 하루만 선택된 경우 탭바 숨기고 싶다면:
         binding.tabDays.visibility = if (days <= 1) View.GONE else View.VISIBLE
+
+        // 탭바 항상 표시 (디버깅용)
+//         binding.tabDays.visibility = View.VISIBLE
     }
 }

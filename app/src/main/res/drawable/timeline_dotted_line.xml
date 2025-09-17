@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 각 점에 명확한 위치와 크기 설정 -->
+    <item android:top="2dp" android:bottom="85dp">
+        <shape android:shape="rectangle">
+            <size android:width="2dp" android:height="8dp"/>
+            <solid android:color="#999999"/>
+        </shape>
+    </item>
+    <item android:top="15dp" android:bottom="72dp">
+        <shape android:shape="rectangle">
+            <size android:width="2dp" android:height="8dp"/>
+            <solid android:color="#999999"/>
+        </shape>
+    </item>
+    <item android:top="28dp" android:bottom="59dp">
+        <shape android:shape="rectangle">
+            <size android:width="2dp" android:height="8dp"/>
+            <solid android:color="#999999"/>
+        </shape>
+    </item>
+    <item android:top="41dp" android:bottom="46dp">
+        <shape android:shape="rectangle">
+            <size android:width="2dp" android:height="8dp"/>
+            <solid android:color="#999999"/>
+        </shape>
+    </item>
+    <item android:top="54dp" android:bottom="33dp">
+        <shape android:shape="rectangle">
+            <size android:width="2dp" android:height="8dp"/>
+            <solid android:color="#999999"/>
+        </shape>
+    </item>
+    <item android:top="67dp" android:bottom="20dp">
+        <shape android:shape="rectangle">
+            <size android:width="2dp" android:height="8dp"/>
+            <solid android:color="#999999"/>
+        </shape>
+    </item>
+    <item android:top="80dp" android:bottom="7dp">
+        <shape android:shape="rectangle">
+            <size android:width="2dp" android:height="8dp"/>
+            <solid android:color="#999999"/>
+        </shape>
+    </item>
+</layer-list>

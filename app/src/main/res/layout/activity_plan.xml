@@ -82,18 +82,44 @@
         android:padding="30dp"
         android:orientation="vertical">
 
-        <!-- 날짜 정보 -->
-        <TextView
-            android:id="@+id/date"
+        <!--  날짜 정보  -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="🗓 일정  2025.08.01 - 2025.08.05"
-            android:textSize="14sp"
-            android:padding="10dp"
             android:background="@drawable/bg_tv_round"
-            android:backgroundTint="#F3F3F3"/>
+            android:backgroundTint="#F3F3F3"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="10dp"
+            android:paddingStart="20dp">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/calendar_icon_small"
+                android:layout_marginEnd="6dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="일정"
+                android:textColor="#3653AE"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2025.08.01 - 2025.08.05"
+                android:textSize="14sp"
+                android:textColor="#333333" />
+
+        </LinearLayout>
 
     </LinearLayout>
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabDays"
         android:layout_width="match_parent"
@@ -118,7 +144,6 @@
         android:id="@+id/preButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:padding="30dp"
         android:orientation="horizontal">
 

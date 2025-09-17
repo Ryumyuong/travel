@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 회색 체크 아이콘 - 기본 체크 아이콘에 회색 틴트 적용 -->
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@drawable/check_icon"
+    android:tint="#AAAAAA" />
