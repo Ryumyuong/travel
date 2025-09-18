@@ -54,7 +54,7 @@
     <ImageView
         android:layout_width="20dp"
         android:layout_height="20dp"
-        android:src="@drawable/hemburg_menu"
+        android:src="@drawable/ic_hemburger_menu"
         android:layout_marginStart="16dp"
         android:scaleType="centerInside" />
 

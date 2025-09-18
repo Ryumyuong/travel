@@ -4,6 +4,6 @@
     <item
         android:width="16dp"
         android:height="16dp"
-        android:drawable="@drawable/calendar_icon"
+        android:drawable="@drawable/ic_calendar"
         android:gravity="center" />
 </layer-list>

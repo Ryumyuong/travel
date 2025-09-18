@@ -75,7 +75,7 @@ class PlanActivity : AppCompatActivity() {
 
         setupDayTabs(startDate,endDate)
 
-        binding.date.text = if (startDate == endDate) startStr else "\uD83D\uDDD3 일정 $startStr - $endStr"
+        binding.date.text = if (startDate == endDate) startStr else " $startStr - $endStr"
     }
 
     private fun setupRecyclerView() {
@@ -212,9 +212,9 @@ class PlanActivity : AppCompatActivity() {
         })
 
         // 하루만 선택된 경우 탭바 숨기고 싶다면:
-        binding.tabDays.visibility = if (days <= 1) View.GONE else View.VISIBLE
+         binding.tabDays.visibility = if (days <= 1) View.GONE else View.VISIBLE
 
-        // 탭바 항상 표시 (디버깅용)
-//         binding.tabDays.visibility = View.VISIBLE
+        // 탭바 항상 표시 (선택 모드에서도 표시, 디버깅용)
+//        binding.tabDays.visibility = View.VISIBLE
     }
 }
