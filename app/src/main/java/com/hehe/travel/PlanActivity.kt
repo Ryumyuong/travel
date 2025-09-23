@@ -75,7 +75,7 @@ class PlanActivity : AppCompatActivity() {
 
         setupDayTabs(startDate,endDate)
 
-        binding.date.text = if (startDate == endDate) startStr else "\uD83D\uDDD3 일정 $startStr - $endStr"
+        binding.date.text = if (startDate == endDate) startStr else " 일정 $startStr - $endStr"
     }
 
     private fun setupRecyclerView() {
