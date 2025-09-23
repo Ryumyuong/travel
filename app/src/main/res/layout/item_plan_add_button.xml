@@ -21,7 +21,7 @@
         <ImageView
             android:layout_width="13dp"
             android:layout_height="13dp"
-            android:src="@drawable/add_icon"
+            android:src="@drawable/ic_add"
             android:contentDescription="일정 추가" />
 
         <TextView

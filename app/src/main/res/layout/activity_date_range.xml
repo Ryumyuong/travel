@@ -133,7 +133,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:layout_marginBottom="30dp"
                     app:chipSpacingHorizontal="8dp"
                     app:chipSpacingVertical="8dp"
                     app:singleLine="false"
@@ -239,30 +238,99 @@
                         android:textStyle="bold" />
                 </com.google.android.material.chip.ChipGroup>
 
+                <!-- 더보기 및 새로고침 버튼 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="20dp">
+
+                    <!-- 더보기 버튼 -->
+                    <LinearLayout
+                        android:id="@+id/btnMoreOptions"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="5dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <ImageView
+                            android:layout_width="15dp"
+                            android:layout_height="15dp"
+                            android:src="@drawable/ic_add"
+                            android:layout_marginEnd="4dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="더보기"
+                            android:textSize="14sp"
+                            android:textColor="#979797" />
+                    </LinearLayout>
+
+                    <!-- 새로고침 버튼 -->
+                    <LinearLayout
+                        android:id="@+id/btnRefresh"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="5dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_refresh"
+                            android:layout_marginEnd="4dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="새로고침"
+                            android:textSize="14sp"
+                            android:textColor="#979797" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:orientation="horizontal">
 
-                    <com.google.android.material.button.MaterialButton
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnPrev"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="이전단계"
-                        android:backgroundTint="#EBEEF8"/>
+                        android:backgroundTint="#EBEEF8"
+                        android:textColor="#6378C4"
+                        android:textSize="16sp"
+                        android:padding="12dp"
+                        android:includeFontPadding="false"/>
 
                     <Space android:layout_width="12dp" android:layout_height="1dp"/>
 
-                    <com.google.android.material.button.MaterialButton
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnConfirm"
-                        style="@style/Widget.Material3.Button"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="선택완료"/>
+                        android:text="선택완료"
+                        android:backgroundTint="#3653AE"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:padding="12dp"
+                        android:includeFontPadding="false"/>
                 </LinearLayout>
 
                 <Space

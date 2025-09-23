@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- *** 타임라인 스타일 RecyclerView 아이템 - 이미지 참고하여 재디자인 *** -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -7,7 +6,6 @@
     android:paddingTop="8dp"
     android:paddingBottom="16dp">
 
-    <!-- *** 타임라인 세로선 (점선) - 크기를 drawable과 맞춤 *** -->
     <View
         android:id="@+id/timelineLine"
         android:layout_width="2dp"
@@ -17,7 +15,6 @@
         android:background="@drawable/timeline_dotted_line"
         android:layout_alignParentStart="true" />
 
-    <!-- *** 왼쪽 파란색 원형 번호 - 중앙 정렬 개선 *** -->
     <TextView
         android:id="@+id/tvNumber"
         android:layout_width="38dp"
@@ -62,8 +59,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="The Seminyak Beach"
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textSize="16sp"/>
 
                 <TextView
                     android:id="@+id/tvDescription"
@@ -71,8 +67,7 @@
                     android:layout_height="wrap_content"
                     android:text="석양이 아름다운 스미냐 해변"
                     android:textSize="14sp"
-                    android:textColor="#666666" />
-
+                    android:textColor="#666666"/>
             </LinearLayout>
 
             <!-- 오른쪽 둥근 이미지 -->
@@ -106,18 +101,17 @@
                 android:layout_marginEnd="24dp">
 
                 <ImageView
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
                     android:layout_marginEnd="4dp"
-                    android:background="@drawable/recommended_icon" />
+                    android:background="@drawable/ic_refresh" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="다시추천"
-                    android:textSize="12sp"
-                    android:textColor="#666666" />
-
+                    android:textColor="#666666"
+                    android:textSize="10sp"/>
             </LinearLayout>
 
             <!-- 삭제 버튼 -->
@@ -131,18 +125,17 @@
                 android:padding="8dp">
 
                 <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
                     android:layout_marginEnd="4dp"
-                    android:background="@drawable/delete_icon"/>
+                    android:background="@drawable/ic_delete"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="삭제"
-                    android:textSize="12sp"
-                    android:textColor="#666666" />
-
+                    android:textSize="10sp"
+                    android:textColor="#666666"/>
             </LinearLayout>
 
         </LinearLayout>
