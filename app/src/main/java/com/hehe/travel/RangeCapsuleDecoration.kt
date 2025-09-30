@@ -46,9 +46,13 @@ class RangeCapsuleDecoration(
             val firstPos = row * 7
             val firstView = lm.findViewByPosition(firstPos) ?: continue
 
-            val top = firstView.top.toFloat()
-            val bottom = firstView.bottom.toFloat()
-            val height = bottom - top
+            val cellHeight = firstView.bottom - firstView.top
+            val barHeight = cellHeight * 0.75f // 셀 높이의 75%
+            val centerY = (firstView.top + firstView.bottom) / 2f
+
+            val top = centerY - barHeight / 2f
+            val bottom = centerY + barHeight / 2f
+            val height = barHeight
             val radius = height / 2f
 
             val left = if (row == rowA) {

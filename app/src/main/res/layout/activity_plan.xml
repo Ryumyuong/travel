@@ -124,7 +124,6 @@
         android:id="@+id/tabDays"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         app:tabMode="scrollable"
         app:tabIndicatorColor="@color/brand_primary"
         app:tabIndicatorHeight="2dp"
@@ -225,23 +224,31 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnCancel"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginEnd="8dp"
                 android:text="선택취소"
-                style="@style/Widget.App.Button.Secondary" />
+                android:background="@drawable/button_prev_step"
+                android:textColor="#6378C4"
+                android:textSize="16sp"
+                android:padding="12dp"
+                android:includeFontPadding="false" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnComplete"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="8dp"
                 android:text="편집완료"
-                style="@style/Widget.App.Button.Primary" />
+                android:background="@drawable/button_confirm"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:padding="12dp"
+                android:includeFontPadding="false" />
 
         </LinearLayout>
 
@@ -255,7 +262,6 @@
         app:menu="@menu/menu_bottom_three"
         app:itemIconTint="@null"
         app:itemTextColor="@color/bnv_text_color"
-        android:layout_marginBottom="30dp"
         app:itemRippleColor="@android:color/transparent"
         app:itemBackground="@android:color/transparent"
         android:background="@color/white"
