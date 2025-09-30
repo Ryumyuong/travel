@@ -6,47 +6,169 @@
     android:orientation="vertical"
     android:background="#ffffff">
 
+    <!-- Header Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="16dp"
+        android:paddingHorizontal="24dp">
+
+        <!-- Back Button and Title -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+
+            <ImageButton
+                android:id="@+id/btn_back"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_left_arrow"
+                android:contentDescription="뒤로가기" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="여행취향찾기"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:gravity="center" />
+
+            <View
+                android:layout_width="48dp"
+                android:layout_height="48dp" />
+
+        </LinearLayout>
+
+        <!-- Progress Indicators -->
+        <LinearLayout
+            android:id="@+id/progress_indicators"
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <View
+                android:id="@+id/indicator_1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:background="#E5E7EB" />
+
+            <View
+                android:id="@+id/indicator_2"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:background="#E5E7EB" />
+
+            <View
+                android:id="@+id/indicator_3"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:background="#E5E7EB" />
+
+            <View
+                android:id="@+id/indicator_4"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:background="#E5E7EB" />
+
+            <View
+                android:id="@+id/indicator_5"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:background="#E5E7EB" />
+
+            <View
+                android:id="@+id/indicator_6"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:background="#E5E7EB" />
+
+            <View
+                android:id="@+id/indicator_7"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:background="#E5E7EB" />
+
+            <View
+                android:id="@+id/indicator_8"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:background="#E5E7EB" />
+
+            <View
+                android:id="@+id/indicator_9"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:background="#E5E7EB" />
+
+            <View
+                android:id="@+id/indicator_10"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:background="#E5E7EB" />
+
+            <View
+                android:id="@+id/indicator_11"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:background="#E5E7EB" />
+
+            <View
+                android:id="@+id/indicator_12"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="#E5E7EB" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:paddingTop="24dp"
-        android:paddingLeft="24dp"
-        android:paddingRight="24dp">
+        android:paddingHorizontal="24dp">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-    <!-- Header -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/questionnaire_header"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#3653AE" />
-
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="40dp" />
-
     <!-- Question Card -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="8dp"
-        app:cardBackgroundColor="#FFFFFF">
+        app:cardBackgroundColor="#FFFFFF"
+        android:layout_marginTop="8dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -54,49 +176,15 @@
             android:orientation="vertical"
             android:padding="24dp">
 
-            <!-- Progress Section -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <ProgressBar
-                    android:id="@+id/progress_bar"
-                    android:layout_width="0dp"
-                    android:layout_height="8dp"
-                    android:layout_weight="1"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:progressTint="#3653AE"
-                    android:progressBackgroundTint="#E5E7EB" />
-
-                <TextView
-                    android:id="@+id/tv_step"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1/10 질문"
-                    android:textSize="14sp"
-                    android:textColor="#6B7280"
-                    android:layout_marginStart="12dp" />
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="32dp" />
-
-            <!-- Question Number -->
+            <!-- Question Tag -->
             <TextView
                 android:id="@+id/tv_question_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="질문 1"
-                android:textSize="14sp"
+                android:text="퇴사 D-1"
+                android:textSize="20sp"
                 android:textStyle="bold"
-                android:textColor="#FFFFFF"
-                android:background="#3653AE"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="8dp"
+                android:textColor="#3653AE"
                 android:layout_marginBottom="16dp" />
 
             <!-- Question Text -->
@@ -104,67 +192,41 @@
                 android:id="@+id/tv_question"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="휴가 첫날, 당신의 이상적인 하루는?"
-                android:textSize="24sp"
+                android:text="사직서 던지고 내일 출국하는 당신,\n오늘은?"
+                android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="#1F2937"
+                android:lineSpacingExtra="4dp"
                 android:layout_marginBottom="24dp" />
 
             <!-- Option Buttons -->
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_option1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="아무 계획 없이 카페에 앉아 조용히 하루를 보내고 싶다."
-                android:textSize="16sp"
-                android:textColor="#ffffff"
-                android:background="#3653AE"
-                android:padding="16dp"
-                android:layout_marginVertical="6dp"
-                android:gravity="start|center_vertical" />
+                android:text="여행 전 체크리스트를 만들어 하나 씩 짐을 챙긴다."
+                android:textSize="14sp"
+                android:textColor="#000000"
+                android:background="@drawable/option_button_selector"
+                android:padding="10dp"
+                android:layout_marginBottom="12dp"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_option2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="하루에 몇 군데라도 더 돌아다니며 알차게 시간을 쓰고 싶다."
-                android:textSize="16sp"
-                android:textColor="#ffffff"
-                android:background="#3653AE"
-                android:padding="16dp"
-                android:layout_marginVertical="6dp"
-                android:gravity="start|center_vertical" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="32dp" />
-
-            <!-- Navigation Buttons -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/btn_prev"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="← 이전"
-                    android:textColor="#ffffff" />
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
-
-                <Button
-                    android:id="@+id/btn_next"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="다음 →"
-                    android:textColor="#FFFFFF" />
-
-            </LinearLayout>
+                android:text="짐은 여행 출발 전에만 챙기면 되지~"
+                android:textSize="14sp"
+                android:textColor="#000000"
+                android:background="@drawable/option_button_selector"
+                android:padding="10dp"
+                android:layout_marginBottom="12dp"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true" />
 
         </LinearLayout>
 
@@ -172,6 +234,37 @@
     </androidx.cardview.widget.CardView>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <!-- Navigation Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="48dp"
+        android:paddingVertical="16dp"
+        android:background="@color/white">
+
+        <Button
+            android:id="@+id/btn_prev"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="이전"
+            android:backgroundTint="#EBEEF8"
+            android:textColor="#6378C4"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/btn_next"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="다음"
+            android:textColor="#FFFFFF"
+            android:layout_marginStart="8dp" />
+
+    </LinearLayout>
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
