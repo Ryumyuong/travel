@@ -23,18 +23,29 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="어디로 떠나야 할지\n모르겠다면?"
-                android:textSize="30dp"
+                android:text="어디로 떠나야 할지 모르겠다면?"
+                android:textSize="18dp"
                 android:textStyle="bold"
                 android:gravity="center"/>
+
+            <ImageView
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:src="@drawable/find_page_logo"
+                android:layout_gravity="center"
+                android:layout_marginTop="40dp"
+                android:layout_marginBottom="40dp"
+                android:scaleType="centerInside"/>
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="몇 가지 질문에 답하면\nAI가 당신의 취향을 파악해 완벽한 여행지를 찾아드릴게요"
+                android:text="몇 가지 질문에 답하면 AI가 당신의 취향을 파악해\n완벽한 여행지를 찾아드릴게요"
                 android:textSize="14dp"
                 android:textStyle="bold"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="10dp"
                 android:gravity="center"/>
+
 
             <Button
                 android:id="@+id/start"
@@ -44,7 +55,9 @@
                 android:textStyle="bold"
                 android:textSize="16dp"
                 android:layout_marginTop="40dp"
-                android:padding="15dp"/>
+                android:padding="5dp"
+                style="@style/Widget.Material3.Button"
+                app:cornerRadius="20dp"/>
         </LinearLayout>
 
 

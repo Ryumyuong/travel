@@ -21,7 +21,7 @@ class StartActivity : AppCompatActivity() {
         binding = ActivityStartBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupBottomNav(R.id.tab_country)
+        setupBottomNav(R.id.tab_search)
 
         binding.start.setOnClickListener {
             startActivity(Intent(this, QuestionnaireActivity::class.java)

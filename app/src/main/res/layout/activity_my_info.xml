@@ -4,126 +4,320 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-
     android:background="@color/white">
+
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:paddingTop="24dp"
         android:paddingLeft="24dp"
+        android:paddingTop="60dp"
         android:paddingRight="24dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
-        <Button
-            android:id="@+id/btnLogout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="로그아웃"
-            android:textSize="12sp"
-            android:layout_gravity="right"
-            android:layout_marginBottom="60dp"/>
-
-        <TextView
-            android:id="@+id/tvGreeting"
-            android:text="내 정보"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingBottom="12dp"/>
-
-        <!-- 여행 기록 -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardHistory"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardElevation="4dp"
-            app:cardCornerRadius="16dp">
+            android:orientation="vertical">
 
+            <!-- 상단 헤더 영역 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@color/white"
-                android:padding="16dp">
-                <TextView
-                    android:text="4박5일 휴양 여행"
-                    android:textStyle="bold"
-                    android:textSize="18sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-                <TextView
-                    android:text="내가 다녀온 나라/도시 히스토리 보기"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="4dp"/>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                android:layout_marginBottom="40dp"
+                android:orientation="horizontal">
 
-        <!-- 지도 -->
-<!--        <com.google.android.material.card.MaterialCardView-->
-<!--            android:id="@+id/cardMap"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginBottom="12dp"-->
-<!--            app:cardElevation="4dp"-->
-<!--            app:cardCornerRadius="16dp">-->
-<!--            <LinearLayout-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:orientation="vertical"-->
-<!--                android:padding="16dp">-->
-<!--                <TextView-->
-<!--                    android:text="지도"-->
-<!--                    android:textStyle="bold"-->
-<!--                    android:textSize="18sp"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"/>-->
-<!--                <TextView-->
-<!--                    android:text="방문국가/추천 장소를 지도에서 확인"-->
-<!--                    android:layout_width="wrap_content"-->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <!-- 이름 -->
+                    <TextView
+                        android:id="@+id/tvGreeting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="이한비님"
+                        android:textColor="@android:color/black"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+
+                    <!-- 정보수정/로그아웃 버튼들 -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:id="@+id/btnEditInfo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="?android:attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="4dp"
+                                android:text="정보수정"
+                                android:textColor="#666666"
+                                android:textSize="10sp" />
+
+                            <ImageView
+                                android:layout_width="10dp"
+                                android:layout_height="10dp"
+                                android:src="@drawable/ic_right_arrow" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/btnLogout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="?android:attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="4dp"
+                                android:text="로그아웃"
+                                android:textColor="#666666"
+                                android:textSize="10sp" />
+
+                            <ImageView
+                                android:layout_width="10dp"
+                                android:layout_height="10dp"
+                                android:src="@drawable/ic_right_arrow" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- 프로필 이미지 -->
+                <ImageView
+                    android:id="@+id/ivProfile"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginStart="16dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_avatar" />
+
+            </LinearLayout>
+
+            <!-- 여행 기록 카드 -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardHistory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#6378C4"
+                app:strokeWidth="3dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="20dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="발리 4박5일 휴양 여행"
+                                android:textColor="@android:color/black"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_marginStart="10dp"
+                                android:src="@drawable/ic_right_arrow"
+                                app:tint="#3653AE" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="7월 전"
+                                android:textColor="#3653AE"
+                                android:textSize="12sp" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            android:text="2025.08.01 - 2025.08.05"
+                            android:textColor="#999999"
+                            android:textSize="12sp" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="16dp"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="6dp"
+                                    android:text="체크리스트"
+                                    android:textColor="#666666"
+                                    android:textSize="12sp" />
+
+                                <ImageView
+                                    android:layout_width="12dp"
+                                    android:layout_height="12dp"
+                                    android:src="@drawable/ic_right_arrow"
+                                    app:tint="#666666" />
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="6dp"
+                                    android:text="메모"
+                                    android:textColor="#666666"
+                                    android:textSize="12sp" />
+
+                                <ImageView
+                                    android:layout_width="12dp"
+                                    android:layout_height="12dp"
+                                    android:src="@drawable/ic_right_arrow"
+                                    app:tint="#666666" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 환경설정 카드 -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardPref"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#E0E0E0"
+                app:strokeWidth="1dp">
+
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
 <!--                    android:layout_height="wrap_content"-->
-<!--                    android:paddingTop="4dp"/>-->
-<!--            </LinearLayout>-->
-<!--        </com.google.android.material.card.MaterialCardView>-->
+<!--                    android:gravity="center_vertical"-->
+<!--                    android:orientation="horizontal"-->
+<!--                    android:padding="20dp">-->
 
-        <!-- 취향 기반 추천 -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardPref"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardElevation="4dp"
-            app:cardCornerRadius="16dp">
+<!--                    <TextView-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:text="환경설정"-->
+<!--                        android:textColor="@android:color/black"-->
+<!--                        android:textSize="16sp"-->
+<!--                        android:textStyle="bold" />-->
+
+<!--                    <ImageView-->
+<!--                        android:layout_width="14dp"-->
+<!--                        android:layout_height="14dp"-->
+<!--                        android:src="@drawable/ic_right_arrow"-->
+<!--                        app:tint="#666666" />-->
+
+<!--                </LinearLayout>-->
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 점 표시기 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp"
-                android:background="@color/white">
-                <TextView
-                    android:text="취향 기반 추천"
-                    android:textStyle="bold"
-                    android:textSize="18sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    />
-                <TextView
-                    android:text="내 설문/검색 기록으로 맞춤 추천"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="4dp"/>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="80dp"
+                android:gravity="center"
+                android:orientation="horizontal">
 
-        <!-- 하단 네비게이션(3개 탭) 쓰고 있다면 여기에 포함해도 OK -->
-    </LinearLayout>
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/circle_indicator_active" />
+
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/circle_indicator_inactive" />
+
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/circle_indicator_inactive" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
     </androidx.core.widget.NestedScrollView>
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
@@ -132,9 +326,9 @@
         app:menu="@menu/menu_bottom_three"
         app:itemIconTint="@null"
         app:itemTextColor="@color/bnv_text_color"
-
         app:itemRippleColor="@android:color/transparent"
         app:itemBackground="@android:color/transparent"
         android:background="@color/white"
         app:itemActiveIndicatorStyle="@style/NoActiveIndicator"/>
+
 </LinearLayout>
