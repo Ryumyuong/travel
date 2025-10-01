@@ -10,6 +10,11 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:textSize="14sp"
+        android:autoSizeTextType="uniform"
+        android:autoSizeMinTextSize="8sp"
+        android:autoSizeMaxTextSize="14sp"
+        android:autoSizeStepGranularity="1sp"
+        android:minWidth="32dp"
         android:textStyle="bold"
         android:textColor="@android:color/black"/>
 </FrameLayout>

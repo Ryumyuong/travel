@@ -99,49 +99,56 @@
             android:textSize="20sp"
             android:layout_marginBottom="20dp"/>
 
-        <LinearLayout
+        <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="20dp">
+            android:layout_marginBottom="20dp"
+            android:scrollbars="none">
 
-            <androidx.appcompat.widget.AppCompatButton
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="파리  X"
-                android:background="@drawable/button_recent_search"
-                android:backgroundTint="#EBEEF8"
-                android:textColor="#6378C4"
-                android:padding="0dp"
-                android:includeFontPadding="false"
-                android:textSize="16sp" />
+                android:orientation="horizontal">
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="아이슬란드  X"
-                android:background="@drawable/button_recent_search"
-                android:backgroundTint="#EBEEF8"
-                android:textColor="#6378C4"
-                android:textSize="16sp"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp" />
+                <androidx.appcompat.widget.AppCompatButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="파리  X"
+                    android:background="@drawable/button_recent_search"
+                    android:backgroundTint="#EBEEF8"
+                    android:textColor="#6378C4"
+                    android:padding="0dp"
+                    android:includeFontPadding="false"
+                    android:textSize="16sp" />
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="하와이  X"
-                android:background="@drawable/button_recent_search"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp"
-                android:includeFontPadding="false"
-                android:backgroundTint="#EBEEF8"
-                android:textColor="#6378C4"
-                android:textSize="16sp"/>
+                <androidx.appcompat.widget.AppCompatButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="아이슬란드  X"
+                    android:background="@drawable/button_recent_search"
+                    android:backgroundTint="#EBEEF8"
+                    android:textColor="#6378C4"
+                    android:textSize="16sp"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp" />
 
-        </LinearLayout>
+                <androidx.appcompat.widget.AppCompatButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="하와이  X"
+                    android:background="@drawable/button_recent_search"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:includeFontPadding="false"
+                    android:backgroundTint="#EBEEF8"
+                    android:textColor="#6378C4"
+                    android:textSize="16sp"/>
+
+            </LinearLayout>
+
+        </HorizontalScrollView>
 
 
 

@@ -80,6 +80,11 @@
         <item name="android:layout_weight">1</item>  <!-- ← 0 이 아니라 1 이어야 칼럼이 나눠집니다 -->
         <item name="android:gravity">center</item>
         <item name="android:textSize">12sp</item>
+        <item name="android:autoSizeTextType">uniform</item>
+        <item name="android:autoSizeMinTextSize">8sp</item>
+        <item name="android:autoSizeMaxTextSize">12sp</item>
+        <item name="android:autoSizeStepGranularity">1sp</item>
+        <item name="android:minWidth">32dp</item>
         <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
 
