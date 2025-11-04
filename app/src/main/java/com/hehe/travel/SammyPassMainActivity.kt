@@ -1,5 +1,6 @@
 package com.hehe.travel
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
@@ -33,13 +34,13 @@ class SammyPassMainActivity : AppCompatActivity() {
         val btnBrowse = findViewById<Button>(R.id.btnBrowse)
 
         btnStart.setOnClickListener {
-            // TODO: Navigate to Sammy Pass questionnaire
-            Toast.makeText(this, "작성 시작하기", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, SammyFirstQuestionActivity::class.java)
+            startActivity(intent)
         }
 
         btnBrowse.setOnClickListener {
-            // TODO: Navigate to main app without completing Sammy Pass
-            Toast.makeText(this, "둘러보기 모드", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, SearchActivity::class.java)
+            startActivity(intent)
         }
     }
 }

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -11,7 +12,9 @@ import androidx.core.view.WindowInsetsCompat
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.firestore
 import com.hehe.travel.databinding.ActivityMainBinding
 import com.hehe.travel.databinding.ActivityMyInfoBinding
 
@@ -26,9 +29,30 @@ class MyInfoActivity : AppCompatActivity() {
         binding = ActivityMyInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-                auth = FirebaseAuth.getInstance()
-        findViewById<TextView>(R.id.tvGreeting).text =
-            auth.currentUser?.displayName?.let { "$it 님" } ?: "내 정보"
+        auth = FirebaseAuth.getInstance()
+
+        val uid = auth.currentUser?.uid
+        if (uid != null) {
+            val docRef = Firebase.firestore.collection("profiles").document(uid)
+            docRef.get().addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val nickname = document.getString("nickname") ?: ""
+
+                    val name = nickname +" 님"
+
+
+                    // ✅ 값들을 UI에 반영
+                    findViewById<TextView>(R.id.tvGreeting).setText(name)
+
+                }
+            }.addOnFailureListener { e ->
+                Toast.makeText(this, "데이터 불러오기 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+
+            findViewById<TextView>(R.id.name1).text =
+                auth.currentUser?.displayName?.let { "$it" }
+        }
 
         findViewById<View>(R.id.cardHistory).setOnClickListener {
             startActivity(Intent(this, TravelHistoryActivity::class.java))
@@ -69,13 +93,11 @@ class MyInfoActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.tab_country -> {
                     startActivity(
-                        Intent(this, SearchActivity::class.java)
-                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+                        Intent(this, SearchActivity::class.java))
                     true
                 }
                 R.id.tab_search -> {
-                    startActivity(Intent(this, StartActivity::class.java)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+                    startActivity(Intent(this, StartActivity::class.java))
                     true
                 }
                 R.id.tab_profile -> {

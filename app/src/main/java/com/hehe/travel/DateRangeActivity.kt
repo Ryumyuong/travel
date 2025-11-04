@@ -2,13 +2,23 @@ package com.hehe.travel
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.firestore
+import com.hehe.travel.Retrofit.retrofit
 import com.hehe.travel.databinding.ActivityDateRangeBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
@@ -21,6 +31,9 @@ class DateRangeActivity : AppCompatActivity() {
     private var curYM: YearMonth = YearMonth.now()
     private lateinit var startUtc: String
     private lateinit var name:String
+    private var gender:String? = ""
+    private var age:Int = 0
+    private lateinit var tags:List<String>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,6 +47,19 @@ class DateRangeActivity : AppCompatActivity() {
 
         startUtc = intent.getStringExtra("country").toString()
         name = intent.getStringExtra("login").toString()
+
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        Firebase.firestore.collection("profiles").document(uid)
+            .get()
+            .addOnSuccessListener { doc ->
+                if (doc.exists()) {
+                    val profile = doc.toObject(Profile::class.java)
+                    gender = profile?.gender ?: ""
+                    age = profile?.ageDecade ?: 0
+                    tags = profile?.tags.orEmpty()
+                    // 여기서 확인 버튼 활성화 등
+                }
+            }
 
     }
 
@@ -107,23 +133,76 @@ class DateRangeActivity : AppCompatActivity() {
                 Toast.makeText(this, "날짜 범위를 선택해주세요.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            val a = minOf(s, e); val b = maxOf(s, e)
-            val startMillis = a.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-            val endMillis = b.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
-            val keywords = collectCheckedChips()
-
-            val country = intent.getStringExtra("countryKey")
-            val go = Intent(this, PlanActivity::class.java).apply {
-                putExtra("startUtcMillis", startMillis)
-                putExtra("endUtcMillis", endMillis)
-                putExtra("countryKey", country)
-                putExtra("country", startUtc)
-                putExtra("login",name)
-                putStringArrayListExtra("keywords", ArrayList(keywords))
+            // 1) 프로필 로딩이 끝났는지 체크 (간단 예: gender가 비었으면 막기)
+            if (gender.isNullOrBlank()) {
+                Toast.makeText(this, "프로필을 불러오는 중입니다. 잠시만요.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
-            startActivity(go)
+
+            val a = minOf(s, e); val b = maxOf(s, e)
+            val startStr = a.toString()
+            val endStr = b.toString()
+
+            val keywords = collectCheckedChips()    // <- 화면에서 체크한 칩들
+
+            val api = retrofit.create(RecommendApi::class.java)
+            val request = RecommendRequest(
+                country = startUtc,
+                startDate = startStr,
+                endDate = endStr,
+                gender = gender,
+                age = age,
+                // 여기!! 의도대로 수정
+                preference = keywords  // 혹은 tags, 의도한 쪽으로
+            )
+
+            lifecycleScope.launch {
+                try {
+                    val response = withContext(Dispatchers.IO) {
+                        api.getRecommendation(request)
+                    }
+
+                    if (response.isSuccessful) {
+                        val body = response.body()
+
+                        // (B) 문자열 응답 우선 처리
+                        if (!body?.result.isNullOrBlank()) {
+                            Log.d("AI_TRIP", "itinerary (text):\n${body?.result}")
+
+                            // (A) days 구조
+                        } else if (body?.success == true && !body.days.isNullOrEmpty()) {
+                            body.days!!.forEach { day ->
+                                Log.d("AI_TRIP", "${day.day}일차 ${day.title} / 장소=${day.places.size}")
+                            }
+
+                        } else {
+                            Log.e("AI_TRIP", "서버 success=false or empty: success=${body?.success}, msg=${body?.message}")
+                        }
+                    } else {
+                        Log.e("AI_TRIP", "HTTP 오류: ${response.code()} ${response.errorBody()?.string()}")
+                    }
+
+
+                    // 네트워크 처리가 끝난 뒤에 화면 전환하고 싶다면 여기에서!
+                    val country = intent.getStringExtra("countryKey")
+                    val go = Intent(this@DateRangeActivity, PlanActivity::class.java).apply {
+                        putExtra("startUtcMillis", startStr)
+                        putExtra("endUtcMillis", endStr)
+                        putExtra("countryKey", country)
+                        putExtra("country", startUtc)
+                        putExtra("login", name)
+                        putStringArrayListExtra("keywords", ArrayList(keywords))
+                        // 필요하면 body 결과도 같이
+                    }
+                    startActivity(go)
+
+                } catch (e: Exception) {
+                    Log.e("AI_TRIP", "요청 실패: ${e.message}")
+                }
+            }
         }
+
     }
 
     private fun collectCheckedChips(): List<String> {

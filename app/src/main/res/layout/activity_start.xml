@@ -66,6 +66,11 @@
 
     </androidx.core.widget.NestedScrollView>
 
+    <View
+        android:id="@+id/bnvShadow"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:background="@drawable/top_shadow" />
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"

@@ -6,22 +6,52 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.firestore
 
 class TravelHistoryActivity : AppCompatActivity() {
     data class Trip(val country: String, val period: String, val memo: String)
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_travel_history)
         setupBottomNav(R.id.tab_profile)
 
-        val rv = findViewById<RecyclerView>(R.id.rvHistory)
+        auth = FirebaseAuth.getInstance()
+
+        val uid = auth.currentUser?.uid
+        if (uid != null) {
+            val docRef = Firebase.firestore.collection("profiles").document(uid)
+            docRef.get().addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val nickname = document.getString("nickname") ?: ""
+                    val name = nickname +" 님"
+                    val nick = name.substring(1)
+
+                    // ✅ 값들을 UI에 반영
+                    findViewById<TextView>(R.id.name).setText(nick)
+
+                }
+            }.addOnFailureListener { e ->
+                Toast.makeText(this, "데이터 불러오기 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+
+            findViewById<TextView>(R.id.name).text =
+                auth.currentUser?.displayName?.substring(1)?.let { "$it 님" }
+        }
+
+
+            val rv = findViewById<RecyclerView>(R.id.rvHistory)
         rv.layoutManager = LinearLayoutManager(this)
         val data = listOf(
             Trip("이탈리아", "2024.05 · 7일", "남부 해안 드라이브"),
@@ -55,14 +85,12 @@ class TravelHistoryActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.tab_country -> {
                     startActivity(
-                        Intent(this, SearchActivity::class.java)
-                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+                        Intent(this, SearchActivity::class.java))
                     true
                 }
                 R.id.tab_search -> {
                     startActivity(
-                        Intent(this, StartActivity::class.java)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+                        Intent(this, StartActivity::class.java))
                     true
                 }
                 R.id.tab_profile -> {

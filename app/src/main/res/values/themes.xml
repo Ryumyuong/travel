@@ -22,12 +22,17 @@
         <item name="android:statusBarColor">@color/neutral_white</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:navigationBarColor">@color/neutral_white</item>
+
+        <item name="elevationOverlayEnabled">false</item>
+        <item name="bottomNavigationStyle">@style/Widget.App.BottomNav</item>
     </style>
 
     <style name="Widget.App.BottomNav" parent="Widget.Material3.BottomNavigationView">
         <item name="itemActiveIndicatorStyle">@style/NoActiveIndicator</item>
         <item name="itemRippleColor">@android:color/transparent</item>
         <item name="android:background">@color/white</item>
+        <item name="backgroundTint">@color/white</item>
+        <item name="elevation">12dp</item>
     </style>
 
     <style name="Theme.Travel" parent="Base.Theme.Travel" />

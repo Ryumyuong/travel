@@ -32,7 +32,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="휴가를 즐기러 온"
+                android:text="휴양를 즐기러 온"
                 android:textStyle="bold"
                 android:textColor="@color/white"/>
             <TextView
@@ -233,7 +233,7 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:layout_marginTop="12dp"
-            android:text="나에게 딱 맞는 여행을 찾았다면?"
+            android:text="나에게 딱 맞는 여행을 원한다면?"
             android:background="@drawable/btn_blue_rounded"
             android:textColor="#FFFFFF"
             android:textSize="13sp"

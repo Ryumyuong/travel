@@ -112,16 +112,10 @@
         <!-- </intent-filter> -->
         <!-- </activity> -->
         <activity
-            android:name=".ItineraryActivity"
-            android:exported="false" />
-        <activity
             android:name=".CuisineActivity"
             android:exported="false" />
         <activity
             android:name=".DestinationActivity"
-            android:exported="false" />
-        <activity
-            android:name=".CountryGuideActivity"
             android:exported="false" />
         <activity
             android:name=".QuestionnaireActivity"
