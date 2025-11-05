@@ -9,19 +9,24 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
+import com.google.common.reflect.TypeToken
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.firestore
+import com.google.gson.GsonBuilder
 import com.hehe.travel.Retrofit.retrofit
 import com.hehe.travel.databinding.ActivityDateRangeBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
+import kotlin.text.get
 
 class DateRangeActivity : AppCompatActivity() {
 
@@ -128,90 +133,92 @@ class DateRangeActivity : AppCompatActivity() {
         binding.btnPrev.setOnClickListener { finish() }
 
         binding.btnConfirm.setOnClickListener {
-            val s = range.start; val e = range.end ?: range.start
+            val s = range.start
+            val e = range.end ?: range.start
             if (s == null || e == null) {
                 Toast.makeText(this, "날짜 범위를 선택해주세요.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // 1) 프로필 로딩이 끝났는지 체크 (간단 예: gender가 비었으면 막기)
+            // 프로필이 아직 안 왔으면 막기
             if (gender.isNullOrBlank()) {
                 Toast.makeText(this, "프로필을 불러오는 중입니다. 잠시만요.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            val a = minOf(s, e); val b = maxOf(s, e)
-            val startStr = a.toString()
-            val endStr = b.toString()
-
-            val keywords = collectCheckedChips()    // <- 화면에서 체크한 칩들
+            val a = minOf(s, e)
+            val b = maxOf(s, e)
+            val startStr = a.toString()   // "YYYY-MM-DD"
+            val endStr   = b.toString()
 
             val api = retrofit.create(RecommendApi::class.java)
-            val request = RecommendRequest(
-                country = startUtc,
-                startDate = startStr,
-                endDate = endStr,
-                gender = gender,
-                age = age,
-                // 여기!! 의도대로 수정
-                preference = keywords  // 혹은 tags, 의도한 쪽으로
-            )
 
             lifecycleScope.launch {
                 try {
-                    val response = withContext(Dispatchers.IO) {
-                        api.getRecommendation(request)
+                    // 1) 토큰 획득 (코루틴에서 await)
+                    val user  = FirebaseAuth.getInstance().currentUser ?: run {
+                        Toast.makeText(this@DateRangeActivity, "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
+                        return@launch
+                    }
+                    val token = user.getIdToken(false).await().token ?: run {
+                        Toast.makeText(this@DateRangeActivity, "토큰 오류", Toast.LENGTH_SHORT).show()
+                        return@launch
                     }
 
-                    if (response.isSuccessful) {
-                        val body = response.body()
+                    // 2) 요청 바디 구성
+                    val request = RecommendRequest(
+                        country = startUtc,
+                        startDate = startStr,
+                        endDate = endStr,
+                        gender = gender,
+                        age = age,
+                        preference = tags           // 혹은 collectCheckedChips() 사용
+                    )
 
-                        // (B) 문자열 응답 우선 처리
-                        if (!body?.result.isNullOrBlank()) {
-                            Log.d("AI_TRIP", "itinerary (text):\n${body?.result}")
-
-                            // (A) days 구조
-                        } else if (body?.success == true && !body.days.isNullOrEmpty()) {
-                            body.days!!.forEach { day ->
-                                Log.d("AI_TRIP", "${day.day}일차 ${day.title} / 장소=${day.places.size}")
-                            }
+                    val resp1 = api.getRecommendationLegacy(request, "Bearer $token")
+                    if (resp1.isSuccessful) {
+                        val rawText = resp1.body()?.result ?: ""
+                        val days = parseDaysFromResult(rawText)
+                        if (!days.isNullOrEmpty()) {
+                            days.forEach { d -> Log.d("AI_TRIP", "${d.day}일차: ${d.title} / 장소=${d.places.map { it.name }}") }
+                                if (days.isNotEmpty()) {
+                                    saveItineraryToHistory(
+                                        country = startUtc,        // 너가 쓰는 나라 값
+                                        startDate = startStr,      // "YYYY-MM-DD"
+                                        endDate   = endStr,
+                                        days = days,
+                                        onDone = { tripId ->
+                                            Log.d("AI_TRIP", "히스토리 저장 완료: $tripId")
+                                            val countryKey = intent.getStringExtra("countryKey")
+                                            val go = Intent(this@DateRangeActivity, PlanActivity::class.java).apply {
+                                                putExtra("startUtcMillis", startStr)
+                                                putExtra("endUtcMillis", endStr)
+                                                putExtra("countryKey", countryKey)
+                                                putExtra("country", startUtc)
+                                                putExtra("login", name)
+                                                putStringArrayListExtra("keywords", ArrayList(tags))
+                                            }
+                                            startActivity(go)
+                                        },
+                                        onError = { e ->
+                                            Log.e("AI_TRIP", "히스토리 저장 실패: ${e.message}")
+                                        }
+                                    )
+                                }
 
                         } else {
-                            Log.e("AI_TRIP", "서버 success=false or empty: success=${body?.success}, msg=${body?.message}")
+                            Log.e("AI_TRIP", "파싱 실패 또는 빈 일정")
                         }
-                    } else {
-                        Log.e("AI_TRIP", "HTTP 오류: ${response.code()} ${response.errorBody()?.string()}")
                     }
 
 
-                    // 네트워크 처리가 끝난 뒤에 화면 전환하고 싶다면 여기에서!
-                    val country = intent.getStringExtra("countryKey")
-                    val go = Intent(this@DateRangeActivity, PlanActivity::class.java).apply {
-                        putExtra("startUtcMillis", startStr)
-                        putExtra("endUtcMillis", endStr)
-                        putExtra("countryKey", country)
-                        putExtra("country", startUtc)
-                        putExtra("login", name)
-                        putStringArrayListExtra("keywords", ArrayList(keywords))
-                        // 필요하면 body 결과도 같이
-                    }
-                    startActivity(go)
-
+                } catch (e: HttpException) {
+                    Log.e("AI_TRIP", "네트워크 오류: ${e.code()} ${e.message()}")
                 } catch (e: Exception) {
                     Log.e("AI_TRIP", "요청 실패: ${e.message}")
                 }
             }
         }
-
-    }
-
-    private fun collectCheckedChips(): List<String> {
-        val list = mutableListOf<String>()
-        for (i in 0 until binding.chipGroup.childCount) {
-            val v = binding.chipGroup.getChildAt(i)
-            if (v is Chip && v.isChecked) list += v.text.toString()
-        }
-        return list
     }
 
     private fun setupBottomNav() {
@@ -233,5 +240,73 @@ class DateRangeActivity : AppCompatActivity() {
                 else -> false
             }
         }
+    }
+
+    private fun extractJsonArray(text: String): String? {
+        val rx = Regex("```json\\s*(.*?)\\s*```", RegexOption.DOT_MATCHES_ALL)
+        return rx.find(text)?.groupValues?.get(1)
+    }
+
+    private fun parseDaysFromResult(resultText: String): List<DayPlan>? {
+        val json = extractJsonArray(resultText) ?: return null
+        return try {
+            val gson = GsonBuilder()
+                .registerTypeAdapter(Place::class.java, PlaceAdapter())
+                .create()
+            val type = object : TypeToken<List<DayPlan>>() {}.type
+            gson.fromJson<List<DayPlan>>(json, type)
+        } catch (e: Exception) {
+            Log.e("AI_TRIP", "JSON 파싱 실패: ${e.message}")
+            null
+        }
+    }
+
+    private fun saveItineraryToHistory(
+        country: String,
+        startDate: String,   // "YYYY-MM-DD"
+        endDate: String,     // "YYYY-MM-DD"
+        days: List<DayPlan>, // 파싱된 결과
+        onDone: (String) -> Unit = {}, // 저장된 문서ID 콜백
+        onError: (Exception) -> Unit = {}
+    ) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+            ?: return onError(IllegalStateException("로그인이 필요합니다."))
+
+        // Firestore에 넣기 좋은 형태로 변환
+        val daysMap = days.map { d ->
+            mapOf(
+                "day" to d.day,
+                "title" to d.title,
+                // Place 객체 → 문자열 배열로 저장(원하면 객체 배열 그대로 넣어도 OK)
+                "places" to d.places.map { it.name }
+            )
+        }
+
+        val doc = hashMapOf(
+            "uid" to uid,
+            "country" to country,
+            "startDate" to startDate,
+            "endDate" to endDate,
+            "nights" to (/* (end-start) */ kotlin.runCatching {
+                val s = java.time.LocalDate.parse(startDate)
+                val e = java.time.LocalDate.parse(endDate)
+                java.time.temporal.ChronoUnit.DAYS.between(s, e).toInt()
+            }.getOrDefault(0)),
+            "daysCount" to days.size,
+            "days" to daysMap, // 👈 한 문서에 통째로 저장
+            "createdAt" to FieldValue.serverTimestamp()
+        )
+
+        Firebase.firestore
+            .collection("history")
+            .document(uid)
+            .collection("trips")
+            .add(doc)
+            .addOnSuccessListener { ref ->
+                onDone(ref.id) // 저장된 trip 문서ID
+            }
+            .addOnFailureListener { e ->
+                onError(e)
+            }
     }
 }
