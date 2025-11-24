@@ -52,7 +52,7 @@ class PlanActivity : AppCompatActivity() {
 
 
 
-        binding.name.text = "${name}님의"
+        binding.name.text = " ${name}님의\n"
         binding.country.text = country
 
         binding.btnPrev.setOnClickListener {

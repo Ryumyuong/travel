@@ -5,19 +5,17 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.firestore
 import com.hehe.travel.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -81,9 +79,6 @@ class MainActivity : AppCompatActivity() {
         googleSignInButton.setOnClickListener {
             Log.d("lmj","버튼 클릭")
             startGoogleSignIn()
-//            val intent = Intent(this, SearchActivity::class.java)
-//            startActivity(intent)
-//            finish()
 
         }
     }
@@ -120,36 +115,43 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun firebaseAuthWithGoogle(idToken: String) {
-        Log.d("lmj","권한도착")
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Sign in success
-                    val user = auth.currentUser
-                    Log.d("lmj","유저 : $user")
-                    navigateToSearch()
+                    routeAfterLogin()   // ✅ 로그인 성공 후 분기
                 } else {
-                    // Sign in failed
-                    Log.d("lmj","로그인오류 : ${task.exception?.printStackTrace()}")
-                    task.exception?.printStackTrace()
+                    Log.e("lmj", "로그인 실패", task.exception)
                 }
             }
     }
 
-    private fun navigateToSearch() {
-        val intent = Intent(this, SearchActivity::class.java)
-        startActivity(intent)
-        finish()
+    private fun routeAfterLogin() {
+        val uid = auth.currentUser?.uid ?: return
+        Firebase.firestore.collection("profiles").document(uid)
+            .get()
+            .addOnSuccessListener { doc ->
+                if (doc.exists()) {
+                    // 이미 한 번 등록 완료 → 바로 검색 화면
+                    startActivity(Intent(this, SearchActivity::class.java))
+                } else {
+                    // 첫 로그인(아직 프로필 없음) → 패스/첫 질문 화면
+                    startActivity(Intent(this, SammyPassMainActivity::class.java))
+                }
+                finish()
+            }
+            .addOnFailureListener { e ->
+                Log.e("lmj", "프로필 조회 실패", e)
+                // 실패 시 보수적으로 프로필 화면으로 보냄
+                startActivity(Intent(this, SammyPassMainActivity::class.java))
+                finish()
+            }
     }
 
     override fun onStart() {
         super.onStart()
-        // Check if user is signed in
-        val currentUser = auth.currentUser
-
-        if (currentUser != null) {
-            navigateToSearch()
+        if (auth.currentUser != null) {
+            routeAfterLogin()   // ✅ 이미 로그인된 경우도 동일 분기
         }
     }
 }

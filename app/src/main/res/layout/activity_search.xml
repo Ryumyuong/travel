@@ -4,7 +4,9 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/white"
+    android:clipToPadding="false"
+    android:clipChildren="false">
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -65,17 +67,21 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@drawable/custom_edittext_bg">
+                android:background="@null">
 
                 <EditText
                     android:id="@+id/etSearchCountry"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="나라 검색 (예: 이탈리아 / italy)"
+                    android:hint="가고 싶은 나라 검색"
+                    android:includeFontPadding="false"
                     android:imeOptions="actionSearch"
                     android:inputType="text"
                     android:singleLine="true"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
                     android:background="@color/transparent"
                     android:paddingRight="50dp"/>
 
@@ -141,7 +147,6 @@
                     android:background="@drawable/button_recent_search"
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp"
-                    android:includeFontPadding="false"
                     android:backgroundTint="#EBEEF8"
                     android:textColor="#6378C4"
                     android:textSize="16sp"/>
@@ -203,20 +208,20 @@
 
     </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
+    <View
+        android:id="@+id/bnvShadow"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:background="@drawable/top_shadow" />
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
+        style="@style/Widget.App.BottomNav"
         app:menu="@menu/menu_bottom_three"
         app:itemIconTint="@null"
-        app:itemTextColor="@color/bnv_text_color"
-
-        app:itemRippleColor="@android:color/transparent"
-        app:itemBackground="@android:color/transparent"
-        android:background="@color/white"
-        app:itemActiveIndicatorStyle="@style/NoActiveIndicator"/>
+        app:itemTextColor="@color/bnv_text_color"/>
 
 
 </LinearLayout>

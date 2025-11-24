@@ -41,8 +41,7 @@ class StartActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.tab_country -> {
                     startActivity(
-                        Intent(this, SearchActivity::class.java)
-                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+                        Intent(this, SearchActivity::class.java))
                     true
                 }
                 R.id.tab_search -> {
@@ -51,8 +50,7 @@ class StartActivity : AppCompatActivity() {
                     true
                 }
                 R.id.tab_profile -> {
-                    startActivity(Intent(this, MyInfoActivity::class.java)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+                    startActivity(Intent(this, MyInfoActivity::class.java))
                     true
                 }
                 else -> false
