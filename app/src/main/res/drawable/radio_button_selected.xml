@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 외부 원 -->
+    <item>
+        <shape android:shape="oval">
+            <size android:width="20dp" android:height="20dp"/>
+            <stroke android:width="2dp" android:color="#3653AE"/>
+            <solid android:color="#FFFFFF"/>
+        </shape>
+    </item>
+    <!-- 내부 채워진 원 -->
+    <item android:top="5dp" android:bottom="5dp" android:left="5dp" android:right="5dp">
+        <shape android:shape="oval">
+            <solid android:color="#3653AE"/>
+        </shape>
+    </item>
+</layer-list>

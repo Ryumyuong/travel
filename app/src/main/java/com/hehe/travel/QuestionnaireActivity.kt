@@ -222,11 +222,11 @@ class QuestionnaireActivity : AppCompatActivity() {
 
     private fun updateProgressIndicators() {
         for (i in progressIndicators.indices) {
-            progressIndicators[i].setBackgroundColor(
+            progressIndicators[i].setBackgroundResource(
                 if (i < currentStep) {
-                    android.graphics.Color.parseColor("#3653AE")
+                    R.drawable.progress_indicator_active
                 } else {
-                    android.graphics.Color.parseColor("#E5E7EB")
+                    R.drawable.progress_indicator_bg
                 }
             )
         }
