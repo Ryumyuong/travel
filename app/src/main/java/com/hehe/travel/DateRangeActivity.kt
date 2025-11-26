@@ -6,27 +6,23 @@ import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
-import com.google.common.reflect.TypeToken
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.firestore
-import com.google.gson.GsonBuilder
-import com.hehe.travel.Retrofit.retrofit
 import com.hehe.travel.databinding.ActivityDateRangeBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
-import retrofit2.HttpException
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.IOException
 import java.time.LocalDate
 import java.time.YearMonth
-import java.time.ZoneId
-import kotlin.text.get
+import java.time.temporal.ChronoUnit
+import java.util.concurrent.TimeUnit
 
 class DateRangeActivity : AppCompatActivity() {
 
@@ -34,12 +30,30 @@ class DateRangeActivity : AppCompatActivity() {
     private lateinit var adapter: DayAdapter
     private val range = RangeState()
     private var curYM: YearMonth = YearMonth.now()
-    private lateinit var startUtc: String
-    private lateinit var name:String
-    private var gender:String? = ""
-    private var age:Int = 0
-    private lateinit var tags:List<String>
+    private lateinit var countryName: String
+    private lateinit var userName: String
 
+    // ⭐ 타임아웃 60초로 설정 (기본값 10초 → 60초)
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(60, TimeUnit.SECONDS)
+        .readTimeout(60, TimeUnit.SECONDS)
+        .writeTimeout(60, TimeUnit.SECONDS)
+        .build()
+
+    // Gemini API Key
+    private val GEMINI_API_KEY = "AIzaSyBnuHvwMS-h7v_i8oRgfE_4iLfEBPAtjXI"
+
+    // Profile 데이터
+    private var gender: String = ""
+    private var age: Int = 0
+    private var profileTags: List<String> = emptyList()
+
+    // 여행 취향 데이터
+    private var travelStyle: String = ""
+    private var travelTraits: List<String> = emptyList()
+
+    // 로딩 상태
+    private var isLoading = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,41 +64,53 @@ class DateRangeActivity : AppCompatActivity() {
         setupButtons()
         setupBottomNav()
 
-        startUtc = intent.getStringExtra("country").toString()
-        name = intent.getStringExtra("login").toString()
+        countryName = intent.getStringExtra("country") ?: ""
+        userName = intent.getStringExtra("login") ?: ""
 
+        // Profile + 여행취향 데이터 로드
+        loadUserData()
+    }
+
+    // Profile과 여행취향 데이터 함께 로드
+    private fun loadUserData() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        // 1. Profile 로드
         Firebase.firestore.collection("profiles").document(uid)
             .get()
             .addOnSuccessListener { doc ->
                 if (doc.exists()) {
-                    val profile = doc.toObject(Profile::class.java)
-                    gender = profile?.gender ?: ""
-                    age = profile?.ageDecade ?: 0
-                    tags = profile?.tags.orEmpty()
-                    // 여기서 확인 버튼 활성화 등
+                    gender = doc.getString("gender") ?: ""
+                    age = doc.getLong("ageDecade")?.toInt() ?: 0
+                    profileTags = doc.get("purposes") as? List<String> ?: emptyList()
+                    userName = doc.getString("nickname") ?: userName
+                    Log.d("DateRange", "Profile 로드: gender=$gender, age=$age")
                 }
             }
 
+        // 2. 여행 취향 로드
+        Firebase.firestore.collection("mbti").document(uid)
+            .get()
+            .addOnSuccessListener { doc ->
+                if (doc.exists()) {
+                    travelStyle = doc.getString("travelStyle") ?: ""
+                    travelTraits = doc.get("travelTraits") as? List<String> ?: emptyList()
+                    Log.d("DateRange", "여행 취향 로드: $travelStyle")
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("DateRange", "여행취향 로드 실패: ${e.message}")
+            }
     }
 
     private fun setupCalendar(rv: RecyclerView, tvMonth: TextView) {
         rv.setupCalendarGrid()
         adapter = DayAdapter(range) { onDayClick(it) }
         rv.adapter = adapter
-        val barColor = getColor(R.color.range_bar_12) // 연한 파란 배경 색 (예: #E8EEF9 계열로)
+        val barColor = getColor(R.color.range_bar_12)
 
         binding.rvCalendar.addItemDecoration(RangeCapsuleDecoration(range, barColor))
-
-
         renderMonth(tvMonth)
-
-        rv.setupCalendarGrid()
-        adapter = DayAdapter(range) { onDayClick(it) }
-        rv.adapter = adapter
-        renderMonth(tvMonth)
-
-
 
         binding.btnPrevMonth.setOnClickListener {
             curYM = curYM.minusMonths(1)
@@ -103,13 +129,11 @@ class DateRangeActivity : AppCompatActivity() {
     }
 
     private fun onDayClick(date: LocalDate) {
-        // 범위 선택 토글: start 비었으면 start, 있으면 end 설정, 둘 다 있으면 초기화 후 start
         if (range.start == null) {
             range.start = date
             range.end = null
         } else if (range.end == null) {
             range.end = date
-            // start > end인 경우도 허용(표시는 내부에서 자동 정렬)
         } else {
             range.start = date
             range.end = null
@@ -119,7 +143,8 @@ class DateRangeActivity : AppCompatActivity() {
     }
 
     private fun updatePickedText() {
-        val s = range.start; val e = range.end ?: range.start
+        val s = range.start
+        val e = range.end ?: range.start
         binding.tvPicked.text = if (s == null) {
             "기간을 선택해주세요."
         } else {
@@ -129,10 +154,25 @@ class DateRangeActivity : AppCompatActivity() {
         }
     }
 
+    // 선택한 키워드 수집
+    private fun collectCheckedChips(): List<String> {
+        val chipGroup = binding.chipGroup
+        val checkedList = mutableListOf<String>()
+        for (i in 0 until chipGroup.childCount) {
+            val chip = chipGroup.getChildAt(i) as? Chip
+            if (chip?.isChecked == true) {
+                checkedList.add(chip.text.toString())
+            }
+        }
+        return checkedList
+    }
+
     private fun setupButtons() {
         binding.btnPrev.setOnClickListener { finish() }
 
         binding.btnConfirm.setOnClickListener {
+            if (isLoading) return@setOnClickListener
+
             val s = range.start
             val e = range.end ?: range.start
             if (s == null || e == null) {
@@ -140,85 +180,300 @@ class DateRangeActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // 프로필이 아직 안 왔으면 막기
-            if (gender.isNullOrBlank()) {
-                Toast.makeText(this, "프로필을 불러오는 중입니다. 잠시만요.", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
             val a = minOf(s, e)
             val b = maxOf(s, e)
-            val startStr = a.toString()   // "YYYY-MM-DD"
-            val endStr   = b.toString()
+            val startStr = a.toString()
+            val endStr = b.toString()
+            val nights = ChronoUnit.DAYS.between(a, b).toInt()
 
-            val api = retrofit.create(RecommendApi::class.java)
+            // 선택한 키워드 수집
+            val selectedKeywords = collectCheckedChips()
 
-            lifecycleScope.launch {
-                try {
-                    // 1) 토큰 획득 (코루틴에서 await)
-                    val user  = FirebaseAuth.getInstance().currentUser ?: run {
-                        Toast.makeText(this@DateRangeActivity, "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
-                        return@launch
-                    }
-                    val token = user.getIdToken(false).await().token ?: run {
-                        Toast.makeText(this@DateRangeActivity, "토큰 오류", Toast.LENGTH_SHORT).show()
-                        return@launch
-                    }
+            // Gemini AI 호출
+            generateItineraryWithGemini(
+                country = countryName,
+                startDate = startStr,
+                endDate = endStr,
+                nights = nights,
+                keywords = selectedKeywords
+            )
+        }
+    }
 
-                    // 2) 요청 바디 구성
-                    val request = RecommendRequest(
-                        country = startUtc,
-                        startDate = startStr,
-                        endDate = endStr,
-                        gender = gender,
-                        age = age,
-                        preference = tags           // 혹은 collectCheckedChips() 사용
-                    )
+    // Gemini AI로 여행 일정 생성
+    private fun generateItineraryWithGemini(
+        country: String,
+        startDate: String,
+        endDate: String,
+        nights: Int,
+        keywords: List<String>
+    ) {
+        isLoading = true
+        binding.btnConfirm.text = "AI가 일정 생성 중..."
+        binding.btnConfirm.isEnabled = false
 
-                    val resp1 = api.getRecommendationLegacy(request, "Bearer $token")
-                    if (resp1.isSuccessful) {
-                        val rawText = resp1.body()?.result ?: ""
-                        val days = parseDaysFromResult(rawText)
-                        if (!days.isNullOrEmpty()) {
-                            days.forEach { d -> Log.d("AI_TRIP", "${d.day}일차: ${d.title} / 장소=${d.places.map { it.name }}") }
-                                if (days.isNotEmpty()) {
-                                    saveItineraryToHistory(
-                                        country = startUtc,        // 너가 쓰는 나라 값
-                                        startDate = startStr,      // "YYYY-MM-DD"
-                                        endDate   = endStr,
-                                        days = days,
-                                        onDone = { tripId ->
-                                            Log.d("AI_TRIP", "히스토리 저장 완료: $tripId")
-                                            val countryKey = intent.getStringExtra("countryKey")
-                                            val go = Intent(this@DateRangeActivity, PlanActivity::class.java).apply {
-                                                putExtra("startUtcMillis", startStr)
-                                                putExtra("endUtcMillis", endStr)
-                                                putExtra("countryKey", countryKey)
-                                                putExtra("country", startUtc)
-                                                putExtra("login", name)
-                                                putStringArrayListExtra("keywords", ArrayList(tags))
-                                            }
-                                            startActivity(go)
-                                        },
-                                        onError = { e ->
-                                            Log.e("AI_TRIP", "히스토리 저장 실패: ${e.message}")
-                                        }
-                                    )
-                                }
+        val prompt = buildPrompt(country, startDate, endDate, nights, keywords)
 
-                        } else {
-                            Log.e("AI_TRIP", "파싱 실패 또는 빈 일정")
-                        }
-                    }
+        val jsonBody = JSONObject().apply {
+            put("contents", JSONArray().apply {
+                put(JSONObject().apply {
+                    put("parts", JSONArray().apply {
+                        put(JSONObject().apply {
+                            put("text", prompt)
+                        })
+                    })
+                })
+            })
+            put("generationConfig", JSONObject().apply {
+                put("temperature", 0.7)
+                put("maxOutputTokens", 4096)
+            })
+        }
 
+        val request = Request.Builder()
+            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$GEMINI_API_KEY")
+            .post(jsonBody.toString().toRequestBody("application/json".toMediaType()))
+            .build()
 
-                } catch (e: HttpException) {
-                    Log.e("AI_TRIP", "네트워크 오류: ${e.code()} ${e.message()}")
-                } catch (e: Exception) {
-                    Log.e("AI_TRIP", "요청 실패: ${e.message}")
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("Gemini", "API 호출 실패: ${e.message}")
+                runOnUiThread {
+                    isLoading = false
+                    binding.btnConfirm.text = "선택완료"
+                    binding.btnConfirm.isEnabled = true
+                    Toast.makeText(this@DateRangeActivity, "AI 호출 실패: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                Log.d("Gemini", "응답 코드: ${response.code}")
+                Log.d("Gemini", "응답: $responseBody")
+
+                runOnUiThread {
+                    isLoading = false
+                    binding.btnConfirm.text = "선택완료"
+                    binding.btnConfirm.isEnabled = true
+
+                    if (response.isSuccessful && responseBody != null) {
+                        parseAndNavigate(responseBody, country, startDate, endDate, nights, keywords)
+                    } else {
+                        Toast.makeText(this@DateRangeActivity, "AI 응답 오류: ${response.code}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+    }
+
+    // AI 프롬프트 생성
+    private fun buildPrompt(
+        country: String,
+        startDate: String,
+        endDate: String,
+        nights: Int,
+        keywords: List<String>
+    ): String {
+        val keywordText = if (keywords.isNotEmpty()) keywords.joinToString(", ") else "일반 관광"
+        val days = nights + 1
+
+        // 여행 취향 설명
+        val travelStyleDesc = buildTravelStyleDesc()
+
+        return """
+당신은 전문 여행 플래너입니다. 다음 사용자 정보를 바탕으로 ${country} ${nights}박 ${days}일 여행 일정을 생성해주세요.
+
+[사용자 정보]
+- 이름: $userName
+- 성별: $gender
+- 연령대: ${age}대
+- 여행지: $country
+- 기간: $startDate ~ $endDate (${nights}박 ${days}일)
+- 선호 키워드: $keywordText
+
+[여행 취향]
+$travelStyleDesc
+
+[요청 형식]
+다음 JSON 형식으로만 응답해주세요. 다른 텍스트 없이 JSON만 출력하세요:
+
+```json
+[
+    {
+        "day": 1,
+        "title": "1일차 테마 제목",
+        "places": [
+            {
+                "name": "장소명",
+                "description": "장소 설명 (20자 내외)",
+                "time": "09:00",
+                "duration": "2시간",
+                "tip": "꿀팁"
+            }
+        ]
+    },
+    {
+        "day": 2,
+        "title": "2일차 테마 제목",
+        "places": [...]
+    }
+]
+```
+
+각 일차별로 3~5개 장소를 추천해주세요.
+사용자의 여행 취향과 선호 키워드에 맞는 장소를 추천해주세요.
+실제 존재하는 장소만 추천해주세요.
+        """.trimIndent()
+    }
+
+    // 여행 취향 설명 생성
+    private fun buildTravelStyleDesc(): String {
+        if (travelTraits.isEmpty()) return "여행 취향 정보 없음 - 균형 잡힌 일정으로 추천해주세요."
+
+        val descriptions = mutableListOf<String>()
+
+        travelTraits.forEach { trait ->
+            val desc = when {
+                trait.contains("계획적") -> "- 계획적인 여행자: 체계적인 일정 선호, 예약 필수 장소 포함"
+                trait.contains("즉흥적") -> "- 즉흥적인 여행자: 유연한 일정, 자유 시간 포함"
+                trait.contains("활동적") -> "- 활동적인 여행자: 다양한 액티비티, 빠듯한 일정 OK"
+                trait.contains("여유로운") -> "- 여유로운 여행자: 느긋한 일정, 카페/휴식 시간 포함"
+                trait.contains("모험") -> "- 모험을 즐기는 여행자: 현지인 맛집, 숨은 명소 추천"
+                trait.contains("안정") -> "- 안정을 추구하는 여행자: 검증된 관광지, 안전한 코스"
+                trait.contains("어울리는") -> "- 사람들과 어울리는 여행자: 현지 투어, 그룹 액티비티 추천"
+                trait.contains("조용히") -> "- 조용히 즐기는 여행자: 한적한 장소, 프라이빗한 경험"
+                else -> "- $trait"
+            }
+            descriptions.add(desc)
         }
+
+        return descriptions.joinToString("\n")
+    }
+
+    // 응답 파싱 및 화면 이동
+    private fun parseAndNavigate(
+        responseBody: String,
+        country: String,
+        startDate: String,
+        endDate: String,
+        nights: Int,
+        keywords: List<String>
+    ) {
+        try {
+            val json = JSONObject(responseBody)
+            val candidates = json.getJSONArray("candidates")
+            val content = candidates.getJSONObject(0)
+                .getJSONObject("content")
+                .getJSONArray("parts")
+                .getJSONObject(0)
+                .getString("text")
+
+            // JSON 파싱 (```json ... ``` 제거)
+            val cleanJson = content
+                .replace("```json", "")
+                .replace("```", "")
+                .trim()
+
+            Log.d("Gemini", "파싱된 JSON: $cleanJson")
+
+            val daysArray = JSONArray(cleanJson)
+            val daysList = mutableListOf<DayPlanData>()
+
+            for (i in 0 until daysArray.length()) {
+                val dayObj = daysArray.getJSONObject(i)
+                val day = dayObj.getInt("day")
+                val title = dayObj.getString("title")
+                val placesArray = dayObj.getJSONArray("places")
+
+                val places = mutableListOf<PlaceData>()
+                for (j in 0 until placesArray.length()) {
+                    val placeObj = placesArray.getJSONObject(j)
+                    places.add(PlaceData(
+                        name = placeObj.getString("name"),
+                        description = placeObj.optString("description", ""),
+                        time = placeObj.optString("time", ""),
+                        duration = placeObj.optString("duration", ""),
+                        tip = placeObj.optString("tip", "")
+                    ))
+                }
+
+                daysList.add(DayPlanData(day, title, places))
+            }
+
+            // Firebase에 저장
+            saveItineraryToHistory(country, startDate, endDate, nights, daysList, keywords)
+
+            // PlanActivity로 이동
+            val intent = Intent(this, PlanActivity::class.java).apply {
+                putExtra("country", country)
+                putExtra("login", userName)
+                putExtra("startDate", startDate)
+                putExtra("endDate", endDate)
+                putExtra("nights", nights)
+                putExtra("travelStyle", travelStyle)
+                putStringArrayListExtra("keywords", ArrayList(keywords))
+                putExtra("itineraryJson", cleanJson)
+            }
+            startActivity(intent)
+
+        } catch (e: Exception) {
+            Log.e("Gemini", "파싱 실패: ${e.message}")
+            e.printStackTrace()
+            Toast.makeText(this, "일정 생성 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Firebase history에 저장
+    private fun saveItineraryToHistory(
+        country: String,
+        startDate: String,
+        endDate: String,
+        nights: Int,
+        days: List<DayPlanData>,
+        keywords: List<String>
+    ) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        val daysMap = days.map { d ->
+            mapOf(
+                "day" to d.day,
+                "title" to d.title,
+                "places" to d.places.map { p ->
+                    mapOf(
+                        "name" to p.name,
+                        "description" to p.description,
+                        "time" to p.time,
+                        "duration" to p.duration,
+                        "tip" to p.tip
+                    )
+                }
+            )
+        }
+
+        val doc = hashMapOf(
+            "uid" to uid,
+            "country" to country,
+            "startDate" to startDate,
+            "endDate" to endDate,
+            "nights" to nights,
+            "daysCount" to days.size,
+            "days" to daysMap,
+            "travelStyle" to travelStyle,
+            "keywords" to keywords,
+            "createdAt" to FieldValue.serverTimestamp()
+        )
+
+        Firebase.firestore
+            .collection("history")
+            .document(uid)
+            .collection("trips")
+            .add(doc)
+            .addOnSuccessListener { ref ->
+                Log.d("Gemini", "히스토리 저장 완료: ${ref.id}")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Gemini", "히스토리 저장 실패: ${e.message}")
+            }
     }
 
     private fun setupBottomNav() {
@@ -228,7 +483,7 @@ class DateRangeActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.tab_country -> true
                 R.id.tab_search -> {
-                    startActivity(Intent(this, StartActivity::class.java)
+                    startActivity(Intent(this, QuestionnaireActivity::class.java)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
                     true
                 }
@@ -240,73 +495,5 @@ class DateRangeActivity : AppCompatActivity() {
                 else -> false
             }
         }
-    }
-
-    private fun extractJsonArray(text: String): String? {
-        val rx = Regex("```json\\s*(.*?)\\s*```", RegexOption.DOT_MATCHES_ALL)
-        return rx.find(text)?.groupValues?.get(1)
-    }
-
-    private fun parseDaysFromResult(resultText: String): List<DayPlan>? {
-        val json = extractJsonArray(resultText) ?: return null
-        return try {
-            val gson = GsonBuilder()
-                .registerTypeAdapter(Place::class.java, PlaceAdapter())
-                .create()
-            val type = object : TypeToken<List<DayPlan>>() {}.type
-            gson.fromJson<List<DayPlan>>(json, type)
-        } catch (e: Exception) {
-            Log.e("AI_TRIP", "JSON 파싱 실패: ${e.message}")
-            null
-        }
-    }
-
-    private fun saveItineraryToHistory(
-        country: String,
-        startDate: String,   // "YYYY-MM-DD"
-        endDate: String,     // "YYYY-MM-DD"
-        days: List<DayPlan>, // 파싱된 결과
-        onDone: (String) -> Unit = {}, // 저장된 문서ID 콜백
-        onError: (Exception) -> Unit = {}
-    ) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
-            ?: return onError(IllegalStateException("로그인이 필요합니다."))
-
-        // Firestore에 넣기 좋은 형태로 변환
-        val daysMap = days.map { d ->
-            mapOf(
-                "day" to d.day,
-                "title" to d.title,
-                // Place 객체 → 문자열 배열로 저장(원하면 객체 배열 그대로 넣어도 OK)
-                "places" to d.places.map { it.name }
-            )
-        }
-
-        val doc = hashMapOf(
-            "uid" to uid,
-            "country" to country,
-            "startDate" to startDate,
-            "endDate" to endDate,
-            "nights" to (/* (end-start) */ kotlin.runCatching {
-                val s = java.time.LocalDate.parse(startDate)
-                val e = java.time.LocalDate.parse(endDate)
-                java.time.temporal.ChronoUnit.DAYS.between(s, e).toInt()
-            }.getOrDefault(0)),
-            "daysCount" to days.size,
-            "days" to daysMap, // 👈 한 문서에 통째로 저장
-            "createdAt" to FieldValue.serverTimestamp()
-        )
-
-        Firebase.firestore
-            .collection("history")
-            .document(uid)
-            .collection("trips")
-            .add(doc)
-            .addOnSuccessListener { ref ->
-                onDone(ref.id) // 저장된 trip 문서ID
-            }
-            .addOnFailureListener { e ->
-                onError(e)
-            }
     }
 }

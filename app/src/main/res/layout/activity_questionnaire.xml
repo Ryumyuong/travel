@@ -18,6 +18,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
             android:layout_marginBottom="24dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
@@ -241,38 +242,26 @@
 
                 </LinearLayout>
 
-
             </androidx.cardview.widget.CardView>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Navigation Buttons -->
+    <!-- 이전 버튼만 (다음 버튼 제거) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
-        android:orientation="horizontal"
+        android:gravity="left"
         android:paddingHorizontal="48dp"
         android:paddingVertical="16dp">
 
         <Button
             android:id="@+id/btn_prev"
-            android:layout_width="0dp"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_weight="1"
             android:backgroundTint="#EBEEF8"
             android:text="이전"
             android:textColor="#6378C4" />
-
-        <Button
-            android:id="@+id/btn_next"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:text="다음"
-            android:textColor="#FFFFFF" />
 
     </LinearLayout>
 
@@ -284,7 +273,6 @@
         android:background="@color/white"
         app:itemActiveIndicatorStyle="@style/NoActiveIndicator"
         app:itemBackground="@android:color/transparent"
-
         app:itemIconTint="@null"
         app:itemRippleColor="@android:color/transparent"
         app:itemTextColor="@color/bnv_text_color"

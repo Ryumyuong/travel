@@ -23,39 +23,23 @@
         android:theme="@style/Theme.Travel"
         tools:targetApi="31">
         <activity
+            android:name=".TravelResultActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SemiPassChoiceActivity"
+            android:exported="false" />
+        <activity
             android:name=".MyInfoDetailActivity"
             android:exported="false" />
         <activity
             android:name=".PlanActivity"
             android:exported="false" /> <!-- <activity -->
-        <!-- android:name=".PlanActivity" -->
-        <!-- android:exported="true"> -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="android.intent.action.MAIN" /> -->
-        <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-        <!-- </intent-filter> -->
-        <!-- </activity> -->
         <activity
             android:name=".DateRangeActivity"
             android:exported="false" /> <!-- <activity -->
-        <!-- android:name=".DateRangeActivity" -->
-        <!-- android:exported="true"> -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="android.intent.action.MAIN" /> -->
-        <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-        <!-- </intent-filter> -->
-        <!-- </activity> -->
         <activity
             android:name=".StartActivity"
             android:exported="false" /> <!-- test -->
-        <!-- <activity -->
-        <!-- android:name=".StartActivity" -->
-        <!-- android:exported="true"/> -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="android.intent.action.MAIN" /> -->
-        <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-        <!-- </intent-filter> -->
-        <!-- </activity> -->
         <activity
             android:name=".PreferenceRecommendActivity"
             android:exported="false" />
@@ -71,19 +55,6 @@
         <activity
             android:name=".SearchActivity"
             android:exported="false" />
-
-        <!-- <activity -->
-        <!-- android:name=".SearchActivity" -->
-        <!-- android:exported="true"> -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="android.intent.action.MAIN" /> -->
-        <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-        <!-- </intent-filter> -->
-        <!-- </activity> -->
-
-        <activity
-            android:name=".ItineraryActivity"
-            android:exported="false" />
         <activity
             android:name=".CuisineActivity"
             android:exported="false" />
@@ -91,23 +62,17 @@
             android:name=".DestinationActivity"
             android:exported="false" />
         <activity
-            android:name=".CountryGuideActivity"
+            android:name=".QuestionnaireActivity"
             android:exported="false" />
-
-         <activity
-         android:name=".QuestionnaireActivity"
-         android:exported="false" />
-
-<!--        <activity-->
-<!--            android:name=".QuestionnaireActivity"-->
-<!--            android:exported="true">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-<!--        </activity>-->
-
+        <activity
+            android:name=".SammyPassMainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SammyFirstQuestionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SammySecondQuestionActivity"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">

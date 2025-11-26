@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="8dp"
+    android:background="@color/white"
     android:paddingBottom="16dp">
 
     <View
@@ -11,7 +12,7 @@
         android:layout_width="2dp"
         android:layout_height="95dp"
         android:layout_marginStart="18dp"
-        android:layout_marginTop="68dp"
+        android:layout_marginTop="38dp"
         android:background="@drawable/timeline_dotted_line"
         android:layout_alignParentStart="true" />
 
@@ -20,7 +21,6 @@
         android:layout_width="38dp"
         android:layout_height="38dp"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="30dp"
         android:background="@drawable/circle_blue_bg"
         android:gravity="center"
         android:text="1"
@@ -58,14 +58,17 @@
                     android:id="@+id/tvTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
                     android:text="The Seminyak Beach"
-                    android:textSize="16sp"/>
+                    android:textStyle="bold"
+                    android:textSize="18sp"/>
 
                 <TextView
                     android:id="@+id/tvDescription"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="석양이 아름다운 스미냐 해변"
+                    android:includeFontPadding="false"
                     android:textSize="14sp"
                     android:textColor="#666666"/>
             </LinearLayout>
@@ -73,7 +76,6 @@
             <!-- 오른쪽 둥근 이미지 -->
             <ImageView
                 android:id="@+id/ivThumbnail"
-                android:layout_marginTop="10dp"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
                 android:background="@drawable/rounded_corner"
@@ -97,7 +99,6 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:background="?attr/selectableItemBackground"
-                android:padding="8dp"
                 android:layout_marginEnd="24dp">
 
                 <ImageView
@@ -121,8 +122,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:background="?attr/selectableItemBackground"
-                android:padding="8dp">
+                android:background="?attr/selectableItemBackground">
 
                 <ImageView
                     android:layout_width="10dp"

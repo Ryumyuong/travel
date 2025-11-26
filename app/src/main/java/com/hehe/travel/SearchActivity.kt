@@ -20,42 +20,58 @@ import com.hehe.travel.databinding.ActivitySearchBinding
 class SearchActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySearchBinding
+    private lateinit var auth: FirebaseAuth
 
-    // ----- 1) 데이터 모델 -----
-    data class CountryInfo(
-        val displayName: String,
-        val places: String,
-        val foods: String,
-        val firstDayPlan: String
-    )
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivitySearchBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
+        auth = FirebaseAuth.getInstance()
 
-    private fun norm(s: String) = s.lowercase().replace("\\s".toRegex(), "")
-
-
-    private fun applyCountryInfo(info: CountryInfo) {
-
+        setupSearch()
+        setupBottomNav(R.id.tab_country)
+        loadUserProfile()
     }
 
-    private fun hideKeyboard() {
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        currentFocus?.windowToken?.let { imm.hideSoftInputFromWindow(it, 0) }
+    private fun loadUserProfile() {
+        val uid = auth.currentUser?.uid
+        if (uid != null) {
+            Firebase.firestore.collection("profiles").document(uid)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document != null && document.exists()) {
+                        val nickname = document.getString("nickname") ?: ""
+                        findViewById<TextView>(R.id.name1).text = nickname
+                    }
+                }
+                .addOnFailureListener {
+                    // 실패시 displayName 사용
+                    findViewById<TextView>(R.id.name1).text =
+                        auth.currentUser?.displayName ?: "여행자"
+                }
+        } else {
+            findViewById<TextView>(R.id.name1).text =
+                auth.currentUser?.displayName ?: "여행자"
+        }
+
+        findViewById<TextView>(R.id.travel).text = "어디로 떠나실래요?"
     }
 
     private fun setupSearch() {
         binding.btnSearchCountry.setOnClickListener {
-            val q = binding.etSearchCountry.text?.toString().orEmpty()
-            if (q.isBlank()) {
+            val country = binding.etSearchCountry.text?.toString().orEmpty().trim()
+            if (country.isBlank()) {
                 Toast.makeText(this, "나라 이름을 입력하세요.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
-            } else {
-                val intent = Intent(this, DateRangeActivity::class.java)
-                intent.putExtra("country", q)
-                intent.putExtra("login",auth.currentUser?.displayName)
-                startActivity(intent)
             }
 
+            hideKeyboard()
 
+            // TravelResultActivity로 이동 (AI 결과 화면)
+            val intent = Intent(this, TravelResultActivity::class.java)
+            intent.putExtra("country", country)
+            startActivity(intent)
         }
 
         binding.etSearchCountry.setOnEditorActionListener { _, actionId, _ ->
@@ -66,42 +82,9 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    private lateinit var auth: FirebaseAuth
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivitySearchBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        setupSearch()
-        setupBottomNav(R.id.tab_country)
-        auth = FirebaseAuth.getInstance()
-
-
-        findViewById<TextView>(R.id.travel).text =
-            auth.currentUser?.displayName?.let { "어디로 떠나실래요?" } ?: "어디로 떠나실래요?"
-
-        val uid = auth.currentUser?.uid
-        if (uid != null) {
-            val docRef = Firebase.firestore.collection("profiles").document(uid)
-            docRef.get().addOnSuccessListener { document ->
-                if (document != null && document.exists()) {
-                    val nickname = document.getString("nickname") ?: ""
-
-                    // ✅ 값들을 UI에 반영
-                    findViewById<TextView>(R.id.name1).setText(nickname)
-
-                }
-            }.addOnFailureListener { e ->
-                Toast.makeText(this, "데이터 불러오기 실패: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        } else {
-
-            findViewById<TextView>(R.id.name1).text =
-                auth.currentUser?.displayName?.let { "$it" }
-        }
-
-
+    private fun hideKeyboard() {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        currentFocus?.windowToken?.let { imm.hideSoftInputFromWindow(it, 0) }
     }
 
     private fun AppCompatActivity.setupBottomNav(selectedId: Int) {
