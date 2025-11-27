@@ -3,18 +3,20 @@ package com.hehe.travel
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.widget.Button
-import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.hehe.travel.databinding.ActivityMainBinding
+import com.google.firebase.firestore.firestore
 import com.hehe.travel.databinding.ActivityQuestionnaireBinding
 
 class QuestionnaireActivity : AppCompatActivity() {
@@ -32,10 +34,9 @@ class QuestionnaireActivity : AppCompatActivity() {
     private lateinit var option1Button: Button
     private lateinit var option2Button: Button
     private lateinit var prevButton: Button
-    private lateinit var nextButton: Button
 
-    // 현재 선택된 옵션
-    private var selectedOption: Int? = null
+    // 답변 저장 배열
+    private val answers = mutableListOf<Int>()
 
     // 질문 리스트 정의
     data class QuestionData(
@@ -125,13 +126,17 @@ class QuestionnaireActivity : AppCompatActivity() {
         binding = ActivityQuestionnaireBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        auth = FirebaseAuth.getInstance()
+
+        // 답변 배열 초기화 (12개)
+        repeat(totalSteps) { answers.add(0) }
+
         initViews()
         updateQuestion()
         setupClickListeners()
 
         initAuthAndGoogleClient()
         setupBottomNav(R.id.tab_search)
-
     }
 
     private fun initViews() {
@@ -146,7 +151,6 @@ class QuestionnaireActivity : AppCompatActivity() {
         option1Button = findViewById(R.id.btn_option1)
         option2Button = findViewById(R.id.btn_option2)
         prevButton = findViewById(R.id.btn_prev)
-        nextButton = findViewById(R.id.btn_next)
 
         // 버튼 초기 선택 상태 설정
         option1Button.isSelected = false
@@ -162,13 +166,13 @@ class QuestionnaireActivity : AppCompatActivity() {
         option1Button.setOnClickListener {
             option1Button.isSelected = true
             option2Button.isSelected = false
-            selectedOption = 1
+            onOptionSelected(1)
         }
 
         option2Button.setOnClickListener {
             option1Button.isSelected = false
             option2Button.isSelected = true
-            selectedOption = 2
+            onOptionSelected(2)
         }
 
         prevButton.setOnClickListener {
@@ -177,19 +181,24 @@ class QuestionnaireActivity : AppCompatActivity() {
                 updateQuestion()
             }
         }
+    }
 
-        nextButton.setOnClickListener {
-            selectedOption?.let { option ->
-                saveUserChoice(currentStep, option)
+    // 옵션 선택 시 바로 다음으로 이동
+    private fun onOptionSelected(option: Int) {
+        // 답변 저장
+        answers[currentStep - 1] = option
+        saveUserChoice(currentStep, option)
 
-                if (currentStep < totalSteps) {
-                    currentStep++
-                    updateQuestion()
-                } else {
-                    navigateToCountryGuide()
-                }
+        // 약간의 딜레이 후 다음으로 이동
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (currentStep < totalSteps) {
+                currentStep++
+                updateQuestion()
+            } else {
+                // 마지막 질문 완료 - Firebase에 저장 후 이동
+                saveMbtiToFirebase()
             }
-        }
+        }, 300)
     }
 
     private fun saveUserChoice(questionNumber: Int, choice: Int) {
@@ -203,10 +212,10 @@ class QuestionnaireActivity : AppCompatActivity() {
         // 프로그레스 인디케이터 업데이트
         updateProgressIndicators()
 
-        // 선택 상태 초기화
-        selectedOption = null
-        option1Button.isSelected = false
-        option2Button.isSelected = false
+        // 선택 상태 초기화 (이전 답변 있으면 표시)
+        val previousAnswer = answers[currentStep - 1]
+        option1Button.isSelected = previousAnswer == 1
+        option2Button.isSelected = previousAnswer == 2
 
         if (currentStep <= questions.size) {
             val question = questions[currentStep - 1]
@@ -217,19 +226,136 @@ class QuestionnaireActivity : AppCompatActivity() {
         }
 
         prevButton.isEnabled = currentStep > 1
-        nextButton.text = if (currentStep == totalSteps) "완료" else "다음"
     }
 
     private fun updateProgressIndicators() {
         for (i in progressIndicators.indices) {
-            progressIndicators[i].setBackgroundColor(
+            progressIndicators[i].setBackgroundResource(
                 if (i < currentStep) {
-                    android.graphics.Color.parseColor("#3653AE")
+                    R.drawable.progress_indicator_active
                 } else {
-                    android.graphics.Color.parseColor("#E5E7EB")
+                    R.drawable.progress_indicator_bg
                 }
             )
         }
+    }
+
+    // Firebase mbti 컬렉션에 저장
+    private fun saveMbtiToFirebase() {
+        val uid = auth.currentUser?.uid
+        if (uid == null) {
+            Toast.makeText(this, "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
+            navigateToCountryGuide()
+            return
+        }
+
+        // 먼저 profiles에서 닉네임 가져오기
+        Firebase.firestore.collection("profiles").document(uid)
+            .get()
+            .addOnSuccessListener { profileDoc ->
+                val nickname = profileDoc.getString("nickname") ?: "익명"
+
+                // 선택한 질문과 답변을 텍스트로 저장
+                val selectedAnswers = answers.mapIndexed { index, answer ->
+                    val question = questions[index]
+                    mapOf(
+                        "questionTag" to question.tag,
+                        "questionText" to question.text,
+                        "selectedOption" to answer,
+                        "selectedText" to if (answer == 1) question.option1 else question.option2
+                    )
+                }
+
+                // 여행 스타일 요약 (선택한 답변 기반)
+                val travelTraits = mutableListOf<String>()
+
+                // Q1, Q2, Q5, Q11: 계획 vs 즉흥
+                val planCount = listOf(0, 1, 4, 10).count { answers[it] == 1 }
+                travelTraits.add(if (planCount >= 2) "계획적인 여행자" else "즉흥적인 여행자")
+
+                // Q3, Q6, Q8, Q12: 휴식 vs 활동
+                val activeCount = listOf(2, 5, 7, 11).count { answers[it] == 2 }
+                travelTraits.add(if (activeCount >= 2) "활동적인 여행자" else "여유로운 여행자")
+
+                // Q4, Q7: 안정 vs 모험
+                val adventureCount = listOf(3, 6).count { answers[it] == 2 }
+                travelTraits.add(if (adventureCount >= 1) "모험을 즐기는 여행자" else "안정을 추구하는 여행자")
+
+                // Q9, Q10: 개인 vs 사교
+                val socialCount = listOf(8, 9).count { answers[it] == 2 }
+                travelTraits.add(if (socialCount >= 1) "사람들과 어울리는 여행자" else "조용히 즐기는 여행자")
+
+                val mbtiData = hashMapOf(
+                    "uid" to uid,
+                    "nickname" to nickname,                               // ⭐ 닉네임 추가
+                    "selectedAnswers" to selectedAnswers,
+                    "travelTraits" to travelTraits,
+                    "travelStyle" to travelTraits.joinToString(" • "),
+                    "createdAt" to com.google.firebase.Timestamp.now()
+                )
+
+                Firebase.firestore.collection("mbti")
+                    .document(uid)
+                    .set(mbtiData)
+                    .addOnSuccessListener {
+                        Log.d("MBTI", "여행 취향 저장 완료: $nickname")
+                        navigateToCountryGuide()
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("MBTI", "저장 실패: ${e.message}")
+                        Toast.makeText(this, "저장 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                        navigateToCountryGuide()
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("MBTI", "프로필 로드 실패: ${e.message}")
+                // 프로필 로드 실패해도 닉네임 없이 저장 진행
+                saveWithoutNickname(uid)
+            }
+    }
+
+    // 닉네임 없이 저장 (프로필 로드 실패 시)
+    private fun saveWithoutNickname(uid: String) {
+        val selectedAnswers = answers.mapIndexed { index, answer ->
+            val question = questions[index]
+            mapOf(
+                "questionTag" to question.tag,
+                "questionText" to question.text,
+                "selectedOption" to answer,
+                "selectedText" to if (answer == 1) question.option1 else question.option2
+            )
+        }
+
+        val travelTraits = mutableListOf<String>()
+        val planCount = listOf(0, 1, 4, 10).count { answers[it] == 1 }
+        travelTraits.add(if (planCount >= 2) "계획적인 여행자" else "즉흥적인 여행자")
+        val activeCount = listOf(2, 5, 7, 11).count { answers[it] == 2 }
+        travelTraits.add(if (activeCount >= 2) "활동적인 여행자" else "여유로운 여행자")
+        val adventureCount = listOf(3, 6).count { answers[it] == 2 }
+        travelTraits.add(if (adventureCount >= 1) "모험을 즐기는 여행자" else "안정을 추구하는 여행자")
+        val socialCount = listOf(8, 9).count { answers[it] == 2 }
+        travelTraits.add(if (socialCount >= 1) "사람들과 어울리는 여행자" else "조용히 즐기는 여행자")
+
+        val mbtiData = hashMapOf(
+            "uid" to uid,
+            "nickname" to "익명",
+            "selectedAnswers" to selectedAnswers,
+            "travelTraits" to travelTraits,
+            "travelStyle" to travelTraits.joinToString(" • "),
+            "createdAt" to com.google.firebase.Timestamp.now()
+        )
+
+        Firebase.firestore.collection("mbti")
+            .document(uid)
+            .set(mbtiData)
+            .addOnSuccessListener {
+                Log.d("MBTI", "여행 취향 저장 완료 (닉네임 없음)")
+                navigateToCountryGuide()
+            }
+            .addOnFailureListener { e ->
+                Log.e("MBTI", "저장 실패: ${e.message}")
+                navigateToCountryGuide()
+            }
     }
 
     private fun navigateToCountryGuide() {
@@ -242,7 +368,7 @@ class QuestionnaireActivity : AppCompatActivity() {
         // 랜덤 선택
         val randomCountry = countries.random()
 
-        val intent = Intent(this, DestinationActivity::class.java)
+        val intent = Intent(this, DateRangeActivity::class.java)
         intent.putExtra("country", randomCountry)
         startActivity(intent)
         finish()

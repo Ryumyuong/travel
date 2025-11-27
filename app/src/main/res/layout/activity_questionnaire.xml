@@ -3,42 +3,43 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#ffffff">
+    android:background="#ffffff"
+    android:orientation="vertical">
 
     <!-- Header Section -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="16dp"
-        android:paddingHorizontal="24dp">
+        android:paddingHorizontal="24dp"
+        android:paddingTop="16dp">
 
         <!-- Back Button and Title -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="24dp"
             android:gravity="center_vertical"
-            android:layout_marginBottom="24dp">
+            android:orientation="horizontal">
 
             <ImageButton
                 android:id="@+id/btn_back"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_left_arrow"
-                android:contentDescription="뒤로가기" />
+                android:contentDescription="뒤로가기"
+                android:src="@drawable/ic_left_arrow" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:gravity="center"
                 android:text="여행취향찾기"
-                android:textSize="20sp"
-                android:textStyle="bold"
                 android:textColor="#000000"
-                android:gravity="center" />
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <View
                 android:layout_width="48dp"
@@ -51,103 +52,103 @@
             android:id="@+id/progress_indicators"
             android:layout_width="match_parent"
             android:layout_height="8dp"
-            android:orientation="horizontal"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal">
 
             <View
                 android:id="@+id/indicator_1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="@drawable/progress_indicator_inactive" />
+                android:layout_weight="1"
+                android:background="@drawable/progress_indicator_bg" />
 
             <View
                 android:id="@+id/indicator_2"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="@drawable/progress_indicator_inactive" />
+                android:layout_weight="1"
+                android:background="@drawable/progress_indicator_bg" />
 
             <View
                 android:id="@+id/indicator_3"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="@drawable/progress_indicator_inactive" />
+                android:layout_weight="1"
+                android:background="@drawable/progress_indicator_bg" />
 
             <View
                 android:id="@+id/indicator_4"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="@drawable/progress_indicator_inactive" />
+                android:layout_weight="1"
+                android:background="@drawable/progress_indicator_bg" />
 
             <View
                 android:id="@+id/indicator_5"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="@drawable/progress_indicator_inactive" />
+                android:layout_weight="1"
+                android:background="@drawable/progress_indicator_bg" />
 
             <View
                 android:id="@+id/indicator_6"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="@drawable/progress_indicator_inactive" />
+                android:layout_weight="1"
+                android:background="@drawable/progress_indicator_bg" />
 
             <View
                 android:id="@+id/indicator_7"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="@drawable/progress_indicator_inactive" />
+                android:layout_weight="1"
+                android:background="@drawable/progress_indicator_bg" />
 
             <View
                 android:id="@+id/indicator_8"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="@drawable/progress_indicator_inactive" />
+                android:layout_weight="1"
+                android:background="@drawable/progress_indicator_bg" />
 
             <View
                 android:id="@+id/indicator_9"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="@drawable/progress_indicator_inactive" />
+                android:layout_weight="1"
+                android:background="@drawable/progress_indicator_bg" />
 
             <View
                 android:id="@+id/indicator_10"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="@drawable/progress_indicator_inactive" />
+                android:layout_weight="1"
+                android:background="@drawable/progress_indicator_bg" />
 
             <View
                 android:id="@+id/indicator_11"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="@drawable/progress_indicator_inactive" />
+                android:layout_weight="1"
+                android:background="@drawable/progress_indicator_bg" />
 
             <View
                 android:id="@+id/indicator_12"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@drawable/progress_indicator_inactive" />
+                android:background="@drawable/progress_indicator_bg" />
 
         </LinearLayout>
 
@@ -158,130 +159,109 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:paddingHorizontal="24dp">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-    <!-- Question Card -->
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardBackgroundColor="#FFFFFF"
-        android:layout_marginTop="8dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="24dp">
-
-            <!-- Question Tag -->
-            <TextView
-                android:id="@+id/tv_question_number"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="퇴사 D-1"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="#3653AE"
-                android:layout_marginBottom="16dp" />
-
-            <!-- Question Text -->
-            <TextView
-                android:id="@+id/tv_question"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="사직서 던지고 내일 출국하는 당신,\n오늘은?"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="#1F2937"
-                android:lineSpacingExtra="4dp"
-                android:layout_marginBottom="24dp" />
-
-            <!-- Option Buttons -->
+            <!-- Question Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@android:color/transparent">
+                android:layout_marginTop="8dp"
+                app:cardBackgroundColor="#FFFFFF">
 
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/btn_option1"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="여행 전 체크리스트를 만들어 하나 씩 짐을 챙긴다."
-                    android:textSize="14sp"
-                    android:textColor="#000000"
-                    android:background="@drawable/option_button_selector"
-                    android:padding="10dp"
-                    android:gravity="center"
-                    android:clickable="true"
-                    android:focusable="true" />
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <!-- Question Tag -->
+                    <TextView
+                        android:id="@+id/tv_question_number"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:text="퇴사 D-1"
+                        android:textColor="#3653AE"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <!-- Question Text -->
+                    <TextView
+                        android:id="@+id/tv_question"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24dp"
+                        android:lineSpacingExtra="4dp"
+                        android:text="사직서 던지고 내일 출국하는 당신,\n오늘은?"
+                        android:textColor="#1F2937"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <!-- Option Buttons -->
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/btn_option1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:background="@drawable/option_button_selector"
+                        android:clickable="true"
+                        android:drawableEnd="@drawable/radio_button_selector"
+                        android:drawablePadding="12dp"
+                        android:focusable="true"
+                        android:gravity="center_vertical|start"
+                        android:paddingStart="16dp"
+                        android:paddingTop="16dp"
+                        android:paddingEnd="16dp"
+                        android:paddingBottom="16dp"
+                        android:text="여행 전 체크리스트를 만들어 하나 씩 짐을 챙긴다."
+                        android:textColor="#000000"
+                        android:textSize="14sp" />
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/btn_option2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:background="@drawable/option_button_selector"
+                        android:clickable="true"
+                        android:drawableEnd="@drawable/radio_button_selector"
+                        android:drawablePadding="12dp"
+                        android:focusable="true"
+                        android:gravity="center_vertical|start"
+                        android:paddingStart="16dp"
+                        android:paddingTop="16dp"
+                        android:paddingEnd="16dp"
+                        android:paddingBottom="16dp"
+                        android:text="짐은 여행 출발 전에만 챙기면 되지~"
+                        android:textColor="#000000"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
             </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@android:color/transparent">
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/btn_option2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="짐은 여행 출발 전에만 챙기면 되지~"
-                    android:textSize="14sp"
-                    android:textColor="#000000"
-                    android:background="@drawable/option_button_selector"
-                    android:padding="10dp"
-                    android:gravity="center"
-                    android:clickable="true"
-                    android:focusable="true" />
-            </androidx.cardview.widget.CardView>
-
-        </LinearLayout>
-
-
-    </androidx.cardview.widget.CardView>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Navigation Buttons -->
+    <!-- 이전 버튼만 (다음 버튼 제거) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:background="@color/white"
+        android:gravity="left"
         android:paddingHorizontal="48dp"
-        android:paddingVertical="16dp"
-        android:background="@color/white">
+        android:paddingVertical="16dp">
 
         <Button
             android:id="@+id/btn_prev"
-            android:layout_width="0dp"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="이전"
             android:backgroundTint="#EBEEF8"
-            android:textColor="#6378C4"
-            android:layout_marginEnd="8dp" />
-
-        <Button
-            android:id="@+id/btn_next"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="다음"
-            android:textColor="#FFFFFF"
-            android:layout_marginStart="8dp" />
+            android:text="이전"
+            android:textColor="#6378C4" />
 
     </LinearLayout>
 
@@ -290,12 +270,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:menu="@menu/menu_bottom_three"
-        app:itemIconTint="@null"
-        app:itemTextColor="@color/bnv_text_color"
-
-        app:itemRippleColor="@android:color/transparent"
-        app:itemBackground="@android:color/transparent"
         android:background="@color/white"
-        app:itemActiveIndicatorStyle="@style/NoActiveIndicator"/>
+        app:itemActiveIndicatorStyle="@style/NoActiveIndicator"
+        app:itemBackground="@android:color/transparent"
+        app:itemIconTint="@null"
+        app:itemRippleColor="@android:color/transparent"
+        app:itemTextColor="@color/bnv_text_color"
+        app:menu="@menu/menu_bottom_three" />
 </LinearLayout>

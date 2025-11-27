@@ -1,380 +1,479 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
-    android:fillViewport="true"
-    tools:context=".SammyFirstQuestionActivity">
+    android:background="@drawable/gradient_background">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/main"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingStart="48dp"
-        android:paddingEnd="48dp"
-        android:paddingTop="24dp"
-        android:paddingBottom="24dp">
+    <!-- 질문 스크롤 컨테이너 -->
 
-        <TextView
-            android:id="@+id/tvQuestion1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:text="Q. 제가 뭐라고 부르면 될까요?"
-            android:textColor="#000000"
-            android:textSize="17sp"
-            android:fontFamily="@font/noto_sans_kr"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <!-- 하단 버튼 (여행 목적 선택 화면에서만 표시) -->
+    <ScrollView
+        android:id="@+id/scrollViewQuestions"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
 
-        <EditText
-            android:id="@+id/etNickname"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:background="@null"
-            android:hint="이름을 입력해주세요"
-            android:textColor="#3653AE"
-            android:textColorHint="#3653AE"
-            android:textSize="14sp"
-            android:fontFamily="@font/noto_sans_kr"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvQuestion1" />
-
-        <TextView
-            android:id="@+id/tvQuestion2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Q. 성별을 알려주세요"
-            android:textColor="#000000"
-            android:textSize="17sp"
-            android:fontFamily="@font/noto_sans_kr"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/etNickname" />
-
-        <RadioGroup
-            android:id="@+id/rgGender"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvQuestion2">
-
-            <RadioButton
-                android:id="@+id/rbMale"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:buttonTint="#3653AE"
-                android:checked="true"
-                android:text="남자"
-                android:textColor="#000000"
-                android:textSize="14sp"
-                android:fontFamily="@font/noto_sans_kr" />
-
-            <RadioButton
-                android:id="@+id/rbFemale"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
-                android:buttonTint="#3653AE"
-                android:text="여자"
-                android:textColor="#000000"
-                android:textSize="14sp"
-                android:fontFamily="@font/noto_sans_kr" />
-        </RadioGroup>
-
-        <TextView
-            android:id="@+id/tvQuestion3"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="연령대를 알려주세요"
-            android:textColor="#000000"
-            android:textSize="17sp"
-            android:fontFamily="@font/noto_sans_kr"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/rgGender" />
-
-        <SeekBar
-            android:id="@+id/seekBarAge"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:max="4"
-            android:progress="2"
-            android:progressDrawable="@drawable/seekbar_track"
-            android:thumb="@drawable/seekbar_thumb"
-            android:tickMark="@drawable/seekbar_tick_mark"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvQuestion3" />
-
-        <!-- Age Labels -->
         <LinearLayout
-            android:id="@+id/llAgeLabels"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="@id/seekBarAge"
-            app:layout_constraintStart_toStartOf="@id/seekBarAge"
-            app:layout_constraintTop_toBottomOf="@id/seekBarAge">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="10대"
-                android:textAlignment="center"
-                android:textColor="#666666"
-                android:textSize="12sp"
-                android:fontFamily="@font/noto_sans_kr" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="20대"
-                android:textAlignment="center"
-                android:textColor="#666666"
-                android:textSize="12sp"
-                android:fontFamily="@font/noto_sans_kr" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="30대"
-                android:textAlignment="center"
-                android:textColor="#666666"
-                android:textSize="12sp"
-                android:fontFamily="@font/noto_sans_kr" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="40대"
-                android:textAlignment="center"
-                android:textColor="#666666"
-                android:textSize="12sp"
-                android:fontFamily="@font/noto_sans_kr" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="50대"
-                android:textAlignment="center"
-                android:textColor="#666666"
-                android:textSize="12sp"
-                android:fontFamily="@font/noto_sans_kr" />
-        </LinearLayout>
-
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chipGroup"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            app:chipSpacingHorizontal="8dp"
-            app:chipSpacingVertical="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/llAgeLabels"
-            app:singleLine="false"
-            app:singleSelection="false">
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:paddingHorizontal="48dp"
+            android:paddingTop="40dp"
+            android:paddingBottom="40dp">
 
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.App.TagChip"
-                android:layout_width="wrap_content"
+            <!-- 완료된 질문들이 여기에 동적으로 추가됩니다 -->
+            <LinearLayout
+                android:id="@+id/completedQuestionsContainer"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="🌿 한적한 자연"
-                android:textSize="12sp"
-                android:fontFamily="@font/noto_sans_kr"
-                android:textStyle="bold" />
+                android:orientation="vertical" />
 
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.App.TagChip"
-                android:layout_width="wrap_content"
+            <!-- 현재 질문 컨테이너 -->
+            <LinearLayout
+                android:id="@+id/currentQuestionContainer"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="🏨 호캉스"
-                android:textSize="12sp"
-                android:fontFamily="@font/noto_sans_kr"
-                android:textStyle="bold" />
+                android:layout_gravity="center_vertical"
+                android:orientation="vertical">
 
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.App.TagChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="🛁 온천/스파"
-                android:textSize="12sp"
-                android:fontFamily="@font/noto_sans_kr"
-                android:textStyle="bold" />
+                <!-- Step 1: 닉네임 -->
+                <LinearLayout
+                    android:id="@+id/stepNickname"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="visible">
 
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.App.TagChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="🏙 핫플 투어"
-                android:textSize="12sp"
-                android:fontFamily="@font/noto_sans_kr"
-                android:textStyle="bold" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Q. 제가 뭐라고 부르면 될까요?"
+                        android:textColor="#000000"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
 
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.App.TagChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="🧘‍♀️ 힐링"
-                android:textSize="12sp"
-                android:fontFamily="@font/noto_sans_kr"
-                android:textStyle="bold" />
+                    <EditText
+                        android:id="@+id/etNickname"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:background="@null"
+                        android:hint="이름을 입력해주세요"
+                        android:imeOptions="actionDone"
+                        android:includeFontPadding="false"
+                        android:inputType="text"
+                        android:paddingBottom="12dp"
+                        android:textColor="#3653AE"
+                        android:textColorHint="#AAAAAA"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.App.TagChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="☕️️ 카페 투어"
-                android:textSize="12sp"
-                android:fontFamily="@font/noto_sans_kr"
-                android:textStyle="bold" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:background="#3653AE" />
+                </LinearLayout>
 
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.App.TagChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="🏖️ 휴양지"
-                android:textSize="12sp"
-                android:fontFamily="@font/noto_sans_kr"
-                android:textStyle="bold" />
+                <!-- Step 2: 성별 -->
+                <LinearLayout
+                    android:id="@+id/stepGender"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
 
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.App.TagChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="🍝️ 맛집"
-                android:textSize="12sp"
-                android:fontFamily="@font/noto_sans_kr"
-                android:textStyle="bold" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Q. 성별을 알려주세요"
+                        android:textColor="#000000"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
 
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.App.TagChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="🗿️️ 역사탐험"
-                android:textSize="12sp"
-                android:fontFamily="@font/noto_sans_kr"
-                android:textStyle="bold" />
+                    <RadioGroup
+                        android:id="@+id/rgGender"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:orientation="horizontal">
 
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.App.TagChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="⛰️ 등산 / 트레킹"
-                android:textSize="12sp"
-                android:fontFamily="@font/noto_sans_kr"
-                android:textStyle="bold" />
+                        <RadioButton
+                            android:id="@+id/rbMale"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:buttonTint="#3653AE"
+                            android:paddingVertical="12dp"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="32dp"
+                            android:text="남자"
+                            android:textColor="#000000"
+                            android:textSize="18sp" />
 
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.App.TagChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="💍 신혼여행"
-                android:textSize="12sp"
-                android:fontFamily="@font/noto_sans_kr"
-                android:textStyle="bold" />
-        </com.google.android.material.chip.ChipGroup>
+                        <RadioButton
+                            android:id="@+id/rbFemale"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:buttonTint="#3653AE"
+                            android:paddingVertical="12dp"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="24dp"
+                            android:text="여자"
+                            android:textColor="#000000"
+                            android:textSize="18sp" />
+                    </RadioGroup>
+                </LinearLayout>
 
+                <!-- Step 3: 연령대 -->
 
-        <LinearLayout
-            android:id="@+id/llActionButtons"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:gravity="start|center_vertical"
-            android:orientation="horizontal"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/chipGroup">
+                <!-- Step 4: 여행 목적 -->
+                <LinearLayout
+                    android:id="@+id/stepAge"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="visible">
 
-            <ImageButton
-                android:id="@+id/btnMore"
-                android:layout_width="13dp"
-                android:layout_height="13dp"
-                android:layout_marginStart="5dp"
-                android:layout_marginEnd="5dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="더보기"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_add" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Q. 연령대를 알려주세요"
+                        android:textColor="#000000"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/tvMore"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="더보기"
-                android:textColor="#666666"
-                android:textSize="12sp"
-                android:fontFamily="@font/noto_sans_kr" />
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="48dp">
 
-            <ImageButton
-                android:id="@+id/btnRefresh"
-                android:layout_width="13dp"
-                android:layout_height="13dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="5dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="새로고침"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_refresh" />
+                        <!-- 점들을 텍스트와 같은 방식으로 배치 -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:orientation="horizontal"
+                            android:paddingStart="20dp"
+                            android:paddingEnd="20dp">
 
-            <TextView
-                android:id="@+id/tvRefresh"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="새로고침"
-                android:textColor="#666666"
-                android:textSize="12sp"
-                android:fontFamily="@font/noto_sans_kr" />
+                            <FrameLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1">
+
+                                <View
+                                    android:layout_width="8dp"
+                                    android:layout_height="8dp"
+                                    android:layout_gravity="center"
+                                    android:background="@drawable/seekbar_tick_mark" />
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1">
+
+                                <View
+                                    android:layout_width="8dp"
+                                    android:layout_height="8dp"
+                                    android:layout_gravity="center"
+                                    android:background="@drawable/seekbar_tick_mark" />
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1">
+
+                                <View
+                                    android:layout_width="8dp"
+                                    android:layout_height="8dp"
+                                    android:layout_gravity="center"
+                                    android:background="@drawable/seekbar_tick_mark" />
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1">
+
+                                <View
+                                    android:layout_width="8dp"
+                                    android:layout_height="8dp"
+                                    android:layout_gravity="center"
+                                    android:background="@drawable/seekbar_tick_mark" />
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1">
+
+                                <View
+                                    android:layout_width="8dp"
+                                    android:layout_height="8dp"
+                                    android:layout_gravity="center"
+                                    android:background="@drawable/seekbar_tick_mark" />
+                            </FrameLayout>
+                        </LinearLayout>
+
+                        <SeekBar
+                            android:id="@+id/seekBarAge"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:max="4"
+                            android:paddingStart="20dp"
+                            android:paddingEnd="20dp"
+                            android:progress="2"
+                            android:progressDrawable="@drawable/seekbar_track_black"
+                            android:thumb="@drawable/seekbar_thumb_blue"
+                            android:thumbOffset="0dp" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="10대"
+                            android:textAlignment="center"
+                            android:textColor="#666666"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="20대"
+                            android:textAlignment="center"
+                            android:textColor="#666666"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="30대"
+                            android:textAlignment="center"
+                            android:textColor="#666666"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="40대"
+                            android:textAlignment="center"
+                            android:textColor="#666666"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="50대"
+                            android:textAlignment="center"
+                            android:textColor="#666666"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/stepPurpose"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="visible">
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/chipGroupPurpose"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        app:chipSpacingHorizontal="8dp"
+                        app:chipSpacingVertical="12dp"
+                        app:singleLine="false"
+                        app:singleSelection="false">
+
+                        <com.google.android.material.chip.Chip
+                            style="@style/Widget.App.TagChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="10dp"
+                            android:text="🌿 환적한 자연"
+                            android:textSize="14sp" />
+
+                        <com.google.android.material.chip.Chip
+                            style="@style/Widget.App.TagChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="10dp"
+                            android:text="🏛️ 호캉스"
+                            android:textSize="14sp" />
+
+                        <com.google.android.material.chip.Chip
+                            style="@style/Widget.App.TagChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="10dp"
+                            android:text="🏖️ 온천&amp;스파"
+                            android:textSize="14sp" />
+
+                        <com.google.android.material.chip.Chip
+                            style="@style/Widget.App.TagChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="10dp"
+                            android:text="📊 핫플 투어"
+                            android:textSize="14sp" />
+
+                        <com.google.android.material.chip.Chip
+                            style="@style/Widget.App.TagChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="10dp"
+                            android:text="💪 힐링"
+                            android:textSize="14sp" />
+
+                        <com.google.android.material.chip.Chip
+                            style="@style/Widget.App.TagChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="10dp"
+                            android:text="☕ 카페 투어"
+                            android:textSize="14sp" />
+
+                        <com.google.android.material.chip.Chip
+                            style="@style/Widget.App.TagChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="10dp"
+                            android:text="🏖️ 휴양지"
+                            android:textSize="14sp" />
+
+                        <com.google.android.material.chip.Chip
+                            style="@style/Widget.App.TagChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="10dp"
+                            android:text="🍜 맛집"
+                            android:textSize="14sp" />
+
+                        <com.google.android.material.chip.Chip
+                            style="@style/Widget.App.TagChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="10dp"
+                            android:text="🏛️ 역사탐험"
+                            android:textSize="14sp" />
+
+                        <com.google.android.material.chip.Chip
+                            style="@style/Widget.App.TagChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="10dp"
+                            android:text="⛰️ 등산 &amp; 트레킹"
+                            android:textSize="14sp" />
+
+                        <com.google.android.material.chip.Chip
+                            style="@style/Widget.App.TagChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="10dp"
+                            android:text="🔗 신혼여행"
+                            android:textSize="14sp" />
+
+                    </com.google.android.material.chip.ChipGroup>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageButton
+                            android:id="@+id/btnRefresh"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="새로고침"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/ic_refresh" />
+
+                        <TextView
+                            android:id="@+id/tvRefresh"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:text="더보기"
+                            android:textColor="#666666"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageButton
+                            android:id="@+id/btnReset"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="새로고침"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/ic_refresh" />
+
+                        <TextView
+                            android:id="@+id/tvReset"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:text="새로고침"
+                            android:textColor="#666666"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+            </LinearLayout>
 
         </LinearLayout>
+    </ScrollView>
 
-        <!-- Next Button -->
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnNext"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="24dp"
-            android:background="@drawable/btn_blue_rounded"
-            android:text="다음으로"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:fontFamily="@font/noto_sans_kr"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/llActionButtons" />
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnNext"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/btn_blue_rounded"
+        android:text="다음으로"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

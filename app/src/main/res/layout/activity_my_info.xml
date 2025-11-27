@@ -30,15 +30,15 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
                     <!-- 이름 -->
                     <TextView
                         android:id="@+id/tvGreeting"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:text="이한비님"
+                        android:text="여행자 님"
                         android:textColor="@android:color/black"
                         android:textSize="24sp"
                         android:textStyle="bold" />
@@ -47,6 +47,7 @@
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
                         android:orientation="horizontal">
 
                         <LinearLayout
@@ -150,10 +151,12 @@
                             android:gravity="center_vertical"
                             android:orientation="horizontal">
 
+                            <!-- 여행 제목 (동적) -->
                             <TextView
+                                android:id="@+id/tvTripTitle"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="발리 4박5일 휴양 여행"
+                                android:text="여행 기록 불러오는 중..."
                                 android:textColor="@android:color/black"
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
@@ -170,20 +173,24 @@
                                 android:layout_height="1dp"
                                 android:layout_weight="1" />
 
+                            <!-- 시간 경과 (동적) -->
                             <TextView
+                                android:id="@+id/tvTimeAgo"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="7월 전"
+                                android:text=""
                                 android:textColor="#3653AE"
                                 android:textSize="12sp" />
 
                         </LinearLayout>
 
+                        <!-- 여행 날짜 (동적) -->
                         <TextView
+                            android:id="@+id/tvTripDate"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="12dp"
-                            android:text="2025.08.01 - 2025.08.05"
+                            android:text=""
                             android:textColor="#999999"
                             android:textSize="12sp" />
 
@@ -194,11 +201,15 @@
                             android:orientation="horizontal">
 
                             <LinearLayout
+                                android:id="@+id/btnChecklist"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="16dp"
                                 android:gravity="center_vertical"
-                                android:orientation="horizontal">
+                                android:orientation="horizontal"
+                                android:background="?android:attr/selectableItemBackground"
+                                android:clickable="true"
+                                android:focusable="true">
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -217,10 +228,14 @@
                             </LinearLayout>
 
                             <LinearLayout
+                                android:id="@+id/btnMemo"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:gravity="center_vertical"
-                                android:orientation="horizontal">
+                                android:orientation="horizontal"
+                                android:background="?android:attr/selectableItemBackground"
+                                android:clickable="true"
+                                android:focusable="true">
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -243,46 +258,6 @@
                     </LinearLayout>
 
                 </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- 환경설정 카드 -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardPref"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:clickable="true"
-                android:focusable="true"
-                app:cardBackgroundColor="@android:color/white"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                app:strokeColor="#E0E0E0"
-                app:strokeWidth="1dp">
-
-<!--                <LinearLayout-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:gravity="center_vertical"-->
-<!--                    android:orientation="horizontal"-->
-<!--                    android:padding="20dp">-->
-
-<!--                    <TextView-->
-<!--                        android:layout_width="0dp"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:layout_weight="1"-->
-<!--                        android:text="환경설정"-->
-<!--                        android:textColor="@android:color/black"-->
-<!--                        android:textSize="16sp"-->
-<!--                        android:textStyle="bold" />-->
-
-<!--                    <ImageView-->
-<!--                        android:layout_width="14dp"-->
-<!--                        android:layout_height="14dp"-->
-<!--                        android:src="@drawable/ic_right_arrow"-->
-<!--                        app:tint="#666666" />-->
-
-<!--                </LinearLayout>-->
 
             </com.google.android.material.card.MaterialCardView>
 

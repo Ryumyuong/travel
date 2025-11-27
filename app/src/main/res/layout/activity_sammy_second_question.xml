@@ -1,269 +1,365 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
-    android:fillViewport="true"
-    tools:context=".SammySecondQuestionActivity">
+    android:background="@drawable/gradient_background">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/main"
-        android:layout_width="match_parent"
+    <!-- 헤더 텍스트 -->
+    <TextView
+        android:id="@+id/tvHeader"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingStart="48dp"
-        android:paddingEnd="48dp"
-        android:paddingTop="24dp"
-        android:paddingBottom="24dp">
+        android:layout_marginTop="50dp"
+        android:layout_marginStart="48dp"
+        android:layout_marginEnd="48dp"
+        android:lineSpacingExtra="4dp"
+        android:text="님께 여행 일정을 추천드리기 전,\n여행 상태는 어때요?"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Header Text -->
-        <TextView
-            android:id="@+id/tvHeader"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:text="사용자님께 여행 일정을 추천드리기 전,여행 상태는 어때요?"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:fontFamily="@font/noto_sans_kr"
-            android:textStyle="bold"
-            android:lineSpacingExtra="4dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <!-- 질문 스크롤 컨테이너 -->
+    <ScrollView
+        android:id="@+id/scrollViewQuestions"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="24dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvHeader">
 
-        <!-- Question 1: 누구와 함께 -->
-        <TextView
-            android:id="@+id/tvQuestion1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="60dp"
-            android:text="Q. 누구와 함께 가나요?"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:fontFamily="@font/noto_sans_kr"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvHeader" />
-
-        <RadioGroup
-            android:id="@+id/rgCompanion"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
             android:orientation="vertical"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvQuestion1">
+            android:paddingHorizontal="48dp"
+            android:paddingTop="24dp"
+            android:paddingBottom="40dp">
 
-            <RadioButton
-                android:id="@+id/rbAlone"
-                android:layout_width="wrap_content"
+            <!-- 완료된 질문들이 여기에 동적으로 추가됩니다 -->
+            <LinearLayout
+                android:id="@+id/completedQuestionsContainer"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:buttonTint="#3653AE"
-                android:checked="true"
-                android:text="혼자"
-                android:textColor="#000000"
-                android:textSize="16sp"
-                android:fontFamily="@font/noto_sans_kr"/>
+                android:orientation="vertical" />
 
-            <RadioButton
-                android:id="@+id/rbCouple"
-                android:layout_width="wrap_content"
+            <!-- 현재 질문 컨테이너 -->
+            <LinearLayout
+                android:id="@+id/currentQuestionContainer"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:buttonTint="#3653AE"
-                android:text="연인"
-                android:textColor="#000000"
-                android:textSize="16sp"
-                android:fontFamily="@font/noto_sans_kr"/>
+                android:layout_gravity="center_vertical"
+                android:orientation="vertical">
 
-            <RadioButton
-                android:id="@+id/rbFriend"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:buttonTint="#3653AE"
-                android:text="친구"
-                android:textColor="#000000"
-                android:textSize="16sp"
-                android:fontFamily="@font/noto_sans_kr" />
+                <!-- Step 1: 동행자 -->
+                <LinearLayout
+                    android:id="@+id/stepCompanion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="visible">
 
-            <RadioButton
-                android:id="@+id/rbFamily"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:buttonTint="#3653AE"
-                android:text="가족"
-                android:textColor="#000000"
-                android:textSize="16sp"
-                android:fontFamily="@font/noto_sans_kr"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Q. 누구와 함께 가나요?"
+                        android:textColor="#000000"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
 
-            <RadioButton
-                android:id="@+id/rbFamilyWithKids"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:buttonTint="#3653AE"
-                android:text="아이 동반 가족"
-                android:textColor="#000000"
-                android:textSize="16sp"
-                android:fontFamily="@font/noto_sans_kr"/>
-        </RadioGroup>
+                    <RadioGroup
+                        android:id="@+id/rgCompanion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:orientation="vertical">
 
-        <!-- Question 2: 여행 예산 -->
-        <TextView
-            android:id="@+id/tvQuestion2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:text="Q. 여행 예산이 궁금해요"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:fontFamily="@font/noto_sans_kr"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/rgCompanion" />
+                        <RadioButton
+                            android:id="@+id/rbAlone"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:buttonTint="#3653AE"
+                            android:paddingStart="12dp"
+                            android:paddingVertical="10dp"
+                            android:text="혼자"
+                            android:textColor="#000000"
+                            android:textSize="16sp" />
 
-        <SeekBar
-            android:id="@+id/seekBarBudget"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:max="2"
-            android:progress="1"
-            android:progressTint="#3653AE"
-            android:thumbTint="#3653AE"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvQuestion2" />
+                        <RadioButton
+                            android:id="@+id/rbCouple"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:buttonTint="#3653AE"
+                            android:paddingStart="12dp"
+                            android:paddingVertical="10dp"
+                            android:text="연인"
+                            android:textColor="#000000"
+                            android:textSize="16sp" />
 
-        <!-- Budget Labels -->
-        <LinearLayout
-            android:id="@+id/llBudgetLabels"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="@id/seekBarBudget"
-            app:layout_constraintStart_toStartOf="@id/seekBarBudget"
-            app:layout_constraintTop_toBottomOf="@id/seekBarBudget">
+                        <RadioButton
+                            android:id="@+id/rbFriend"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:buttonTint="#3653AE"
+                            android:paddingStart="12dp"
+                            android:paddingVertical="10dp"
+                            android:text="친구"
+                            android:textColor="#000000"
+                            android:textSize="16sp" />
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="&lt; 없음"
-                android:textAlignment="textStart"
-                android:textColor="#666666"
-                android:textSize="14sp"
-                android:fontFamily="@font/noto_sans_kr" />
+                        <RadioButton
+                            android:id="@+id/rbFamily"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:buttonTint="#3653AE"
+                            android:paddingStart="12dp"
+                            android:paddingVertical="10dp"
+                            android:text="가족"
+                            android:textColor="#000000"
+                            android:textSize="16sp" />
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="적당함"
-                android:textAlignment="center"
-                android:textColor="#666666"
-                android:textSize="14sp"
-                android:fontFamily="@font/noto_sans_kr" />
+                        <RadioButton
+                            android:id="@+id/rbFamilyWithKids"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:buttonTint="#3653AE"
+                            android:paddingStart="12dp"
+                            android:paddingVertical="10dp"
+                            android:text="가족 (아이 동반)"
+                            android:textColor="#000000"
+                            android:textSize="16sp" />
+                    </RadioGroup>
+                </LinearLayout>
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="여유로움 &gt;"
-                android:textAlignment="textEnd"
-                android:textColor="#666666"
-                android:textSize="14sp"
-                android:fontFamily="@font/noto_sans_kr" />
+                <!-- Step 2: 예산 -->
+                <LinearLayout
+                    android:id="@+id/stepBudget"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="visible">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Q. 여행 예산이 궁금해요!"
+                        android:textColor="#000000"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <SeekBar
+                        android:id="@+id/seekBarBudget"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="48dp"
+                        android:max="4"
+                        android:progress="2"
+                        android:progressDrawable="@drawable/seekbar_track_black"
+                        android:thumb="@drawable/seekbar_thumb_blue" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="매우\n부족"
+                            android:textAlignment="center"
+                            android:gravity="center"
+                            android:textColor="#666666"
+                            android:textSize="12sp" />
+
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="부족"
+                            android:textAlignment="center"
+                            android:gravity="center"
+                            android:textColor="#666666"
+                            android:textSize="12sp" />
+
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="적당함"
+                            android:textAlignment="center"
+                            android:gravity="center"
+                            android:textColor="#666666"
+                            android:textSize="12sp" />
+
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="여유"
+                            android:textAlignment="center"
+                            android:gravity="center"
+                            android:textColor="#666666"
+                            android:textSize="12sp" />
+
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="매우\n여유"
+                            android:textAlignment="center"
+                            android:gravity="center"
+                            android:textColor="#666666"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Step 3: 에너지 -->
+                <LinearLayout
+                    android:id="@+id/stepEnergy"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="visible">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Q. 여행 갔을 때 에너지는?"
+                        android:textColor="#000000"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <SeekBar
+                        android:id="@+id/seekBarEnergy"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="48dp"
+                        android:max="4"
+                        android:progress="2"
+                        android:progressDrawable="@drawable/seekbar_track_black"
+                        android:thumb="@drawable/seekbar_thumb_blue" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="많이\n쉬고싶음"
+                            android:textAlignment="center"
+                            android:gravity="center"
+                            android:textColor="#666666"
+                            android:textSize="12sp" />
+
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="쉬고\n싶음"
+                            android:textAlignment="center"
+                            android:gravity="center"
+                            android:textColor="#666666"
+                            android:textSize="12sp" />
+
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="보통"
+                            android:textAlignment="center"
+                            android:gravity="center"
+                            android:textColor="#666666"
+                            android:textSize="12sp" />
+
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="활동적"
+                            android:textAlignment="center"
+                            android:gravity="center"
+                            android:textColor="#666666"
+                            android:textSize="12sp" />
+
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="매우\n활동적"
+                            android:textAlignment="center"
+                            android:gravity="center"
+                            android:textColor="#666666"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+
         </LinearLayout>
+    </ScrollView>
 
-        <!-- Question 3: 에너지 -->
-        <TextView
-            android:id="@+id/tvQuestion3"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="60dp"
-            android:text="Q. 여행 갔을 때 에너지는?"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:fontFamily="@font/noto_sans_kr"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/llBudgetLabels" />
+    <!-- 하단 버튼 -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnNext"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/btn_blue_rounded"
+        android:text="다음"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-        <SeekBar
-            android:id="@+id/seekBarEnergy"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:max="2"
-            android:progress="1"
-            android:progressTint="#3653AE"
-            android:thumbTint="#3653AE"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvQuestion3" />
-
-        <!-- Energy Labels -->
-        <LinearLayout
-            android:id="@+id/llEnergyLabels"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="@id/seekBarEnergy"
-            app:layout_constraintStart_toStartOf="@id/seekBarEnergy"
-            app:layout_constraintTop_toBottomOf="@id/seekBarEnergy">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="&lt; 없음 \n(쉬고 싶음)"
-                android:textAlignment="textStart"
-                android:textColor="#666666"
-                android:textSize="14sp"
-                android:fontFamily="@font/noto_sans_kr" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="보통"
-                android:textAlignment="center"
-                android:textColor="#666666"
-                android:textSize="14sp"
-                android:fontFamily="@font/noto_sans_kr" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="쌩쌩함 &gt; \n(액티비티 좋아함) "
-                android:textAlignment="textEnd"
-                android:textColor="#666666"
-                android:textSize="14sp"
-                android:fontFamily="@font/noto_sans_kr" />
-        </LinearLayout>
-
-        <!-- Start Button -->
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnStart"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginTop="60dp"
-            android:layout_marginBottom="24dp"
-            android:background="@drawable/btn_blue_rounded"
-            android:text="여행 시작하기"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:fontFamily="@font/noto_sans_kr"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/llEnergyLabels" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

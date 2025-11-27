@@ -7,29 +7,54 @@ import android.widget.CheckBox
 import android.widget.TextView
 import android.widget.ImageView
 import android.widget.LinearLayout
-import androidx.cardview.widget.CardView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 
-// PlanAdapter.kt
 class PlanAdapter(
     private var isSelectionMode: Boolean,
     private val selectedItems: MutableSet<Int>,
-    private val onItemClick: (Int) -> Unit
+    private val onItemClick: (Int) -> Unit,
+    private val onRecommendClick: (Int) -> Unit = {},  // 다시추천 콜백
+    private val onDeleteClick: (Int) -> Unit = {}      // 삭제 콜백
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val items = listOf(
-        PlanItem("The Seminyak Beach", "석양이 아름다운 스미냐 해변"),
-        PlanItem("Revolver Espresso", "분위기 좋은 시크한 로컬 카페"),
-        PlanItem("Bodyworks Spa", "전통 발리 마사지로 여행 피로 풀기 좋은 곳"),
-        PlanItem("Bambu Restaurant", "모던한 분위기의 인도네시아 레스토랑")
-    )
+    // 동적으로 업데이트되는 아이템 리스트
+    private var items: MutableList<PlanItem> = mutableListOf()
 
     companion object {
         const val VIEW_TYPE_NORMAL = 0
         const val VIEW_TYPE_SELECTION = 1
         const val VIEW_TYPE_ADD_BUTTON = 2
     }
+
+    // 아이템 업데이트
+    fun updateItems(newItems: List<PlanItem>) {
+        items = newItems.toMutableList()
+        notifyDataSetChanged()
+    }
+
+    // 특정 위치 아이템 교체 (다시추천용)
+    fun replaceItem(position: Int, newItem: PlanItem) {
+        if (position >= 0 && position < items.size) {
+            items[position] = newItem
+            notifyItemChanged(position)
+        }
+    }
+
+    // 아이템 삭제
+    fun removeItem(position: Int) {
+        if (position >= 0 && position < items.size) {
+            items.removeAt(position)
+            notifyItemRemoved(position)
+            // 번호 재정렬을 위해 나머지 아이템 갱신
+            notifyItemRangeChanged(position, items.size - position)
+        }
+    }
+
+    // 현재 아이템 리스트 반환
+    fun getItems(): List<PlanItem> = items.toList()
+
+    // 아이템 개수 반환
+    fun getItemSize(): Int = items.size
 
     override fun getItemViewType(position: Int): Int {
         return when {
@@ -64,7 +89,14 @@ class PlanAdapter(
         when (holder) {
             is NormalViewHolder -> {
                 val item = items[position]
-                holder.bind(item, position + 1, position == items.size - 1, onItemClick)
+                holder.bind(
+                    item = item,
+                    number = position + 1,
+                    isLastItem = position == items.size - 1,
+                    onItemClick = onItemClick,
+                    onRecommendClick = onRecommendClick,
+                    onDeleteClick = onDeleteClick
+                )
             }
             is SelectionViewHolder -> {
                 val item = items[position]
@@ -85,7 +117,7 @@ class PlanAdapter(
         notifyDataSetChanged()
     }
 
-    // *** 일반 모드 ViewHolder - 새로운 타임라인 레이아웃에 맞게 수정 ***
+    // 일반 모드 ViewHolder
     class NormalViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvNumber: TextView = itemView.findViewById(R.id.tvNumber)
         private val tvTitle: TextView = itemView.findViewById(R.id.tvTitle)
@@ -95,29 +127,37 @@ class PlanAdapter(
         private val btnDelete: LinearLayout = itemView.findViewById(R.id.btnDelete)
         private val timelineLine: View = itemView.findViewById(R.id.timelineLine)
 
-        fun bind(item: PlanItem, number: Int, isLastItem: Boolean, onItemClick: (Int) -> Unit) {
+        fun bind(
+            item: PlanItem,
+            number: Int,
+            isLastItem: Boolean,
+            onItemClick: (Int) -> Unit,
+            onRecommendClick: (Int) -> Unit,
+            onDeleteClick: (Int) -> Unit
+        ) {
             tvNumber.text = number.toString()
             tvTitle.text = item.title
             tvDescription.text = item.description
 
-            // *** 모든 아이템에서 타임라인 점선 표시 ***
-            timelineLine.visibility = View.VISIBLE
 
-            // *** 버튼 클릭 이벤트 설정 ***
+            // 마지막 아이템이면 타임라인 숨김
+            timelineLine.visibility = if (isLastItem) View.GONE else View.VISIBLE
+
+            // 다시추천 버튼 클릭
             btnRecommend.setOnClickListener {
-                // 다시추천 버튼 클릭 처리
+                onRecommendClick(adapterPosition)
             }
 
+            // 삭제 버튼 클릭
             btnDelete.setOnClickListener {
-                onItemClick(adapterPosition) // 삭제 버튼은 기존 클릭 이벤트 사용
+                onDeleteClick(adapterPosition)
             }
 
-            // 전체 아이템 클릭 이벤트
             itemView.setOnClickListener { onItemClick(adapterPosition) }
         }
     }
 
-    // *** 선택 모드 ViewHolder - 새로운 둥근 디자인에 맞게 수정 ***
+    // 선택 모드 ViewHolder
     class SelectionViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val checkbox: CheckBox = itemView.findViewById(R.id.checkbox)
         private val tvTitle: TextView = itemView.findViewById(R.id.tvTitle)
@@ -129,25 +169,18 @@ class PlanAdapter(
             tvDescription.text = item.description
             checkbox.isChecked = isSelected
 
-            // 전체 아이템 클릭 이벤트
             container.setOnClickListener { onItemClick(adapterPosition) }
         }
     }
 
-    // *** 일정 추가 버튼 ViewHolder ***
+    // 일정 추가 버튼 ViewHolder
     class AddButtonViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val addButton: LinearLayout = itemView.findViewById(R.id.addButton)
 
         fun bind(onItemClick: (Int) -> Unit) {
             addButton.setOnClickListener {
-                onItemClick(-1) // 일정 추가 버튼은 특별한 position(-1)으로 구분
+                onItemClick(-1)
             }
         }
     }
 }
-
-// 데이터 클래스
-data class PlanItem(
-    val title: String,
-    val description: String
-)

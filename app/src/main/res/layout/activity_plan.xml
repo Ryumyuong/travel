@@ -20,6 +20,7 @@
             android:background="@drawable/button_black"
             android:textSize="10sp"
             android:paddingLeft="10dp"
+            android:includeFontPadding="false"
             android:paddingRight="10dp"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
@@ -32,14 +33,16 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="휴가를 즐기러 온"
+                android:text="휴양를 즐기러 온"
                 android:textStyle="bold"
+                android:includeFontPadding="false"
                 android:textColor="@color/white"/>
             <TextView
                 android:id="@+id/name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
+                android:includeFontPadding="false"
                 android:textStyle="bold"
                 android:textColor="@color/white"/>
         </LinearLayout>
@@ -52,6 +55,7 @@
                 android:layout_height="wrap_content"
                 android:text="4박 5일 "
                 android:textStyle="bold"
+                android:includeFontPadding="false"
                 android:textColor="@color/white"/>
             <TextView
                 android:id="@+id/country"
@@ -59,11 +63,13 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textStyle="bold"
+                android:includeFontPadding="false"
                 android:textColor="@color/white"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=" 여행은 이렇게 준비했어요!"
+                android:includeFontPadding="false"
                 android:textStyle="bold"
                 android:textColor="@color/white"/>
 
@@ -132,43 +138,6 @@
         app:tabIndicatorHeight="2dp"
         app:tabIndicatorFullWidth="false"/>
 
-     <!-- 일정편집 버튼 -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="end"
-        android:paddingHorizontal="20dp"
-        android:paddingVertical="4dp">
-
-        <LinearLayout
-            android:id="@+id/btnEditSchedule"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingVertical="4dp"
-            android:paddingHorizontal="8dp"
-            android:background="?android:attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:src="@drawable/ic_edit"
-                android:layout_marginEnd="4dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="일정편집"
-                android:textSize="13sp"
-                android:textColor="#666666" />
-
-        </LinearLayout>
-
-    </LinearLayout>
 
     <!-- 리사이클러뷰 -->
     <androidx.recyclerview.widget.RecyclerView
@@ -218,28 +187,13 @@
                 android:layout_height="40dp"
                 android:layout_weight="1"
                 android:text="내 일정에 추가"
-                android:background="@drawable/button_recent_search"
-                android:backgroundTint="#EBEEF8"
-                android:textColor="#6378C4"
+                android:background="@drawable/btn_blue_rounded"
+                android:textColor="#ffffff"
                 android:textSize="14sp"
                 android:stateListAnimator="@null"
                 android:elevation="0dp"
                 android:includeFontPadding="false"/>
         </LinearLayout>
-
-        <!-- 두 번째 줄: 나에게 딱 맞는 여행을 찾았다면? -->
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnFindPerfectTrip"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginTop="12dp"
-            android:text="나에게 딱 맞는 여행을 찾았다면?"
-            android:background="@drawable/btn_blue_rounded"
-            android:textColor="#FFFFFF"
-            android:textSize="13sp"
-            android:stateListAnimator="@null"
-            android:elevation="0dp"
-            android:includeFontPadding="false"/>
     </LinearLayout>
 
     <!-- 선택 모드 버튼들 -->
