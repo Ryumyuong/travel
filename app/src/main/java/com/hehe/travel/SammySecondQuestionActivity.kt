@@ -5,14 +5,17 @@ import android.os.Bundle
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.ScrollView
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.chip.Chip
@@ -41,6 +44,8 @@ class SammySecondQuestionActivity : AppCompatActivity() {
     private lateinit var stepEnergy: View
 
     private lateinit var btnNext: AppCompatButton
+    private lateinit var completedQuestionsContainer: LinearLayout
+    private lateinit var scrollViewQuestions: ScrollView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +74,8 @@ class SammySecondQuestionActivity : AppCompatActivity() {
         stepEnergy = findViewById(R.id.stepEnergy)
 
         btnNext = findViewById(R.id.btnNext)
+        completedQuestionsContainer = findViewById(R.id.completedQuestionsContainer)
+        scrollViewQuestions = findViewById(R.id.scrollViewQuestions)
 
         btnNext.setOnClickListener { onNextClicked() }
     }
@@ -84,7 +91,7 @@ class SammySecondQuestionActivity : AppCompatActivity() {
     }
 
     private fun setupStepViews() {
-        // Step 1: 동행자
+        // Step 1: 동행자 - 선택하면 자동으로 다음 스텝
         findViewById<RadioGroup>(R.id.rgCompanion).setOnCheckedChangeListener { _, checkedId ->
             companion = when (checkedId) {
                 R.id.rbAlone -> "혼자"
@@ -94,9 +101,16 @@ class SammySecondQuestionActivity : AppCompatActivity() {
                 R.id.rbFamilyWithKids -> "가족(아이 동반)"
                 else -> "혼자"
             }
+
+            // 자동으로 다음 스텝 이동
+            if (checkedId != -1) {
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    onNextClicked()
+                }, 300)
+            }
         }
 
-        // Step 2: 예산 (5단계)
+        // Step 2: 예산 (5단계) - 터치 끊기면 자동으로 다음 스텝
         val seekBarBudget = findViewById<SeekBar>(R.id.seekBarBudget)
         seekBarBudget.max = 4
         seekBarBudget.progress = 2
@@ -105,10 +119,15 @@ class SammySecondQuestionActivity : AppCompatActivity() {
                 budgetLabel = arrayOf("매우 부족", "부족", "적당함", "여유로움", "매우 여유로움")[progress]
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                // 자동으로 다음 스텝 이동
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    onNextClicked()
+                }, 300)
+            }
         })
 
-        // Step 3: 에너지 (5단계)
+        // Step 3: 에너지 (5단계) - 버튼 없이 마지막은 저장
         val seekBarEnergy = findViewById<SeekBar>(R.id.seekBarEnergy)
         seekBarEnergy.max = 4
         seekBarEnergy.progress = 2
@@ -117,14 +136,25 @@ class SammySecondQuestionActivity : AppCompatActivity() {
                 energyLabel = arrayOf("많이 쉬고 싶음", "쉬고 싶음", "보통", "활동적", "매우 활동적")[progress]
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                // 버튼을 표시
+                btnNext.visibility = View.VISIBLE
+            }
         })
     }
 
     private fun onNextClicked() {
+        // 완료된 질문을 상단에 추가
+        addCompletedQuestion(currentStep)
+
         if (currentStep < totalSteps - 1) {
             currentStep++
             updateUI()
+
+            // 스크롤을 하단으로 이동 (새 질문이 보이도록)
+            scrollViewQuestions.post {
+                scrollViewQuestions.fullScroll(View.FOCUS_DOWN)
+            }
         } else {
             // 마지막 스텝 - 저장 후 SearchActivity로
             saveAndNavigate()
@@ -140,7 +170,120 @@ class SammySecondQuestionActivity : AppCompatActivity() {
         }
     }
 
+    private fun addCompletedQuestion(step: Int) {
+        val questionText: String
+        val answerText: String
+
+        when (step) {
+            0 -> {
+                questionText = "누구와 함께 가나요?"
+                answerText = companion
+            }
+            1 -> {
+                questionText = "여행 예산이 궁금해요!"
+                answerText = budgetLabel
+            }
+            2 -> {
+                questionText = "여행 갔을 때 에너지는?"
+                answerText = energyLabel
+            }
+            else -> return
+        }
+
+        // 완료된 질문 컨테이너
+        val completedView = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomMargin = dpToPx(40)
+            }
+            tag = step // 스텝 번호 저장
+            isClickable = true
+            isFocusable = true
+
+            // 클릭 효과 추가
+            background = ContextCompat.getDrawable(context, android.R.drawable.list_selector_background)
+
+            // 클릭하면 해당 스텝으로 돌아가기
+            setOnClickListener {
+                editCompletedQuestion(step)
+            }
+        }
+
+        // 질문
+        val questionTextView = TextView(this).apply {
+            text = questionText
+            textSize = 18f
+            setTextColor(ContextCompat.getColor(context, android.R.color.black))
+            setTypeface(null, android.graphics.Typeface.BOLD)
+        }
+
+        // 답변
+        val answerTextView = TextView(this).apply {
+            text = answerText
+            textSize = 16f
+            setTextColor(ContextCompat.getColor(context, android.R.color.holo_blue_dark))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dpToPx(8)
+            }
+        }
+
+        completedView.addView(questionTextView)
+        completedView.addView(answerTextView)
+
+        completedQuestionsContainer.addView(completedView)
+    }
+
+    private fun editCompletedQuestion(targetStep: Int) {
+        // 해당 스텝 이후의 완료된 질문들 삭제
+        val childCount = completedQuestionsContainer.childCount
+        val viewsToRemove = mutableListOf<View>()
+
+        for (i in 0 until childCount) {
+            val child = completedQuestionsContainer.getChildAt(i)
+            val step = child.tag as? Int ?: continue
+            if (step >= targetStep) {
+                viewsToRemove.add(child)
+            }
+        }
+
+        viewsToRemove.forEach {
+            completedQuestionsContainer.removeView(it)
+        }
+
+        // 해당 스텝으로 돌아가기
+        currentStep = targetStep
+        updateUI()
+
+        // 스크롤을 하단으로 이동
+        scrollViewQuestions.post {
+            scrollViewQuestions.fullScroll(View.FOCUS_DOWN)
+        }
+    }
+
+    private fun dpToPx(dp: Int): Int {
+        val density = resources.displayMetrics.density
+        return (dp * density).toInt()
+    }
+
     private fun updateUI() {
+
+        // 버튼 visibility - 마지막 스텝에서만 보이기 (에너지 SeekBar 터치 후)
+        btnNext.visibility = View.GONE
+
+        // ScrollView 하단 패딩 조정 (버튼이 보일 때만 여백)
+        val bottomPadding = if (currentStep == totalSteps - 1) dpToPx(120) else dpToPx(40)
+        scrollViewQuestions.setPadding(
+            scrollViewQuestions.paddingLeft,
+            scrollViewQuestions.paddingTop,
+            scrollViewQuestions.paddingRight,
+            bottomPadding
+        )
 
         // 버튼 텍스트 변경
         btnNext.text = if (currentStep == totalSteps - 1) "여행 시작하기" else "다음"

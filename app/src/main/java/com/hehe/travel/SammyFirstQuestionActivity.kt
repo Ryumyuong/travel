@@ -2,19 +2,23 @@ package com.hehe.travel
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.ScrollView
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.chip.Chip
@@ -47,6 +51,8 @@ class SammyFirstQuestionActivity : AppCompatActivity() {
     private lateinit var stepPurpose: View
 
     private lateinit var btnNext: AppCompatButton
+    private lateinit var completedQuestionsContainer: LinearLayout
+    private lateinit var scrollViewQuestions: ScrollView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,6 +89,8 @@ class SammyFirstQuestionActivity : AppCompatActivity() {
         stepPurpose = findViewById(R.id.stepPurpose)
 
         btnNext = findViewById(R.id.btnNext)
+        completedQuestionsContainer = findViewById(R.id.completedQuestionsContainer)
+        scrollViewQuestions = findViewById(R.id.scrollViewQuestions)
 
         // 기본 닉네임 설정 (수정 모드가 아닐 때만)
         if (!isEditMode) {
@@ -141,19 +149,30 @@ class SammyFirstQuestionActivity : AppCompatActivity() {
     }
 
     private fun setupStepViews() {
-        // Step 1: 닉네임
-        findViewById<EditText>(R.id.etNickname).setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                nickname = findViewById<EditText>(R.id.etNickname).text.toString()
+        // Step 1: 닉네임 - 엔터/완료 키 입력 시 다음 단계로
+        val etNickname = findViewById<EditText>(R.id.etNickname)
+        etNickname.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
+                onNextClicked()
+                true
+            } else {
+                false
             }
         }
 
-        // Step 2: 성별
+        // Step 2: 성별 - 선택하면 자동으로 다음 스텝
         findViewById<RadioGroup>(R.id.rgGender).setOnCheckedChangeListener { _, checkedId ->
             gender = if (checkedId == R.id.rbMale) "남자" else "여자"
+
+            // 자동으로 다음 스텝 이동
+            if (checkedId != -1) {
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    onNextClicked()
+                }, 300)
+            }
         }
 
-        // Step 3: 연령대
+        // Step 3: 연령대 - 터치 끊기면 자동으로 다음 스텝
         val seekBarAge = findViewById<SeekBar>(R.id.seekBarAge)
         seekBarAge.max = 4
         seekBarAge.progress = 2
@@ -162,12 +181,19 @@ class SammyFirstQuestionActivity : AppCompatActivity() {
                 ageDecade = (progress + 1) * 10
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                // 자동으로 다음 스텝 이동
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    onNextClicked()
+                }, 300)
+            }
         })
 
         // Step 4: 여행 목적 - 새로고침 버튼
         findViewById<ImageButton>(R.id.btnRefresh)?.setOnClickListener { resetPurposes() }
         findViewById<TextView>(R.id.tvRefresh)?.setOnClickListener { resetPurposes() }
+        findViewById<ImageButton>(R.id.btnReset)?.setOnClickListener { resetPurposes() }
+        findViewById<TextView>(R.id.tvReset)?.setOnClickListener { resetPurposes() }
     }
 
     private fun resetPurposes() {
@@ -188,7 +214,7 @@ class SammyFirstQuestionActivity : AppCompatActivity() {
     }
 
     private fun onNextClicked() {
-        // 현재 스텝 데이터 저장
+        // 현재 스텝 데이터 저장 및 검증
         when (currentStep) {
             0 -> {
                 nickname = findViewById<EditText>(R.id.etNickname).text.toString()
@@ -200,11 +226,20 @@ class SammyFirstQuestionActivity : AppCompatActivity() {
             3 -> collectPurposes()
         }
 
+        // 완료된 질문을 상단에 추가
+        addCompletedQuestion(currentStep)
+
         if (currentStep < totalSteps - 1) {
             currentStep++
             updateUI()
+
+            // 스크롤을 하단으로 이동 (새 질문이 보이도록)
+            scrollViewQuestions.post {
+                scrollViewQuestions.fullScroll(View.FOCUS_DOWN)
+            }
         } else {
             // 마지막 스텝 - 저장 후 이동
+            collectPurposes()
             saveAndNavigate()
         }
     }
@@ -218,13 +253,130 @@ class SammyFirstQuestionActivity : AppCompatActivity() {
         }
     }
 
+    private fun addCompletedQuestion(step: Int) {
+        val questionText: String
+        val answerText: String
+
+        when (step) {
+            0 -> {
+                questionText = "Q. 제가 뭐라고 부르면 될까요?"
+                answerText = nickname
+            }
+            1 -> {
+                questionText = "Q. 성별을 알려주세요"
+                answerText = gender
+            }
+            2 -> {
+                questionText = "Q. 연령대를 알려주세요"
+                answerText = "${ageDecade}대"
+            }
+            3 -> {
+                questionText = "Q. 이번 여행의 목적은 무엇인가요?"
+                answerText = selectedPurposes.joinToString(", ")
+            }
+            else -> return
+        }
+
+        // 완료된 질문 컨테이너
+        val completedView = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomMargin = dpToPx(40)
+            }
+            tag = step // 스텝 번호 저장
+            isClickable = true
+            isFocusable = true
+
+            // 클릭 효과 추가
+            background = ContextCompat.getDrawable(context, android.R.drawable.list_selector_background)
+
+            // 클릭하면 해당 스텝으로 돌아가기
+            setOnClickListener {
+                editCompletedQuestion(step)
+            }
+        }
+
+        // 질문
+        val questionTextView = TextView(this).apply {
+            text = questionText
+            textSize = 18f
+            setTextColor(ContextCompat.getColor(context, android.R.color.black))
+            setTypeface(null, android.graphics.Typeface.BOLD)
+        }
+
+        // 답변
+        val answerTextView = TextView(this).apply {
+            text = answerText
+            textSize = 16f
+            setTextColor(ContextCompat.getColor(context, android.R.color.holo_blue_dark))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dpToPx(8)
+            }
+        }
+
+        completedView.addView(questionTextView)
+        completedView.addView(answerTextView)
+
+        completedQuestionsContainer.addView(completedView)
+    }
+
+    private fun editCompletedQuestion(targetStep: Int) {
+        // 해당 스텝 이후의 완료된 질문들 삭제
+        val childCount = completedQuestionsContainer.childCount
+        val viewsToRemove = mutableListOf<View>()
+
+        for (i in 0 until childCount) {
+            val child = completedQuestionsContainer.getChildAt(i)
+            val step = child.tag as? Int ?: continue
+            if (step >= targetStep) {
+                viewsToRemove.add(child)
+            }
+        }
+
+        viewsToRemove.forEach {
+            completedQuestionsContainer.removeView(it)
+        }
+
+        // 해당 스텝으로 돌아가기
+        currentStep = targetStep
+        updateUI()
+
+        // 스크롤을 하단으로 이동
+        scrollViewQuestions.post {
+            scrollViewQuestions.fullScroll(View.FOCUS_DOWN)
+        }
+    }
+
+    private fun dpToPx(dp: Int): Int {
+        val density = resources.displayMetrics.density
+        return (dp * density).toInt()
+    }
+
     private fun updateUI() {
+
+        // 버튼 visibility - 여행 목적(step 3)에서만 보이기
+        btnNext.visibility = if (currentStep == totalSteps - 1) View.VISIBLE else View.GONE
+
+        // ScrollView 하단 패딩 조정 (버튼이 보일 때만 여백)
+        val bottomPadding = if (currentStep == totalSteps - 1) dpToPx(120) else dpToPx(40)
+        scrollViewQuestions.setPadding(
+            scrollViewQuestions.paddingLeft,
+            scrollViewQuestions.paddingTop,
+            scrollViewQuestions.paddingRight,
+            bottomPadding
+        )
 
         // ⭐ 버튼 텍스트 변경 (수정 모드면 "수정 완료")
         btnNext.text = when {
             currentStep == totalSteps - 1 && isEditMode -> "수정 완료"
-            currentStep == totalSteps - 1 -> "완료"
-            else -> "다음"
+            currentStep == totalSteps - 1 -> "다음으로"
+            else -> "다음으로"
         }
 
         // 모든 스텝 숨기기

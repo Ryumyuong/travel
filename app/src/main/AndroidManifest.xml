@@ -67,14 +67,14 @@
         <activity
             android:name=".SammyPassMainActivity"
             android:exported="false" />
-        <activity
-            android:name=".SammyFirstQuestionActivity"
-            android:exported="false" />
+<!--        <activity-->
+<!--            android:name=".SammyFirstQuestionActivity"-->
+<!--            android:exported="false" />-->
         <activity
             android:name=".SammySecondQuestionActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".SammyFirstQuestionActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
