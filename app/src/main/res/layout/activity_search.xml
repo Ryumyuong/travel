@@ -9,15 +9,21 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="120dp"
-        android:layout_marginLeft="24dp"
-        android:layout_marginRight="24dp">
+        android:layout_marginTop="120dp">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:maxWidth="@dimen/content_max_width"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:padding="16dp"
+        android:layout_gravity="center_horizontal">
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -53,51 +59,42 @@
             android:textStyle="bold" />
 
         <!-- 검색 영역 -->
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/searchRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:layout_marginTop="40dp"
-            android:layout_marginBottom="60dp">
+            android:layout_marginBottom="40dp"
+            android:background="@drawable/search_border">
 
-            <RelativeLayout
-                android:layout_width="0dp"
+            <EditText
+                android:id="@+id/etSearchCountry"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@null">
+                android:hint="나라 검색 (예: 이탈리아 / italy)"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:singleLine="true"
+                android:background="@null"
+                android:paddingRight="50dp"/>
 
-                <EditText
-                    android:id="@+id/etSearchCountry"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="나라 검색 (예: 이탈리아 / italy)"
-                    android:imeOptions="actionSearch"
-                    android:inputType="text"
-                    android:singleLine="true"
-                    android:background="@color/transparent"
-                    android:paddingRight="50dp"/>
+            <ImageView
+                android:id="@+id/btnSearchCountry"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:src="@drawable/icon"/>
 
-                <ImageView
-                    android:id="@+id/btnSearchCountry"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="10dp"
-                    android:src="@drawable/icon"/>
-
-            </RelativeLayout>
-
-        </LinearLayout>
+        </RelativeLayout>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="최근 검색어"
             android:textStyle="bold"
             android:textSize="20sp"
-            android:layout_marginBottom="20dp"/>
+            android:layout_marginBottom="15dp"/>
 
         <HorizontalScrollView
             android:layout_width="match_parent"
@@ -113,17 +110,22 @@
                 <androidx.appcompat.widget.AppCompatButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minHeight="0dp"
                     android:text="파리  X"
                     android:background="@drawable/button_recent_search"
                     android:backgroundTint="#EBEEF8"
                     android:textColor="#6378C4"
-                    android:padding="0dp"
-                    android:includeFontPadding="false"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:includeFontPadding="false" />
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minHeight="0dp"
                     android:text="아이슬란드  X"
                     android:background="@drawable/button_recent_search"
                     android:backgroundTint="#EBEEF8"
@@ -131,19 +133,26 @@
                     android:textSize="16sp"
                     android:paddingLeft="12dp"
                     android:paddingRight="12dp"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginRight="15dp" />
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:includeFontPadding="false"
+                    android:layout_marginLeft="15dp" />
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minHeight="0dp"
                     android:text="하와이  X"
                     android:background="@drawable/button_recent_search"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp"
                     android:backgroundTint="#EBEEF8"
                     android:textColor="#6378C4"
-                    android:textSize="16sp"/>
+                    android:textSize="16sp"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:includeFontPadding="false"
+                    android:layout_marginLeft="15dp" />
 
             </LinearLayout>
 
@@ -162,16 +171,108 @@
             android:paddingTop="16dp"
             android:layout_marginBottom="20dp"/>
 
-        <ImageView
+        <!-- 프랑스 카드 -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_marginBottom="20dp"
-            android:src="@drawable/live_quiz" />
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/travel_item_background"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:layout_marginBottom="12dp"
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true">
 
-        <ImageView
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/france"
+                android:scaleType="centerCrop"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginLeft="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="프랑스"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#000000"
+                    android:fontFamily="@font/noto_sans_kr"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="낭만과 예술이 흐르는 감성의 도시"
+                    android:textSize="12sp"
+                    android:textColor="#666666"
+                    android:layout_marginTop="2dp"
+                    android:fontFamily="@font/noto_sans_kr"/>
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_right_arrow_blue"/>
+        </LinearLayout>
+
+        <!-- 이탈리아 카드 -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:src="@drawable/live_quiz2"/>
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/travel_item_background"
+            android:padding="8dp"
+            android:layout_marginBottom="12dp"
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/italy"
+                android:scaleType="centerCrop"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/noto_sans_kr"
+                    android:text="이탈리아"
+                    android:textColor="#000000"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:fontFamily="@font/noto_sans_kr"
+                    android:text="역사와 미식이 살아 숨 쉬는 도시"
+                    android:textColor="#666666"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_right_arrow_blue"/>
+        </LinearLayout>
 
         <!-- 더보기 버튼 -->
         <LinearLayout
@@ -186,8 +287,8 @@
             android:focusable="true">
 
             <ImageView
-                android:layout_width="15dp"
-                android:layout_height="15dp"
+                android:layout_width="13dp"
+                android:layout_height="13dp"
                 android:src="@drawable/ic_add"
                 android:layout_marginEnd="8dp" />
 
@@ -195,12 +296,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="더보기"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 android:textColor="#979797" />
 
         </LinearLayout>
 
     </LinearLayout>
+    </FrameLayout>
     </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView

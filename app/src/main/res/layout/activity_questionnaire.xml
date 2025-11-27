@@ -60,7 +60,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="#E5E7EB" />
+                android:background="@drawable/progress_indicator_inactive" />
 
             <View
                 android:id="@+id/indicator_2"
@@ -68,7 +68,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="#E5E7EB" />
+                android:background="@drawable/progress_indicator_inactive" />
 
             <View
                 android:id="@+id/indicator_3"
@@ -76,7 +76,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="#E5E7EB" />
+                android:background="@drawable/progress_indicator_inactive" />
 
             <View
                 android:id="@+id/indicator_4"
@@ -84,7 +84,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="#E5E7EB" />
+                android:background="@drawable/progress_indicator_inactive" />
 
             <View
                 android:id="@+id/indicator_5"
@@ -92,7 +92,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="#E5E7EB" />
+                android:background="@drawable/progress_indicator_inactive" />
 
             <View
                 android:id="@+id/indicator_6"
@@ -100,7 +100,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="#E5E7EB" />
+                android:background="@drawable/progress_indicator_inactive" />
 
             <View
                 android:id="@+id/indicator_7"
@@ -108,7 +108,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="#E5E7EB" />
+                android:background="@drawable/progress_indicator_inactive" />
 
             <View
                 android:id="@+id/indicator_8"
@@ -116,7 +116,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="#E5E7EB" />
+                android:background="@drawable/progress_indicator_inactive" />
 
             <View
                 android:id="@+id/indicator_9"
@@ -124,7 +124,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="#E5E7EB" />
+                android:background="@drawable/progress_indicator_inactive" />
 
             <View
                 android:id="@+id/indicator_10"
@@ -132,7 +132,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="#E5E7EB" />
+                android:background="@drawable/progress_indicator_inactive" />
 
             <View
                 android:id="@+id/indicator_11"
@@ -140,14 +140,14 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:background="#E5E7EB" />
+                android:background="@drawable/progress_indicator_inactive" />
 
             <View
                 android:id="@+id/indicator_12"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="#E5E7EB" />
+                android:background="@drawable/progress_indicator_inactive" />
 
         </LinearLayout>
 
@@ -200,33 +200,53 @@
                 android:layout_marginBottom="24dp" />
 
             <!-- Option Buttons -->
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn_option1"
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="여행 전 체크리스트를 만들어 하나 씩 짐을 챙긴다."
-                android:textSize="14sp"
-                android:textColor="#000000"
-                android:background="@drawable/option_button_selector"
-                android:padding="10dp"
                 android:layout_marginBottom="12dp"
-                android:gravity="center"
-                android:clickable="true"
-                android:focusable="true" />
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@android:color/transparent">
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn_option2"
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_option1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="여행 전 체크리스트를 만들어 하나 씩 짐을 챙긴다."
+                    android:textSize="14sp"
+                    android:textColor="#000000"
+                    android:background="@drawable/option_button_selector"
+                    android:padding="10dp"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="짐은 여행 출발 전에만 챙기면 되지~"
-                android:textSize="14sp"
-                android:textColor="#000000"
-                android:background="@drawable/option_button_selector"
-                android:padding="10dp"
                 android:layout_marginBottom="12dp"
-                android:gravity="center"
-                android:clickable="true"
-                android:focusable="true" />
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@android:color/transparent">
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_option2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="짐은 여행 출발 전에만 챙기면 되지~"
+                    android:textSize="14sp"
+                    android:textColor="#000000"
+                    android:background="@drawable/option_button_selector"
+                    android:padding="10dp"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </androidx.cardview.widget.CardView>
 
         </LinearLayout>
 

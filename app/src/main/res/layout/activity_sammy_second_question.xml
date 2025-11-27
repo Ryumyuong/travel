@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5"
+    android:background="#FFFFFF"
     android:fillViewport="true"
     tools:context=".SammySecondQuestionActivity">
 
@@ -23,9 +23,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
-            android:text="한비님께 여행 일정을 추천드리기 전,여행 상태는 어때요?"
+            android:text="사용자님께 여행 일정을 추천드리기 전,여행 상태는 어때요?"
             android:textColor="#000000"
             android:textSize="20sp"
+            android:fontFamily="@font/noto_sans_kr"
             android:textStyle="bold"
             android:lineSpacingExtra="4dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -41,6 +42,7 @@
             android:text="Q. 누구와 함께 가나요?"
             android:textColor="#000000"
             android:textSize="20sp"
+            android:fontFamily="@font/noto_sans_kr"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -64,7 +66,7 @@
                 android:text="혼자"
                 android:textColor="#000000"
                 android:textSize="16sp"
-                android:paddingBottom="8dp" />
+                android:fontFamily="@font/noto_sans_kr"/>
 
             <RadioButton
                 android:id="@+id/rbCouple"
@@ -74,7 +76,7 @@
                 android:text="연인"
                 android:textColor="#000000"
                 android:textSize="16sp"
-                android:paddingBottom="8dp" />
+                android:fontFamily="@font/noto_sans_kr"/>
 
             <RadioButton
                 android:id="@+id/rbFriend"
@@ -84,7 +86,7 @@
                 android:text="친구"
                 android:textColor="#000000"
                 android:textSize="16sp"
-                android:paddingBottom="8dp" />
+                android:fontFamily="@font/noto_sans_kr" />
 
             <RadioButton
                 android:id="@+id/rbFamily"
@@ -94,17 +96,17 @@
                 android:text="가족"
                 android:textColor="#000000"
                 android:textSize="16sp"
-                android:paddingBottom="8dp" />
+                android:fontFamily="@font/noto_sans_kr"/>
 
             <RadioButton
                 android:id="@+id/rbFamilyWithKids"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:buttonTint="#3653AE"
-                android:text="가족 (아이 동반)"
+                android:text="아이 동반 가족"
                 android:textColor="#000000"
                 android:textSize="16sp"
-                android:paddingBottom="8dp" />
+                android:fontFamily="@font/noto_sans_kr"/>
         </RadioGroup>
 
         <!-- Question 2: 여행 예산 -->
@@ -116,6 +118,7 @@
             android:text="Q. 여행 예산이 궁금해요"
             android:textColor="#000000"
             android:textSize="20sp"
+            android:fontFamily="@font/noto_sans_kr"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -151,7 +154,8 @@
                 android:text="&lt; 없음"
                 android:textAlignment="textStart"
                 android:textColor="#666666"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:fontFamily="@font/noto_sans_kr" />
 
             <TextView
                 android:layout_width="0dp"
@@ -160,7 +164,8 @@
                 android:text="적당함"
                 android:textAlignment="center"
                 android:textColor="#666666"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:fontFamily="@font/noto_sans_kr" />
 
             <TextView
                 android:layout_width="0dp"
@@ -169,7 +174,8 @@
                 android:text="여유로움 &gt;"
                 android:textAlignment="textEnd"
                 android:textColor="#666666"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:fontFamily="@font/noto_sans_kr" />
         </LinearLayout>
 
         <!-- Question 3: 에너지 -->
@@ -181,6 +187,7 @@
             android:text="Q. 여행 갔을 때 에너지는?"
             android:textColor="#000000"
             android:textSize="20sp"
+            android:fontFamily="@font/noto_sans_kr"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -216,7 +223,8 @@
                 android:text="&lt; 없음 \n(쉬고 싶음)"
                 android:textAlignment="textStart"
                 android:textColor="#666666"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:fontFamily="@font/noto_sans_kr" />
 
             <TextView
                 android:layout_width="0dp"
@@ -225,7 +233,8 @@
                 android:text="보통"
                 android:textAlignment="center"
                 android:textColor="#666666"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:fontFamily="@font/noto_sans_kr" />
 
             <TextView
                 android:layout_width="0dp"
@@ -234,7 +243,8 @@
                 android:text="쌩쌩함 &gt; \n(액티비티 좋아함) "
                 android:textAlignment="textEnd"
                 android:textColor="#666666"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:fontFamily="@font/noto_sans_kr" />
         </LinearLayout>
 
         <!-- Start Button -->
@@ -248,6 +258,7 @@
             android:text="여행 시작하기"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
+            android:fontFamily="@font/noto_sans_kr"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

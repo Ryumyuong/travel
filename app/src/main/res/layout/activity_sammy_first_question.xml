@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5"
+    android:background="#FFFFFF"
     android:fillViewport="true"
     tools:context=".SammyFirstQuestionActivity">
 
@@ -24,7 +24,8 @@
             android:layout_marginTop="40dp"
             android:text="Q. 제가 뭐라고 부르면 될까요?"
             android:textColor="#000000"
-            android:textSize="18sp"
+            android:textSize="17sp"
+            android:fontFamily="@font/noto_sans_kr"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -37,10 +38,10 @@
             android:layout_marginTop="10dp"
             android:background="@null"
             android:hint="이름을 입력해주세요"
-            android:paddingBottom="8dp"
             android:textColor="#3653AE"
             android:textColorHint="#3653AE"
-            android:textSize="18sp"
+            android:textSize="14sp"
+            android:fontFamily="@font/noto_sans_kr"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -53,7 +54,8 @@
             android:layout_marginTop="20dp"
             android:text="Q. 성별을 알려주세요"
             android:textColor="#000000"
-            android:textSize="18sp"
+            android:textSize="17sp"
+            android:fontFamily="@font/noto_sans_kr"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -63,7 +65,6 @@
             android:id="@+id/rgGender"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:orientation="horizontal"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvQuestion2">
@@ -76,7 +77,8 @@
                 android:checked="true"
                 android:text="남자"
                 android:textColor="#000000"
-                android:textSize="16sp" />
+                android:textSize="14sp"
+                android:fontFamily="@font/noto_sans_kr" />
 
             <RadioButton
                 android:id="@+id/rbFemale"
@@ -86,7 +88,8 @@
                 android:buttonTint="#3653AE"
                 android:text="여자"
                 android:textColor="#000000"
-                android:textSize="16sp" />
+                android:textSize="14sp"
+                android:fontFamily="@font/noto_sans_kr" />
         </RadioGroup>
 
         <TextView
@@ -96,7 +99,8 @@
             android:layout_marginTop="20dp"
             android:text="연령대를 알려주세요"
             android:textColor="#000000"
-            android:textSize="18sp"
+            android:textSize="17sp"
+            android:fontFamily="@font/noto_sans_kr"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -109,8 +113,9 @@
             android:layout_marginTop="10dp"
             android:max="4"
             android:progress="2"
-            android:progressTint="#3653AE"
-            android:thumbTint="#3653AE"
+            android:progressDrawable="@drawable/seekbar_track"
+            android:thumb="@drawable/seekbar_thumb"
+            android:tickMark="@drawable/seekbar_tick_mark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvQuestion3" />
@@ -132,7 +137,8 @@
                 android:text="10대"
                 android:textAlignment="center"
                 android:textColor="#666666"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:fontFamily="@font/noto_sans_kr" />
 
             <TextView
                 android:layout_width="0dp"
@@ -141,7 +147,8 @@
                 android:text="20대"
                 android:textAlignment="center"
                 android:textColor="#666666"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:fontFamily="@font/noto_sans_kr" />
 
             <TextView
                 android:layout_width="0dp"
@@ -150,7 +157,8 @@
                 android:text="30대"
                 android:textAlignment="center"
                 android:textColor="#666666"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:fontFamily="@font/noto_sans_kr" />
 
             <TextView
                 android:layout_width="0dp"
@@ -159,7 +167,8 @@
                 android:text="40대"
                 android:textAlignment="center"
                 android:textColor="#666666"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:fontFamily="@font/noto_sans_kr" />
 
             <TextView
                 android:layout_width="0dp"
@@ -168,7 +177,8 @@
                 android:text="50대"
                 android:textAlignment="center"
                 android:textColor="#666666"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:fontFamily="@font/noto_sans_kr" />
         </LinearLayout>
 
         <com.google.android.material.chip.ChipGroup
@@ -191,6 +201,7 @@
                 android:padding="10dp"
                 android:text="🌿 한적한 자연"
                 android:textSize="12sp"
+                android:fontFamily="@font/noto_sans_kr"
                 android:textStyle="bold" />
 
             <com.google.android.material.chip.Chip
@@ -200,6 +211,7 @@
                 android:padding="10dp"
                 android:text="🏨 호캉스"
                 android:textSize="12sp"
+                android:fontFamily="@font/noto_sans_kr"
                 android:textStyle="bold" />
 
             <com.google.android.material.chip.Chip
@@ -209,6 +221,7 @@
                 android:padding="10dp"
                 android:text="🛁 온천/스파"
                 android:textSize="12sp"
+                android:fontFamily="@font/noto_sans_kr"
                 android:textStyle="bold" />
 
             <com.google.android.material.chip.Chip
@@ -218,6 +231,7 @@
                 android:padding="10dp"
                 android:text="🏙 핫플 투어"
                 android:textSize="12sp"
+                android:fontFamily="@font/noto_sans_kr"
                 android:textStyle="bold" />
 
             <com.google.android.material.chip.Chip
@@ -227,6 +241,7 @@
                 android:padding="10dp"
                 android:text="🧘‍♀️ 힐링"
                 android:textSize="12sp"
+                android:fontFamily="@font/noto_sans_kr"
                 android:textStyle="bold" />
 
             <com.google.android.material.chip.Chip
@@ -236,6 +251,7 @@
                 android:padding="10dp"
                 android:text="☕️️ 카페 투어"
                 android:textSize="12sp"
+                android:fontFamily="@font/noto_sans_kr"
                 android:textStyle="bold" />
 
             <com.google.android.material.chip.Chip
@@ -245,6 +261,7 @@
                 android:padding="10dp"
                 android:text="🏖️ 휴양지"
                 android:textSize="12sp"
+                android:fontFamily="@font/noto_sans_kr"
                 android:textStyle="bold" />
 
             <com.google.android.material.chip.Chip
@@ -254,6 +271,7 @@
                 android:padding="10dp"
                 android:text="🍝️ 맛집"
                 android:textSize="12sp"
+                android:fontFamily="@font/noto_sans_kr"
                 android:textStyle="bold" />
 
             <com.google.android.material.chip.Chip
@@ -263,6 +281,7 @@
                 android:padding="10dp"
                 android:text="🗿️️ 역사탐험"
                 android:textSize="12sp"
+                android:fontFamily="@font/noto_sans_kr"
                 android:textStyle="bold" />
 
             <com.google.android.material.chip.Chip
@@ -272,6 +291,7 @@
                 android:padding="10dp"
                 android:text="⛰️ 등산 / 트레킹"
                 android:textSize="12sp"
+                android:fontFamily="@font/noto_sans_kr"
                 android:textStyle="bold" />
 
             <com.google.android.material.chip.Chip
@@ -281,6 +301,7 @@
                 android:padding="10dp"
                 android:text="💍 신혼여행"
                 android:textSize="12sp"
+                android:fontFamily="@font/noto_sans_kr"
                 android:textStyle="bold" />
         </com.google.android.material.chip.ChipGroup>
 
@@ -297,8 +318,8 @@
 
             <ImageButton
                 android:id="@+id/btnMore"
-                android:layout_width="15dp"
-                android:layout_height="15dp"
+                android:layout_width="13dp"
+                android:layout_height="13dp"
                 android:layout_marginStart="5dp"
                 android:layout_marginEnd="5dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
@@ -312,12 +333,13 @@
                 android:layout_height="wrap_content"
                 android:text="더보기"
                 android:textColor="#666666"
-                android:textSize="14sp" />
+                android:textSize="12sp"
+                android:fontFamily="@font/noto_sans_kr" />
 
             <ImageButton
                 android:id="@+id/btnRefresh"
-                android:layout_width="15dp"
-                android:layout_height="15dp"
+                android:layout_width="13dp"
+                android:layout_height="13dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="5dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
@@ -331,7 +353,8 @@
                 android:layout_height="wrap_content"
                 android:text="새로고침"
                 android:textColor="#666666"
-                android:textSize="14sp" />
+                android:textSize="12sp"
+                android:fontFamily="@font/noto_sans_kr" />
 
         </LinearLayout>
 
@@ -346,6 +369,7 @@
             android:text="다음으로"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
+            android:fontFamily="@font/noto_sans_kr"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
