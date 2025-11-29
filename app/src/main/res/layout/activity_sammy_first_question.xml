@@ -229,7 +229,7 @@
                         <SeekBar
                             android:id="@+id/seekBarAge"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:max="4"
                             android:paddingStart="20dp"
                             android:paddingEnd="20dp"

@@ -157,84 +157,144 @@
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
-                    <SeekBar
-                        android:id="@+id/seekBarBudget"
+                    <FrameLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="48dp"
-                        android:max="4"
-                        android:progress="2"
-                        android:progressDrawable="@drawable/seekbar_track_black"
-                        android:thumb="@drawable/seekbar_thumb_blue" />
+                        android:layout_marginTop="48dp">
+
+                        <!-- 점들을 텍스트와 같은 방식으로 배치 -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:orientation="horizontal"
+                            android:paddingStart="20dp"
+                            android:paddingEnd="20dp">
+
+                            <FrameLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1">
+
+                                <View
+                                    android:layout_width="8dp"
+                                    android:layout_height="8dp"
+                                    android:layout_gravity="center"
+                                    android:background="@drawable/seekbar_tick_mark" />
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1">
+
+                                <View
+                                    android:layout_width="8dp"
+                                    android:layout_height="8dp"
+                                    android:layout_gravity="center"
+                                    android:background="@drawable/seekbar_tick_mark" />
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1">
+
+                                <View
+                                    android:layout_width="8dp"
+                                    android:layout_height="8dp"
+                                    android:layout_gravity="center"
+                                    android:background="@drawable/seekbar_tick_mark" />
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1">
+
+                                <View
+                                    android:layout_width="8dp"
+                                    android:layout_height="8dp"
+                                    android:layout_gravity="center"
+                                    android:background="@drawable/seekbar_tick_mark" />
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1">
+
+                                <View
+                                    android:layout_width="8dp"
+                                    android:layout_height="8dp"
+                                    android:layout_gravity="center"
+                                    android:background="@drawable/seekbar_tick_mark" />
+                            </FrameLayout>
+                        </LinearLayout>
+
+                        <SeekBar
+                            android:id="@+id/seekBarBudget"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:max="4"
+                            android:paddingStart="20dp"
+                            android:paddingEnd="20dp"
+                            android:progress="2"
+                            android:progressDrawable="@drawable/seekbar_track_black"
+                            android:thumb="@drawable/seekbar_thumb_blue"
+                            android:thumbOffset="0dp" />
+                    </FrameLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp">
 
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="매우\n부족"
                             android:textAlignment="center"
-                            android:gravity="center"
                             android:textColor="#666666"
                             android:textSize="12sp" />
 
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            android:layout_weight="1" />
-
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="부족"
                             android:textAlignment="center"
-                            android:gravity="center"
                             android:textColor="#666666"
                             android:textSize="12sp" />
 
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            android:layout_weight="1" />
-
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="적당함"
                             android:textAlignment="center"
-                            android:gravity="center"
                             android:textColor="#666666"
                             android:textSize="12sp" />
 
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            android:layout_weight="1" />
-
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="여유"
                             android:textAlignment="center"
-                            android:gravity="center"
                             android:textColor="#666666"
                             android:textSize="12sp" />
 
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            android:layout_weight="1" />
-
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="매우\n여유"
                             android:textAlignment="center"
-                            android:gravity="center"
                             android:textColor="#666666"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -256,84 +316,144 @@
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
-                    <SeekBar
-                        android:id="@+id/seekBarEnergy"
+                    <FrameLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="48dp"
-                        android:max="4"
-                        android:progress="2"
-                        android:progressDrawable="@drawable/seekbar_track_black"
-                        android:thumb="@drawable/seekbar_thumb_blue" />
+                        android:layout_marginTop="48dp">
+
+                        <!-- 점들을 텍스트와 같은 방식으로 배치 -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:orientation="horizontal"
+                            android:paddingStart="20dp"
+                            android:paddingEnd="20dp">
+
+                            <FrameLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1">
+
+                                <View
+                                    android:layout_width="8dp"
+                                    android:layout_height="8dp"
+                                    android:layout_gravity="center"
+                                    android:background="@drawable/seekbar_tick_mark" />
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1">
+
+                                <View
+                                    android:layout_width="8dp"
+                                    android:layout_height="8dp"
+                                    android:layout_gravity="center"
+                                    android:background="@drawable/seekbar_tick_mark" />
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1">
+
+                                <View
+                                    android:layout_width="8dp"
+                                    android:layout_height="8dp"
+                                    android:layout_gravity="center"
+                                    android:background="@drawable/seekbar_tick_mark" />
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1">
+
+                                <View
+                                    android:layout_width="8dp"
+                                    android:layout_height="8dp"
+                                    android:layout_gravity="center"
+                                    android:background="@drawable/seekbar_tick_mark" />
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1">
+
+                                <View
+                                    android:layout_width="8dp"
+                                    android:layout_height="8dp"
+                                    android:layout_gravity="center"
+                                    android:background="@drawable/seekbar_tick_mark" />
+                            </FrameLayout>
+                        </LinearLayout>
+
+                        <SeekBar
+                            android:id="@+id/seekBarEnergy"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:max="4"
+                            android:paddingStart="20dp"
+                            android:paddingEnd="20dp"
+                            android:progress="2"
+                            android:progressDrawable="@drawable/seekbar_track_black"
+                            android:thumb="@drawable/seekbar_thumb_blue"
+                            android:thumbOffset="0dp" />
+                    </FrameLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp">
 
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="많이\n쉬고싶음"
                             android:textAlignment="center"
-                            android:gravity="center"
                             android:textColor="#666666"
                             android:textSize="12sp" />
 
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            android:layout_weight="1" />
-
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="쉬고\n싶음"
                             android:textAlignment="center"
-                            android:gravity="center"
                             android:textColor="#666666"
                             android:textSize="12sp" />
 
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            android:layout_weight="1" />
-
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="보통"
                             android:textAlignment="center"
-                            android:gravity="center"
                             android:textColor="#666666"
                             android:textSize="12sp" />
 
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            android:layout_weight="1" />
-
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="활동적"
                             android:textAlignment="center"
-                            android:gravity="center"
                             android:textColor="#666666"
                             android:textSize="12sp" />
 
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            android:layout_weight="1" />
-
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="매우\n활동적"
                             android:textAlignment="center"
-                            android:gravity="center"
                             android:textColor="#666666"
                             android:textSize="12sp" />
                     </LinearLayout>
