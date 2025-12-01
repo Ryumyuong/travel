@@ -28,7 +28,6 @@ class PlanActivity : AppCompatActivity() {
     private lateinit var adapter: PlanAdapter
 
     private val client = OkHttpClient()
-    private val GEMINI_API_KEY = "AIzaSyBnuHvwMS-h7v_i8oRgfE_4iLfEBPAtjXI"
 
     private lateinit var country: String
     private lateinit var userName: String
@@ -37,6 +36,7 @@ class PlanActivity : AppCompatActivity() {
     private var nights: Int = 0
     private var startDate: String = ""
     private var endDate: String = ""
+    private val GEMINI_API_KEY = BuildConfig.API_KEY
 
     // AI가 생성한 일정 데이터
     private var allDaysData: MutableList<DayPlanData> = mutableListOf()

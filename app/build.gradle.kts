@@ -1,7 +1,14 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
+}
+
+val props = Properties().apply {
+    // 프로젝트 루트의 apikeys.properties 읽기
+    load(rootProject.file("apikeys.properties").inputStream())
 }
 
 android {
@@ -10,11 +17,17 @@ android {
 
     defaultConfig {
         applicationId = "com.hehe.travel"
-        minSdk = 26
+        minSdk = 24
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField(
+            "String",
+            "API_KEY",
+            "\"${props["API_KEY"]}\""
+        )
     }
 
     buildTypes {
@@ -38,6 +51,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     packaging {
