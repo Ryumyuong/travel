@@ -168,8 +168,8 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:orientation="horizontal"
-                            android:paddingStart="20dp"
-                            android:paddingEnd="20dp">
+                            android:paddingStart="10dp"
+                            android:paddingEnd="10dp">
 
                             <FrameLayout
                                 android:layout_width="0dp"
@@ -237,12 +237,12 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:max="4"
-                            android:paddingStart="20dp"
-                            android:paddingEnd="20dp"
                             android:progress="2"
                             android:progressDrawable="@drawable/seekbar_track_black"
                             android:thumb="@drawable/seekbar_thumb_blue"
-                            android:thumbOffset="0dp" />
+                            android:thumbOffset="-10dp"
+                            android:paddingStart="20dp"
+                            android:paddingEnd="20dp"/>
                     </FrameLayout>
 
                     <LinearLayout
@@ -250,8 +250,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:orientation="horizontal"
-                        android:paddingStart="20dp"
-                        android:paddingEnd="20dp">
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp">
 
                         <TextView
                             android:layout_width="0dp"
@@ -327,8 +327,8 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:orientation="horizontal"
-                            android:paddingStart="20dp"
-                            android:paddingEnd="20dp">
+                            android:paddingStart="10dp"
+                            android:paddingEnd="10dp">
 
                             <FrameLayout
                                 android:layout_width="0dp"
@@ -396,12 +396,12 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:max="4"
-                            android:paddingStart="20dp"
-                            android:paddingEnd="20dp"
                             android:progress="2"
                             android:progressDrawable="@drawable/seekbar_track_black"
                             android:thumb="@drawable/seekbar_thumb_blue"
-                            android:thumbOffset="0dp" />
+                            android:thumbOffset="-10dp"
+                            android:paddingStart="20dp"
+                            android:paddingEnd="20dp"/>
                     </FrameLayout>
 
                     <LinearLayout
@@ -409,8 +409,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:orientation="horizontal"
-                        android:paddingStart="20dp"
-                        android:paddingEnd="20dp">
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp">
 
                         <TextView
                             android:layout_width="0dp"

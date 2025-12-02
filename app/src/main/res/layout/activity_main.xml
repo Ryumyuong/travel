@@ -204,7 +204,7 @@
                 </LinearLayout>
 
                 <!-- Login Button -->
-                <Button
+                <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btn_login"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
@@ -213,6 +213,7 @@
                     android:textStyle="bold"
                     android:textColor="#FFFFFF"
                     android:background="@drawable/btn_blue_rounded"
+                    android:gravity="center"
                     android:layout_marginBottom="20dp" />
 
                 <!-- Sign Up Link -->

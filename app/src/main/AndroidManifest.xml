@@ -33,13 +33,13 @@
             android:exported="false" />
         <activity
             android:name=".PlanActivity"
-            android:exported="false" /> <!-- <activity -->
+            android:exported="false" />
         <activity
             android:name=".DateRangeActivity"
-            android:exported="false" /> <!-- <activity -->
+            android:exported="false" />
         <activity
             android:name=".StartActivity"
-            android:exported="false" /> <!-- test -->
+            android:exported="false" />
         <activity
             android:name=".PreferenceRecommendActivity"
             android:exported="false" />
