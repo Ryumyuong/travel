@@ -2,6 +2,7 @@ package com.hehe.travel
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -15,6 +16,7 @@ import com.hehe.travel.databinding.ActivityStartBinding
 class StartActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityStartBinding
+    private var backPressedTime: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,21 +42,31 @@ class StartActivity : AppCompatActivity() {
             if (item.itemId == selectedId) return@setOnItemSelectedListener true
             when (item.itemId) {
                 R.id.tab_country -> {
-                    startActivity(
-                        Intent(this, SearchActivity::class.java))
+                    startActivity(Intent(this, SearchActivity::class.java))
+                    finish()
                     true
                 }
                 R.id.tab_search -> {
-                    startActivity(Intent(this, StartActivity::class.java)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
                     true
                 }
                 R.id.tab_profile -> {
                     startActivity(Intent(this, MyInfoActivity::class.java))
+                    finish()
                     true
                 }
                 else -> false
             }
+        }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (System.currentTimeMillis() - backPressedTime < 2000) {
+            super.onBackPressed()
+            finishAffinity()
+        } else {
+            backPressedTime = System.currentTimeMillis()
+            Toast.makeText(this, "한 번 더 누르면 종료됩니다", Toast.LENGTH_SHORT).show()
         }
     }
 }

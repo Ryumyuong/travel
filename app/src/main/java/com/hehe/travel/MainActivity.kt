@@ -40,12 +40,22 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
+        // Firebase 초기화 먼저
         initFirebase()
+
+        // 이미 로그인된 상태면 UI 표시 없이 바로 이동
+        if (auth.currentUser != null) {
+            routeAfterLogin()
+            return
+        }
+
+        // 로그인 안 된 경우에만 UI 세팅
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         initViews()
         setupClickListeners()
     }
@@ -151,10 +161,4 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-    override fun onStart() {
-        super.onStart()
-        if (auth.currentUser != null) {
-            routeAfterLogin()   // ✅ 이미 로그인된 경우도 동일 분기
-        }
-    }
 }

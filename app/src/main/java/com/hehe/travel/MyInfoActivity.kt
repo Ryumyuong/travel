@@ -24,6 +24,7 @@ class MyInfoActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var binding: ActivityMyInfoBinding
     private lateinit var googleSignInClient: GoogleSignInClient
+    private var backPressedTime: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -194,19 +195,30 @@ class MyInfoActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.tab_country -> {
                     startActivity(Intent(this, SearchActivity::class.java))
+                    finish()
                     true
                 }
                 R.id.tab_search -> {
                     startActivity(Intent(this, StartActivity::class.java))
+                    finish()
                     true
                 }
                 R.id.tab_profile -> {
-                    startActivity(Intent(this, MyInfoActivity::class.java)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
                     true
                 }
                 else -> false
             }
+        }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (System.currentTimeMillis() - backPressedTime < 2000) {
+            super.onBackPressed()
+            finishAffinity()
+        } else {
+            backPressedTime = System.currentTimeMillis()
+            Toast.makeText(this, "한 번 더 누르면 종료됩니다", Toast.LENGTH_SHORT).show()
         }
     }
 

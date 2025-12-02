@@ -21,6 +21,7 @@ class SearchActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySearchBinding
     private lateinit var auth: FirebaseAuth
+    private var backPressedTime: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,14 +100,27 @@ class SearchActivity : AppCompatActivity() {
                 }
                 R.id.tab_search -> {
                     startActivity(Intent(this, StartActivity::class.java))
+                    finish()
                     true
                 }
                 R.id.tab_profile -> {
                     startActivity(Intent(this, MyInfoActivity::class.java))
+                    finish()
                     true
                 }
                 else -> false
             }
+        }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (System.currentTimeMillis() - backPressedTime < 2000) {
+            super.onBackPressed()
+            finishAffinity()
+        } else {
+            backPressedTime = System.currentTimeMillis()
+            Toast.makeText(this, "한 번 더 누르면 종료됩니다", Toast.LENGTH_SHORT).show()
         }
     }
 }
