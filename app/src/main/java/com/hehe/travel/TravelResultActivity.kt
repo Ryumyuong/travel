@@ -26,7 +26,7 @@ class TravelResultActivity : AppCompatActivity() {
     private val client = OkHttpClient()
 
     // Gemini API Key
-    private val GEMINI_API_KEY = "AIzaSyBnuHvwMS-h7v_i8oRgfE_4iLfEBPAtjXI"
+    private val GEMINI_API_KEY = BuildConfig.API_KEY
 
     // Views
     private lateinit var tvHeader: TextView
@@ -136,7 +136,7 @@ class TravelResultActivity : AppCompatActivity() {
                     if (hasCompanion) {
                         btnRestart.text = "여행 다시 시작하기 ✈️"
                     } else {
-                        btnRestart.text = "세미 패스 작성하기 ✔️"
+                        btnRestart.text = "새미 패스 작성하기 ✔️"
                     }
 
                     // AI 호출
@@ -153,13 +153,13 @@ class TravelResultActivity : AppCompatActivity() {
                 } else {
                     tvHeader.text = "${country} 여행 추천"
                     // 프로필이 없으면 세미 패스 작성하기
-                    btnRestart.text = "세미 패스 작성하기 ✔️"
+                    btnRestart.text = "새미 패스 작성하기 ✔️"
                     generateTravelRecommendation(country = country)
                 }
             }
             .addOnFailureListener {
                 loadingContainer.visibility = View.GONE
-                btnRestart.text = "세미 패스 작성하기 ✔️"
+                btnRestart.text = "새미 패스 작성하기 ✔️"
                 Toast.makeText(this, "프로필 불러오기 실패", Toast.LENGTH_SHORT).show()
             }
     }
@@ -393,12 +393,6 @@ class TravelResultActivity : AppCompatActivity() {
             return
         }
 
-        // 저장할 데이터가 없으면 리턴
-        if (savedFlightDesc.isEmpty()) {
-            Toast.makeText(this, "저장할 여행 정보가 없습니다.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
         val historyData = hashMapOf(
             "uid" to uid,
             "country" to country,
@@ -410,17 +404,18 @@ class TravelResultActivity : AppCompatActivity() {
             "savedAt" to com.google.firebase.Timestamp.now()
         )
 
-        Firebase.firestore.collection("history")
+        Firebase.firestore
+            .collection("history")
+            .document(uid)               // ★ userId로 문서 고정
+            .collection("trips")         // ★ 하위 컬렉션에 저장
             .add(historyData)
-            .addOnSuccessListener { documentRef ->
-                Log.d("TravelResult", "History saved with ID: ${documentRef.id}")
+            .addOnSuccessListener { doc ->
+                Log.d("TravelResult", "Saved history: ${doc.id}")
                 Toast.makeText(this, "여행이 저장되었습니다! ❤️", Toast.LENGTH_SHORT).show()
-                btnSaveTrip.text = "저장 완료 ✅"
-                btnSaveTrip.isEnabled = false
             }
             .addOnFailureListener { e ->
-                Log.e("TravelResult", "Error saving history: ${e.message}", e)
-                Toast.makeText(this, "저장 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                Log.e("TravelResult", "Error: ${e.message}", e)
+                Toast.makeText(this, "저장 실패", Toast.LENGTH_SHORT).show()
             }
     }
 }

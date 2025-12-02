@@ -128,7 +128,6 @@ class QuestionnaireActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-        // 답변 배열 초기화 (12개)
         repeat(totalSteps) { answers.add(0) }
 
         initViews()
@@ -209,10 +208,8 @@ class QuestionnaireActivity : AppCompatActivity() {
     }
 
     private fun updateQuestion() {
-        // 프로그레스 인디케이터 업데이트
         updateProgressIndicators()
 
-        // 선택 상태 초기화 (이전 답변 있으면 표시)
         val previousAnswer = answers[currentStep - 1]
         option1Button.isSelected = previousAnswer == 1
         option2Button.isSelected = previousAnswer == 2

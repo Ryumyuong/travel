@@ -41,7 +41,7 @@ class DateRangeActivity : AppCompatActivity() {
         .build()
 
     // Gemini API Key
-    private val GEMINI_API_KEY = "AIzaSyBnuHvwMS-h7v_i8oRgfE_4iLfEBPAtjXI"
+    private val GEMINI_API_KEY = BuildConfig.API_KEY
 
     // Profile 데이터
     private var gender: String = ""
@@ -69,6 +69,8 @@ class DateRangeActivity : AppCompatActivity() {
 
         // Profile + 여행취향 데이터 로드
         loadUserData()
+
+
     }
 
     // Profile과 여행취향 데이터 함께 로드
