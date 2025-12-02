@@ -15,104 +15,110 @@
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical"
-        android:paddingHorizontal="40dp">
+        android:paddingHorizontal="40dp"
+        android:clipChildren="false"
+        android:clipToPadding="false">
 
+        <!-- 숨겨진 TextView들 (코틀린 코드 호환성 유지) -->
+        <TextView
+            android:id="@+id/name1"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/name2"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
+
+        <!-- 텍스트와 강아지 이미지 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/name1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textSize="30sp"
-                    android:textColor="#3653AE"
-                    android:padding="0dp"
-                    android:includeFontPadding="false"
-                    android:textStyle="bold"/>
-
-                <TextView
-                    android:id="@+id/name2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="님,"
-                    android:padding="0dp"
-                    android:includeFontPadding="false"
-                    android:textSize="30sp" />
-            </LinearLayout>
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp"
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
             <TextView
                 android:id="@+id/travel"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="어디로 떠나실래요?"
+                android:layout_weight="1"
+                android:text="어디로\n떠나실래요?"
                 android:padding="0dp"
                 android:includeFontPadding="false"
                 android:textSize="30sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:gravity="start"
+                android:maxLines="2"/>
 
-            <!-- 검색 영역 -->
-            <LinearLayout
-                android:id="@+id/searchRow"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="40dp"
-                android:layout_marginBottom="40dp">
-
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@null">
-
-                    <EditText
-                        android:id="@+id/etSearchCountry"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="가고 싶은 나라 검색"
-                        android:includeFontPadding="false"
-                        android:imeOptions="actionSearch"
-                        android:inputType="text"
-                        android:singleLine="true"
-                        android:paddingLeft="10dp"
-                        android:paddingTop="10dp"
-                        android:paddingBottom="10dp"
-                        android:background="@color/transparent"
-                        android:paddingRight="50dp"/>
-
-                    <ImageView
-                        android:id="@+id/btnSearchCountry"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="10dp"
-                        android:src="@drawable/icon"/>
-
-                </RelativeLayout>
-
-            </LinearLayout>
-
-            <!-- 배너 -->
-            <TextView
-                android:layout_width="match_parent"
+            <ImageView
+                android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:layout_marginTop="30dp"
-                android:text="배너"
-                android:gravity="center"
-                android:background="@color/gray_300"/>
+                android:src="@drawable/ic_search_page_sammy"
+                android:scaleType="fitCenter"
+                android:layout_gravity="bottom"
+                android:layout_marginBottom="-30dp"
+                android:elevation="10dp"/>
+
+        </LinearLayout>
+
+        <!-- 검색 영역 -->
+        <LinearLayout
+            android:id="@+id/searchRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/search_box_border"
+            android:paddingVertical="4dp"
+            android:paddingHorizontal="8dp">
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <EditText
+                    android:id="@+id/etSearchCountry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="발리"
+                    android:includeFontPadding="false"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
+                    android:singleLine="true"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
+                    android:background="@null"
+                    android:paddingRight="50dp"/>
+
+                <ImageView
+                    android:id="@+id/btnSearchCountry"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="5dp"
+                    android:src="@drawable/icon"/>
+
+            </RelativeLayout>
 
         </LinearLayout>
 
     </LinearLayout>
+
+    <!-- 배너 - 하단 네비게이션 바 위 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginBottom="12dp"
+        android:text="배너"
+        android:gravity="center"
+        android:background="@color/gray_300"/>
 
     <View
         android:id="@+id/bnvShadow"

@@ -149,21 +149,22 @@
                         android:text="Q. 연령대를 알려주세요"
                         android:textColor="#000000"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:layout_marginTop="10dp"/>
 
                     <FrameLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="48dp">
+                        android:layout_marginTop="30dp">
 
-                        <!-- 점들을 텍스트와 같은 방식으로 배치 -->
+                        <!-- Tick mark row -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:orientation="horizontal"
-                            android:paddingStart="20dp"
-                            android:paddingEnd="20dp">
+                            android:paddingStart="10dp"
+                            android:paddingEnd="10dp">
 
                             <FrameLayout
                                 android:layout_width="0dp"
@@ -226,26 +227,28 @@
                             </FrameLayout>
                         </LinearLayout>
 
+                        <!-- SeekBar -->
                         <SeekBar
                             android:id="@+id/seekBarAge"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
                             android:max="4"
-                            android:paddingStart="20dp"
-                            android:paddingEnd="20dp"
                             android:progress="2"
                             android:progressDrawable="@drawable/seekbar_track_black"
                             android:thumb="@drawable/seekbar_thumb_blue"
-                            android:thumbOffset="0dp" />
+                            android:thumbOffset="-10dp"
+                            android:paddingStart="20dp"
+                            android:paddingEnd="20dp" />
                     </FrameLayout>
+
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:orientation="horizontal"
-                        android:paddingStart="20dp"
-                        android:paddingEnd="20dp">
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp">
 
                         <TextView
                             android:layout_width="0dp"

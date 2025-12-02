@@ -60,18 +60,18 @@ class MainActivity : AppCompatActivity() {
 
     private fun initViews() {
         titleText = findViewById(R.id.tv_title)
-        subtitleText = findViewById(R.id.tv_subtitle)
+//        subtitleText = findViewById(R.id.tv_subtitle)
         welcomeCard = findViewById(R.id.card_welcome)
-        welcomeTitle = findViewById(R.id.tv_welcome_title)
-        welcomeDesc = findViewById(R.id.tv_welcome_desc)
+//        welcomeTitle = findViewById(R.id.tv_welcome_title)
+//        welcomeDesc = findViewById(R.id.tv_welcome_desc)
         googleSignInButton = findViewById(R.id.btn_google_signin)
 
         // Set initial text
-        titleText.text = "희희호호 여행 추천"
-        subtitleText.text = "당신만을 위한 럭셔리 여행 큐레이션"
-        welcomeTitle.text = "환영합니다"
-        welcomeDesc.text = "Google 계정으로 로그인하여\n개인화된 프리미엄 여행 추천을 받아보세요"
-        googleSignInButton.text = "Google로 시작하기"
+        titleText.text = "MBTI로 찾는 나다운 여행, AI 추천 여행 플랫폼"
+//        subtitleText.text = "당신만을 위한 럭셔리 여행 큐레이션"
+//        welcomeTitle.text = "환영합니다"
+//        welcomeDesc.text = "Google 계정으로 로그인하여\n개인화된 프리미엄 여행 추천을 받아보세요"
+        googleSignInButton.text = "구글 아이디로 시작하기"
     }
 
     private fun setupClickListeners() {
