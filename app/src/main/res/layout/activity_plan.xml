@@ -13,18 +13,17 @@
         android:paddingLeft="30dp"
         android:paddingTop="50dp">
         <TextView
-            android:id="@+id/headcountry"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="발리"
-            android:background="@drawable/button_black"
+            android:text="취향맞춤"
+            android:background="@drawable/bg_taste_badge"
             android:textSize="10sp"
             android:paddingLeft="10dp"
             android:includeFontPadding="false"
             android:paddingRight="10dp"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
-            android:textColor="@color/white"
+            android:textColor="#F3758A"
             android:layout_marginBottom="10dp"/>
         <LinearLayout
             android:layout_width="wrap_content"

@@ -97,19 +97,19 @@ class MyInfoActivity : AppCompatActivity() {
                     binding.tvTripDate.text = formattedDate
 
                     // 저장 시간으로부터 얼마나 지났는지
-                    val timeAgo = getTimeAgo(savedAt?.toDate())
-                    binding.tvTimeAgo.text = timeAgo
-                    binding.tvTimeAgo.visibility = if (timeAgo.isNotEmpty()) View.VISIBLE else View.GONE
+//                    val timeAgo = getTimeAgo(savedAt?.toDate())
+//                    binding.tvTimeAgo.text = timeAgo
+//                    binding.tvTimeAgo.visibility = if (timeAgo.isNotEmpty()) View.VISIBLE else View.GONE
 
                     // 카드 표시
+                    binding.tvDescription.visibility = View.VISIBLE
                     binding.cardHistory.visibility = View.VISIBLE
 
                 } else {
                     android.util.Log.d("MyInfo", "No planhistory documents found")
-                    // 저장된 여행이 없으면 카드 숨김 또는 안내 메시지
-                    binding.tvTripTitle.text = "저장된 여행이 없습니다"
-                    binding.tvTripDate.text = "여행을 계획해보세요!"
-                    binding.tvTimeAgo.visibility = View.GONE
+                    // 저장된 여행이 없으면 카드 숨기고 empty state 표시
+                    binding.cardHistory.visibility = View.GONE
+                    binding.layoutEmptyState.visibility = View.VISIBLE
                 }
             }
             .addOnFailureListener { e ->

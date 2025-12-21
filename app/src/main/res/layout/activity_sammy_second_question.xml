@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -16,12 +15,11 @@
         android:layout_marginStart="48dp"
         android:layout_marginEnd="48dp"
         android:lineSpacingExtra="4dp"
-        android:text="님께 여행 일정을 추천드리기 전,\n여행 상태는 어때요?"
+        android:text="한비님께 여행 일정을 추천드리기 전,\n여행 상태는 어때요?"
         android:textColor="#000000"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -31,434 +29,560 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="24dp"
-        android:fillViewport="true"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:fillViewport="false"
+        app:layout_constraintBottom_toTopOf="@id/btnNext"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvHeader">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="48dp"
             android:paddingTop="24dp"
             android:paddingBottom="40dp">
 
-            <!-- 완료된 질문들이 여기에 동적으로 추가됩니다 -->
+            <!-- Q1: 동행자 -->
             <LinearLayout
-                android:id="@+id/completedQuestionsContainer"
+                android:id="@+id/stepCompanion"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" />
-
-            <!-- 현재 질문 컨테이너 -->
-            <LinearLayout
-                android:id="@+id/currentQuestionContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
+                android:layout_marginBottom="40dp"
                 android:orientation="vertical">
 
-                <!-- Step 1: 동행자 -->
-                <LinearLayout
-                    android:id="@+id/stepCompanion"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Q. 누구와 함께 가나요?"
+                    android:textColor="#000000"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <RadioGroup
+                    android:id="@+id/rgCompanion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/rbAlone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:buttonTint="#3653AE"
+                        android:paddingStart="12dp"
+                        android:paddingVertical="10dp"
+                        android:text="혼자"
+                        android:textColor="#000000"
+                        android:textSize="16sp" />
+
+                    <RadioButton
+                        android:id="@+id/rbCouple"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:buttonTint="#3653AE"
+                        android:paddingStart="12dp"
+                        android:paddingVertical="10dp"
+                        android:text="연인"
+                        android:textColor="#000000"
+                        android:textSize="16sp" />
+
+                    <RadioButton
+                        android:id="@+id/rbFriend"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:buttonTint="#3653AE"
+                        android:paddingStart="12dp"
+                        android:paddingVertical="10dp"
+                        android:text="친구"
+                        android:textColor="#000000"
+                        android:textSize="16sp" />
+
+                    <RadioButton
+                        android:id="@+id/rbFamily"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:buttonTint="#3653AE"
+                        android:paddingStart="12dp"
+                        android:paddingVertical="10dp"
+                        android:text="가족"
+                        android:textColor="#000000"
+                        android:textSize="16sp" />
+
+                    <RadioButton
+                        android:id="@+id/rbFamilyWithKids"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:buttonTint="#3653AE"
+                        android:paddingStart="12dp"
+                        android:paddingVertical="10dp"
+                        android:text="가족 (아이 동반)"
+                        android:textColor="#000000"
+                        android:textSize="16sp" />
+                </RadioGroup>
+            </LinearLayout>
+
+            <!-- Q2: 비행 시간 -->
+            <LinearLayout
+                android:id="@+id/stepFlightTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="40dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Q. 비행 시간"
+                    android:textColor="#000000"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <SeekBar
+                    android:id="@+id/seekBarFlightTime"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="visible">
+                    android:layout_marginTop="48dp"
+                    android:max="2"
+                    android:progress="1"
+                    android:progressDrawable="@drawable/seekbar_track_black"
+                    android:thumb="@drawable/seekbar_thumb_blue"
+                    android:thumbOffset="-10dp"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Q. 누구와 함께 가나요?"
-                        android:textColor="#000000"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <RadioGroup
-                        android:id="@+id/rgCompanion"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
-                        android:orientation="vertical">
-
-                        <RadioButton
-                            android:id="@+id/rbAlone"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:buttonTint="#3653AE"
-                            android:paddingStart="12dp"
-                            android:paddingVertical="10dp"
-                            android:text="혼자"
-                            android:textColor="#000000"
-                            android:textSize="16sp" />
-
-                        <RadioButton
-                            android:id="@+id/rbCouple"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:buttonTint="#3653AE"
-                            android:paddingStart="12dp"
-                            android:paddingVertical="10dp"
-                            android:text="연인"
-                            android:textColor="#000000"
-                            android:textSize="16sp" />
-
-                        <RadioButton
-                            android:id="@+id/rbFriend"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:buttonTint="#3653AE"
-                            android:paddingStart="12dp"
-                            android:paddingVertical="10dp"
-                            android:text="친구"
-                            android:textColor="#000000"
-                            android:textSize="16sp" />
-
-                        <RadioButton
-                            android:id="@+id/rbFamily"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:buttonTint="#3653AE"
-                            android:paddingStart="12dp"
-                            android:paddingVertical="10dp"
-                            android:text="가족"
-                            android:textColor="#000000"
-                            android:textSize="16sp" />
-
-                        <RadioButton
-                            android:id="@+id/rbFamilyWithKids"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:buttonTint="#3653AE"
-                            android:paddingStart="12dp"
-                            android:paddingVertical="10dp"
-                            android:text="가족 (아이 동반)"
-                            android:textColor="#000000"
-                            android:textSize="16sp" />
-                    </RadioGroup>
-                </LinearLayout>
-
-                <!-- Step 2: 예산 -->
                 <LinearLayout
-                    android:id="@+id/stepBudget"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="visible">
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Q. 여행 예산이 궁금해요!"
-                        android:textColor="#000000"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:layout_weight="1"
+                        android:text="1시간"
+                        android:textAlignment="textStart"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
 
-                    <FrameLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="48dp">
+                        android:layout_weight="1"
+                        android:text="10시간"
+                        android:textAlignment="center"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
 
-                        <!-- 점들을 텍스트와 같은 방식으로 배치 -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:orientation="horizontal"
-                            android:paddingStart="10dp"
-                            android:paddingEnd="10dp">
-
-                            <FrameLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1">
-
-                                <View
-                                    android:layout_width="8dp"
-                                    android:layout_height="8dp"
-                                    android:layout_gravity="center"
-                                    android:background="@drawable/seekbar_tick_mark" />
-                            </FrameLayout>
-
-                            <FrameLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1">
-
-                                <View
-                                    android:layout_width="8dp"
-                                    android:layout_height="8dp"
-                                    android:layout_gravity="center"
-                                    android:background="@drawable/seekbar_tick_mark" />
-                            </FrameLayout>
-
-                            <FrameLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1">
-
-                                <View
-                                    android:layout_width="8dp"
-                                    android:layout_height="8dp"
-                                    android:layout_gravity="center"
-                                    android:background="@drawable/seekbar_tick_mark" />
-                            </FrameLayout>
-
-                            <FrameLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1">
-
-                                <View
-                                    android:layout_width="8dp"
-                                    android:layout_height="8dp"
-                                    android:layout_gravity="center"
-                                    android:background="@drawable/seekbar_tick_mark" />
-                            </FrameLayout>
-
-                            <FrameLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1">
-
-                                <View
-                                    android:layout_width="8dp"
-                                    android:layout_height="8dp"
-                                    android:layout_gravity="center"
-                                    android:background="@drawable/seekbar_tick_mark" />
-                            </FrameLayout>
-                        </LinearLayout>
-
-                        <SeekBar
-                            android:id="@+id/seekBarBudget"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:max="4"
-                            android:progress="2"
-                            android:progressDrawable="@drawable/seekbar_track_black"
-                            android:thumb="@drawable/seekbar_thumb_blue"
-                            android:thumbOffset="-10dp"
-                            android:paddingStart="20dp"
-                            android:paddingEnd="20dp"/>
-                    </FrameLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:orientation="horizontal"
-                        android:paddingStart="10dp"
-                        android:paddingEnd="10dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="매우\n부족"
-                            android:textAlignment="center"
-                            android:textColor="#666666"
-                            android:textSize="12sp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="부족"
-                            android:textAlignment="center"
-                            android:textColor="#666666"
-                            android:textSize="12sp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="적당함"
-                            android:textAlignment="center"
-                            android:textColor="#666666"
-                            android:textSize="12sp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="여유"
-                            android:textAlignment="center"
-                            android:textColor="#666666"
-                            android:textSize="12sp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="매우\n여유"
-                            android:textAlignment="center"
-                            android:textColor="#666666"
-                            android:textSize="12sp" />
-                    </LinearLayout>
+                        android:layout_weight="1"
+                        android:text="20시간"
+                        android:textAlignment="textEnd"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
                 </LinearLayout>
+            </LinearLayout>
 
-                <!-- Step 3: 에너지 -->
-                <LinearLayout
-                    android:id="@+id/stepEnergy"
+            <!-- Q3: 예산 -->
+            <LinearLayout
+                android:id="@+id/stepBudget"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="40dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Q. 여행 예산이 궁금해요"
+                    android:textColor="#000000"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <SeekBar
+                    android:id="@+id/seekBarBudget"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="visible">
+                    android:layout_marginTop="48dp"
+                    android:max="2"
+                    android:progress="1"
+                    android:progressDrawable="@drawable/seekbar_track_black"
+                    android:thumb="@drawable/seekbar_thumb_blue"
+                    android:thumbOffset="-10dp"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Q. 여행 갔을 때 에너지는?"
-                        android:textColor="#000000"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:layout_weight="1"
+                        android:text="&lt; 없음"
+                        android:textAlignment="textStart"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
 
-                    <FrameLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="48dp">
+                        android:layout_weight="1"
+                        android:text="적당함"
+                        android:textAlignment="center"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
 
-                        <!-- 점들을 텍스트와 같은 방식으로 배치 -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:orientation="horizontal"
-                            android:paddingStart="10dp"
-                            android:paddingEnd="10dp">
-
-                            <FrameLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1">
-
-                                <View
-                                    android:layout_width="8dp"
-                                    android:layout_height="8dp"
-                                    android:layout_gravity="center"
-                                    android:background="@drawable/seekbar_tick_mark" />
-                            </FrameLayout>
-
-                            <FrameLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1">
-
-                                <View
-                                    android:layout_width="8dp"
-                                    android:layout_height="8dp"
-                                    android:layout_gravity="center"
-                                    android:background="@drawable/seekbar_tick_mark" />
-                            </FrameLayout>
-
-                            <FrameLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1">
-
-                                <View
-                                    android:layout_width="8dp"
-                                    android:layout_height="8dp"
-                                    android:layout_gravity="center"
-                                    android:background="@drawable/seekbar_tick_mark" />
-                            </FrameLayout>
-
-                            <FrameLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1">
-
-                                <View
-                                    android:layout_width="8dp"
-                                    android:layout_height="8dp"
-                                    android:layout_gravity="center"
-                                    android:background="@drawable/seekbar_tick_mark" />
-                            </FrameLayout>
-
-                            <FrameLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1">
-
-                                <View
-                                    android:layout_width="8dp"
-                                    android:layout_height="8dp"
-                                    android:layout_gravity="center"
-                                    android:background="@drawable/seekbar_tick_mark" />
-                            </FrameLayout>
-                        </LinearLayout>
-
-                        <SeekBar
-                            android:id="@+id/seekBarEnergy"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:max="4"
-                            android:progress="2"
-                            android:progressDrawable="@drawable/seekbar_track_black"
-                            android:thumb="@drawable/seekbar_thumb_blue"
-                            android:thumbOffset="-10dp"
-                            android:paddingStart="20dp"
-                            android:paddingEnd="20dp"/>
-                    </FrameLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:orientation="horizontal"
-                        android:paddingStart="10dp"
-                        android:paddingEnd="10dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="많이\n쉬고싶음"
-                            android:textAlignment="center"
-                            android:textColor="#666666"
-                            android:textSize="12sp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="쉬고\n싶음"
-                            android:textAlignment="center"
-                            android:textColor="#666666"
-                            android:textSize="12sp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="보통"
-                            android:textAlignment="center"
-                            android:textColor="#666666"
-                            android:textSize="12sp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="활동적"
-                            android:textAlignment="center"
-                            android:textColor="#666666"
-                            android:textSize="12sp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="매우\n활동적"
-                            android:textAlignment="center"
-                            android:textColor="#666666"
-                            android:textSize="12sp" />
-                    </LinearLayout>
+                        android:layout_weight="1"
+                        android:text="여유롭게 >"
+                        android:textAlignment="textEnd"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
                 </LinearLayout>
+            </LinearLayout>
 
+            <!-- Q4: 에너지 -->
+            <LinearLayout
+                android:id="@+id/stepEnergy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="40dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Q. 여행 갈을 때 에너지는?"
+                    android:textColor="#000000"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <SeekBar
+                    android:id="@+id/seekBarEnergy"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="48dp"
+                    android:max="2"
+                    android:progress="1"
+                    android:progressDrawable="@drawable/seekbar_track_black"
+                    android:thumb="@drawable/seekbar_thumb_blue"
+                    android:thumbOffset="-10dp"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="&lt; 없음 (쉬고 싶음)"
+                        android:textAlignment="textStart"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="보통"
+                        android:textAlignment="center"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="생생함 (액티비티 좋아함) >"
+                        android:textAlignment="textEnd"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Q5: 물욕 -->
+            <LinearLayout
+                android:id="@+id/stepShopping"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="40dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Q. 물욕"
+                    android:textColor="#000000"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <SeekBar
+                    android:id="@+id/seekBarShopping"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="48dp"
+                    android:max="2"
+                    android:progress="1"
+                    android:progressDrawable="@drawable/seekbar_track_black"
+                    android:thumb="@drawable/seekbar_thumb_blue"
+                    android:thumbOffset="-10dp"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="&lt; 없음"
+                        android:textAlignment="textStart"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="보통"
+                        android:textAlignment="center"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="많음 >"
+                        android:textAlignment="textEnd"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Q6: 성향 -->
+            <LinearLayout
+                android:id="@+id/stepPersonality"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="40dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Q. 성향"
+                    android:textColor="#000000"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <SeekBar
+                    android:id="@+id/seekBarPersonality"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="48dp"
+                    android:max="2"
+                    android:progress="1"
+                    android:progressDrawable="@drawable/seekbar_track_black"
+                    android:thumb="@drawable/seekbar_thumb_blue"
+                    android:thumbOffset="-10dp"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="&lt; I"
+                        android:textAlignment="textStart"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="보통"
+                        android:textAlignment="center"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="E >"
+                        android:textAlignment="textEnd"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Q7: 잠 -->
+            <LinearLayout
+                android:id="@+id/stepSleep"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="40dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Q. 잠"
+                    android:textColor="#000000"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <SeekBar
+                    android:id="@+id/seekBarSleep"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="48dp"
+                    android:max="2"
+                    android:progress="1"
+                    android:progressDrawable="@drawable/seekbar_track_black"
+                    android:thumb="@drawable/seekbar_thumb_blue"
+                    android:thumbOffset="-10dp"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="&lt; 미리미 누우면 잠"
+                        android:textAlignment="textStart"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="보통"
+                        android:textAlignment="center"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="잠이 제일 중요함 >"
+                        android:textAlignment="textEnd"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Q8: 숙소 컨디션 -->
+            <LinearLayout
+                android:id="@+id/stepAccommodation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="40dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Q. 숙소 컨디션"
+                    android:textColor="#000000"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <SeekBar
+                    android:id="@+id/seekBarAccommodation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="48dp"
+                    android:max="2"
+                    android:progress="1"
+                    android:progressDrawable="@drawable/seekbar_track_black"
+                    android:thumb="@drawable/seekbar_thumb_blue"
+                    android:thumbOffset="-10dp"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="&lt; 1"
+                        android:textAlignment="textStart"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text=""
+                        android:textAlignment="center"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="10 >"
+                        android:textAlignment="textEnd"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
+                </LinearLayout>
             </LinearLayout>
 
         </LinearLayout>
@@ -469,15 +593,15 @@
         android:id="@+id/btnNext"
         android:layout_width="0dp"
         android:layout_height="56dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
+        android:layout_marginStart="52dp"
+        android:layout_marginEnd="52dp"
         android:layout_marginBottom="32dp"
         android:background="@drawable/btn_blue_rounded"
-        android:text="다음"
+        android:text="여행 시작하기"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

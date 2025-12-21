@@ -23,6 +23,12 @@
         android:theme="@style/Theme.Travel"
         tools:targetApi="31">
         <activity
+            android:name=".plan_recommended_with_sammy_pass"
+            android:exported="false" />
+        <activity
+            android:name=".plan_without_sammy_pass"
+            android:exported="false" />
+        <activity
             android:name=".TravelResultActivity"
             android:exported="false" />
         <activity
