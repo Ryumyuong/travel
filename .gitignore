@@ -11,4 +11,22 @@
 /captures
 .externalNativeBuild
 .cxx
-*.properties
+local.properties
+
+# API Keys - 절대 커밋하지 마세요!
+apikeys.properties
+secrets.properties
+*.secrets
+
+# Node modules (Firebase functions)
+node_modules/
+package-lock.json
+
+# Claude
+.claude/
+
+# Release APK
+app/release/*.apk
+
+# Kotlin
+.kotlin/

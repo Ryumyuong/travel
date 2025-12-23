@@ -28,12 +28,14 @@
             android:visibility="visible" />
 
         <TextView
+            android:id="@+id/tvLoadingStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="맞춤 여행을 준비하고 있어요..."
             android:textColor="#666666"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:gravity="center" />
     </LinearLayout>
 
     <!-- 결과 컨테이너 -->

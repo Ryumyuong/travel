@@ -20,13 +20,18 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField(
             "String",
             "API_KEY",
             "\"${props["API_KEY"]}\""
+        )
+        buildConfigField(
+            "String",
+            "PLACES_API_KEY",
+            "\"${props["PLACES_API_KEY"]}\""
         )
     }
 

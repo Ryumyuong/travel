@@ -32,6 +32,9 @@
             android:name=".TravelResultActivity"
             android:exported="false" />
         <activity
+            android:name=".TravelResultDetailActivity"
+            android:exported="false" />
+        <activity
             android:name=".SemiPassChoiceActivity"
             android:exported="false" />
         <activity

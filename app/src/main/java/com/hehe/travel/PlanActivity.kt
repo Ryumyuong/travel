@@ -19,6 +19,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 class PlanActivity : AppCompatActivity() {
 
@@ -27,7 +28,12 @@ class PlanActivity : AppCompatActivity() {
     private val selectedItems = mutableSetOf<Int>()
     private lateinit var adapter: PlanAdapter
 
-    private val client = OkHttpClient()
+    // 타임아웃 60초 설정
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(60, TimeUnit.SECONDS)
+        .readTimeout(60, TimeUnit.SECONDS)
+        .writeTimeout(60, TimeUnit.SECONDS)
+        .build()
 
     private lateinit var country: String
     private lateinit var userName: String
@@ -69,10 +75,40 @@ class PlanActivity : AppCompatActivity() {
         setupClickListeners()
         setupBottomNav()
 
-        // 첫 번째 탭 데이터 로드
-        if (allDaysData.isNotEmpty()) {
-            loadDayData(0)
+        // 이미지 프리로딩 후 화면 표시
+        preloadImagesAndShow()
+    }
+
+    // 이미지 미리 로드 후 화면 표시
+    private fun preloadImagesAndShow() {
+        if (allDaysData.isEmpty()) {
+            // 데이터가 없으면 바로 표시
+            binding.loadingOverlay.visibility = View.GONE
+            return
         }
+
+        // 로딩 오버레이 표시
+        binding.loadingOverlay.visibility = View.VISIBLE
+        binding.tvLoadingProgress.text = "0 / ${allDaysData.sumOf { it.places.size }}"
+
+        // 이미지 프리로드
+        PlacesPhotoHelper.preloadAllDays(
+            context = this,
+            allDays = allDaysData,
+            country = country,
+            onComplete = {
+                // 로딩 완료 - 화면 표시
+                binding.loadingOverlay.visibility = View.GONE
+
+                // 첫 번째 탭 데이터 로드
+                if (allDaysData.isNotEmpty()) {
+                    loadDayData(0)
+                }
+            },
+            onProgress = { current, total ->
+                binding.tvLoadingProgress.text = "$current / $total"
+            }
+        )
     }
 
     // JSON 파싱
@@ -117,11 +153,13 @@ class PlanActivity : AppCompatActivity() {
 
     // 헤더 설정
     private fun setupHeader() {
-//        binding.headcountry.text = country
-        binding.name.text = " ${userName}님의\n"
-        binding.country.text = country
-
+        binding.name.text = " ${userName}님의"
         updateDateDisplay()
+
+        // 나라 배경 이미지 로드
+        if (country.isNotEmpty()) {
+            PlacesPhotoHelper.loadCountryPhoto(country, binding.ivHeaderBackground)
+        }
     }
 
     // 날짜 표시 업데이트
@@ -129,10 +167,15 @@ class PlanActivity : AppCompatActivity() {
         val days = allDaysData.size
         val nightsText = if (days > 1) "${days - 1}박 ${days}일" else "당일치기"
 
+        binding.night.text = "$nightsText"
+        // 상단: "4박 5일 발리 여행은 이렇게 준비했어요!"
+        binding.country.text = " $country"
+
+        // 하단: "일정 2025.08.01 - 2025.08.05"
         if (startDate.isNotEmpty() && endDate.isNotEmpty()) {
-            binding.date.text = " 일정 $startDate ~ $endDate ($nightsText)"
+            binding.date.text = "$startDate - $endDate"
         } else {
-            binding.date.text = " $nightsText 여행"
+            binding.date.text = ""
         }
     }
 
@@ -199,7 +242,8 @@ class PlanActivity : AppCompatActivity() {
             onDeleteClick = { position ->
                 // 삭제 클릭
                 showDeleteDialog(position)
-            }
+            },
+            country = country
         )
         binding.recyclerView.adapter = adapter
     }
@@ -219,36 +263,24 @@ class PlanActivity : AppCompatActivity() {
             .show()
     }
 
-    // Gemini AI로 새로운 장소 추천
-    private fun recommendNewPlace(position: Int, currentPlace: PlaceData) {
-        Toast.makeText(this, "새로운 장소를 찾는 중...", Toast.LENGTH_SHORT).show()
+    // Gemini AI로 새로운 장소 추천 (재시도 로직 포함)
+    private fun recommendNewPlace(position: Int, currentPlace: PlaceData, retryCount: Int = 0) {
+        val maxRetries = 3
+        val retryDelays = listOf(10000L, 20000L, 40000L) // 10초, 20초, 40초
+
+        if (retryCount == 0) {
+            Toast.makeText(this, "새로운 장소를 찾는 중...", Toast.LENGTH_SHORT).show()
+        }
 
         val dayData = allDaysData[currentDayIndex]
         val existingPlaces = dayData.places.map { it.name }.joinToString(", ")
 
         val prompt = """
-당신은 전문 여행 플래너입니다. 
+${country} ${currentDayIndex + 1}일차에서 "${currentPlace.name}" 대체 장소 1개.
+기존: $existingPlaces (중복X)
 
-[요청]
-${country}의 ${currentDayIndex + 1}일차 일정에서 "${currentPlace.name}"을 대체할 새로운 장소 1개를 추천해주세요.
-
-[조건]
-- 기존 장소들: $existingPlaces (중복 제외)
-- 사용자 선호: ${keywords.joinToString(", ")}
-- 비슷한 시간대에 방문할 수 있는 장소
-- 실제 존재하는 장소만 추천
-
-[응답 형식]
-다음 JSON 형식으로만 응답해주세요:
-```json
-{
-    "name": "장소명",
-    "description": "장소 설명 (20자 내외)",
-    "time": "${currentPlace.time}",
-    "duration": "예상 소요시간",
-    "tip": "꿀팁"
-}
-```
+JSON만 응답:
+{"name":"장소명","description":"15자 설명","time":"${currentPlace.time}","duration":"2시간","tip":"팁"}
         """.trimIndent()
 
         val jsonBody = JSONObject().apply {
@@ -261,12 +293,12 @@ ${country}의 ${currentDayIndex + 1}일차 일정에서 "${currentPlace.name}"�
             })
             put("generationConfig", JSONObject().apply {
                 put("temperature", 0.8)
-                put("maxOutputTokens", 1024)
+                put("maxOutputTokens", 4096)
             })
         }
 
         val request = Request.Builder()
-            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$GEMINI_API_KEY")
+            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$GEMINI_API_KEY")
             .post(jsonBody.toString().toRequestBody("application/json".toMediaType()))
             .build()
 
@@ -279,12 +311,37 @@ ${country}의 ${currentDayIndex + 1}일차 일정에서 "${currentPlace.name}"�
 
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string()
+                Log.d("PlanActivity", "다시추천 응답: ${response.code} - $responseBody")
 
                 runOnUiThread {
-                    if (response.isSuccessful && responseBody != null) {
-                        parseAndReplacePlace(position, responseBody)
-                    } else {
-                        Toast.makeText(this@PlanActivity, "추천 실패", Toast.LENGTH_SHORT).show()
+                    when {
+                        response.isSuccessful && responseBody != null -> {
+                            parseAndReplacePlace(position, responseBody)
+                        }
+                        response.code == 429 && retryCount < maxRetries -> {
+                            // 429 에러: 재시도
+                            val delay = retryDelays[retryCount]
+                            val seconds = delay / 1000
+                            Toast.makeText(
+                                this@PlanActivity,
+                                "서버 요청 한도 초과. ${seconds}초 후 재시도합니다... (${retryCount + 1}/$maxRetries)",
+                                Toast.LENGTH_LONG
+                            ).show()
+
+                            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                                recommendNewPlace(position, currentPlace, retryCount + 1)
+                            }, delay)
+                        }
+                        response.code == 429 -> {
+                            Toast.makeText(
+                                this@PlanActivity,
+                                "서버 요청 한도 초과. 잠시 후 다시 시도해주세요.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                        else -> {
+                            Toast.makeText(this@PlanActivity, "추천 실패 (${response.code})", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
@@ -302,10 +359,11 @@ ${country}의 ${currentDayIndex + 1}일차 일정에서 "${currentPlace.name}"�
                 .getJSONObject(0)
                 .getString("text")
 
-            val cleanJson = content
-                .replace("```json", "")
-                .replace("```", "")
-                .trim()
+            Log.d("PlanActivity", "AI 원본 응답: $content")
+
+            // JSON 추출
+            val cleanJson = extractJson(content)
+            Log.d("PlanActivity", "추출된 JSON: $cleanJson")
 
             val placeObj = JSONObject(cleanJson)
             val newPlace = PlaceData(
@@ -336,7 +394,60 @@ ${country}의 ${currentDayIndex + 1}일차 일정에서 "${currentPlace.name}"�
 
         } catch (e: Exception) {
             Log.e("PlanActivity", "파싱 실패: ${e.message}")
+            e.printStackTrace()
             Toast.makeText(this, "추천 결과 처리 실패", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // JSON 추출 헬퍼 함수
+    private fun extractJson(text: String): String {
+        var cleaned = text.trim()
+
+        // 1. ```json 또는 ``` 제거
+        cleaned = cleaned
+            .replace("```json", "")
+            .replace("```", "")
+            .trim()
+
+        // 2. { 로 시작하는 부분 찾기
+        val startIndex = cleaned.indexOf("{")
+        if (startIndex == -1) return cleaned
+
+        cleaned = cleaned.substring(startIndex)
+
+        // 3. 마지막 } 찾기 (불완전한 JSON 처리)
+        val endIndex = cleaned.lastIndexOf("}")
+        if (endIndex != -1) {
+            return cleaned.substring(0, endIndex + 1)
+        }
+
+        // 4. } 가 없으면 불완전한 JSON - 강제로 닫기 시도
+        // 필요한 필드만 추출
+        return tryCompleteJson(cleaned)
+    }
+
+    // 불완전한 JSON 복구 시도
+    private fun tryCompleteJson(incompleteJson: String): String {
+        try {
+            // name 필드 추출
+            val nameRegex = "\"name\"\\s*:\\s*\"([^\"]+)\"".toRegex()
+            val nameMatch = nameRegex.find(incompleteJson)
+            val name = nameMatch?.groupValues?.get(1) ?: "추천 장소"
+
+            // description 필드 추출
+            val descRegex = "\"description\"\\s*:\\s*\"([^\"]+)\"".toRegex()
+            val descMatch = descRegex.find(incompleteJson)
+            val description = descMatch?.groupValues?.get(1) ?: ""
+
+            // time 필드 추출
+            val timeRegex = "\"time\"\\s*:\\s*\"([^\"]+)\"".toRegex()
+            val timeMatch = timeRegex.find(incompleteJson)
+            val time = timeMatch?.groupValues?.get(1) ?: ""
+
+            // 완전한 JSON 생성
+            return """{"name":"$name","description":"$description","time":"$time","duration":"2시간","tip":""}"""
+        } catch (e: Exception) {
+            return incompleteJson
         }
     }
 
@@ -513,36 +624,85 @@ ${country}의 ${currentDayIndex + 1}일차 일정에서 "${currentPlace.name}"�
         binding.btnAddToSchedule.isEnabled = false
         binding.btnAddToSchedule.text = "저장 중..."
 
-        val daysMap = allDaysData.map { d ->
-            mapOf(
-                "day" to d.day,
-                "title" to d.title,
-                "places" to d.places.map { p ->
+        // profiles에서 hasSemiPass 값 가져온 후 저장
+        Firebase.firestore.collection("profiles").document(uid)
+            .get()
+            .addOnSuccessListener { profileDoc ->
+                val hasSemiPass = profileDoc.getBoolean("hasSemiPass") ?: false
+
+                val daysMap = allDaysData.map { d ->
                     mapOf(
-                        "name" to p.name,
-                        "description" to p.description,
-                        "time" to p.time,
-                        "duration" to p.duration,
-                        "tip" to p.tip
+                        "day" to d.day,
+                        "title" to d.title,
+                        "places" to d.places.map { p ->
+                            mapOf(
+                                "name" to p.name,
+                                "description" to p.description,
+                                "time" to p.time,
+                                "duration" to p.duration,
+                                "tip" to p.tip
+                            )
+                        }
                     )
                 }
-            )
-        }
 
-        val planData = hashMapOf(
-            "uid" to uid,
-            "nickname" to userName,
-            "country" to country,
-            "startDate" to startDate,
-            "endDate" to endDate,
-            "nights" to nights,
-            "daysCount" to allDaysData.size,
-            "days" to daysMap,
-            "travelStyle" to travelStyle,
-            "keywords" to keywords,
-            "savedAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()
-        )
+                val planData = hashMapOf(
+                    "uid" to uid,
+                    "nickname" to userName,
+                    "country" to country,
+                    "startDate" to startDate,
+                    "endDate" to endDate,
+                    "nights" to nights,
+                    "daysCount" to allDaysData.size,
+                    "days" to daysMap,
+                    "travelStyle" to travelStyle,
+                    "keywords" to keywords,
+                    "hasSemiPass" to hasSemiPass,
+                    "savedAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+                )
 
+                savePlanDataToFirestore(planData)
+            }
+            .addOnFailureListener { e ->
+                Log.e("PlanActivity", "프로필 조회 실패: ${e.message}")
+                // 프로필 조회 실패 시 hasSemiPass = false로 저장
+                val daysMap = allDaysData.map { d ->
+                    mapOf(
+                        "day" to d.day,
+                        "title" to d.title,
+                        "places" to d.places.map { p ->
+                            mapOf(
+                                "name" to p.name,
+                                "description" to p.description,
+                                "time" to p.time,
+                                "duration" to p.duration,
+                                "tip" to p.tip
+                            )
+                        }
+                    )
+                }
+
+                val planData = hashMapOf(
+                    "uid" to uid,
+                    "nickname" to userName,
+                    "country" to country,
+                    "startDate" to startDate,
+                    "endDate" to endDate,
+                    "nights" to nights,
+                    "daysCount" to allDaysData.size,
+                    "days" to daysMap,
+                    "travelStyle" to travelStyle,
+                    "keywords" to keywords,
+                    "hasSemiPass" to false,
+                    "savedAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+                )
+
+                savePlanDataToFirestore(planData)
+            }
+    }
+
+    // Firestore에 planData 저장
+    private fun savePlanDataToFirestore(planData: HashMap<String, Any>) {
         Firebase.firestore
             .collection("planhistory")
             .add(planData)

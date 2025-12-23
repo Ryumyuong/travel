@@ -1,82 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white">
+
+<LinearLayout
+    android:id="@+id/mainContent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/white">
-    <LinearLayout
+    <!-- 상단 헤더 (나라 배경 이미지) -->
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:orientation="vertical"
-        android:background="@drawable/top_picture"
-        android:paddingLeft="30dp"
-        android:paddingTop="50dp">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="취향맞춤"
-            android:background="@drawable/bg_taste_badge"
-            android:textSize="10sp"
-            android:paddingLeft="10dp"
-            android:includeFontPadding="false"
-            android:paddingRight="10dp"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:textColor="#F3758A"
-            android:layout_marginBottom="10dp"/>
+        android:layout_height="150dp">
+
+        <!-- 배경 이미지 -->
+        <ImageView
+            android:id="@+id/ivHeaderBackground"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/top_picture" />
+
+        <!-- 어두운 오버레이 (텍스트 가독성) -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#40000000" />
+
+        <!-- 텍스트 컨텐츠 -->
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingLeft="30dp"
+            android:paddingTop="50dp">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="휴양를 즐기러 온"
-                android:textStyle="bold"
+                android:text="취향맞춤"
+                android:background="@drawable/bg_taste_badge"
+                android:textSize="10sp"
+                android:paddingLeft="10dp"
                 android:includeFontPadding="false"
-                android:textColor="@color/white"/>
-            <TextView
-                android:id="@+id/name"
+                android:paddingRight="10dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:textColor="#F3758A"
+                android:layout_marginBottom="10dp"/>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=""
-                android:includeFontPadding="false"
-                android:textStyle="bold"
-                android:textColor="@color/white"/>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="휴양을 즐기러 온"
+                    android:textStyle="bold"
+                    android:includeFontPadding="false"
+                    android:textColor="@color/white"/>
+                <TextView
+                    android:id="@+id/name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:includeFontPadding="false"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"/>
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="4박 5일 "
-                android:textStyle="bold"
-                android:includeFontPadding="false"
-                android:textColor="@color/white"/>
-            <TextView
-                android:id="@+id/country"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:textStyle="bold"
-                android:includeFontPadding="false"
-                android:textColor="@color/white"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=" 여행은 이렇게 준비했어요!"
-                android:includeFontPadding="false"
-                android:textStyle="bold"
-                android:textColor="@color/white"/>
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/night"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="4박 5일 "
+                    android:textStyle="bold"
+                    android:includeFontPadding="false"
+                    android:textColor="@color/white"/>
+                <TextView
+                    android:id="@+id/country"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textStyle="bold"
+                    android:includeFontPadding="false"
+                    android:textColor="@color/white"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" 여행은 이렇게 준비했어요!"
+                    android:includeFontPadding="false"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"/>
+            </LinearLayout>
 
         </LinearLayout>
 
-
-
-    </LinearLayout>
+    </FrameLayout>
 
 
 
@@ -275,3 +303,40 @@
         app:itemActiveIndicatorStyle="@style/NoActiveIndicator"/>
 
 </LinearLayout>
+
+<!-- 로딩 오버레이 -->
+<LinearLayout
+    android:id="@+id/loadingOverlay"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="#FFFFFF"
+    android:visibility="gone">
+
+    <ProgressBar
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:indeterminateTint="@color/brand_primary" />
+
+    <TextView
+        android:id="@+id/tvLoadingText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="장소 사진을 불러오는 중..."
+        android:textSize="14sp"
+        android:textColor="#666666" />
+
+    <TextView
+        android:id="@+id/tvLoadingProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="0 / 0"
+        android:textSize="12sp"
+        android:textColor="#999999" />
+
+</LinearLayout>
+
+</FrameLayout>
