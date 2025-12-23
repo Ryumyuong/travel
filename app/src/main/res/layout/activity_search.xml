@@ -111,14 +111,14 @@
     </LinearLayout>
 
     <!-- 배너 - 하단 네비게이션 바 위 -->
-    <TextView
+    <ImageView
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_marginHorizontal="20dp"
         android:layout_marginBottom="12dp"
-        android:text="배너"
-        android:gravity="center"
-        android:background="@color/gray_300"/>
+        android:src="@drawable/banner_basic_ad"
+        android:scaleType="fitXY"
+        android:contentDescription="광고 배너" />
 
     <View
         android:id="@+id/bnvShadow"

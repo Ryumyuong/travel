@@ -117,7 +117,7 @@ class PlanActivity : AppCompatActivity() {
 
     // 헤더 설정
     private fun setupHeader() {
-        binding.headcountry.text = country
+//        binding.headcountry.text = country
         binding.name.text = " ${userName}님의\n"
         binding.country.text = country
 
