@@ -38,6 +38,9 @@ class QuestionnaireActivity : AppCompatActivity() {
     // 답변 저장 배열
     private val answers = mutableListOf<Int>()
 
+    // 진입 경로 (semipass: 새미패스 경유, taste: 취향맞춤)
+    private var flowType: String = "taste"
+
     // 질문 리스트 정의
     data class QuestionData(
         val tag: String,
@@ -127,6 +130,9 @@ class QuestionnaireActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
+
+        // 진입 경로 확인 (TravelResultActivity에서 온 경우 "semipass")
+        flowType = intent.getStringExtra("flowType") ?: "taste"
 
         repeat(totalSteps) { answers.add(0) }
 
@@ -367,6 +373,7 @@ class QuestionnaireActivity : AppCompatActivity() {
 
         val intent = Intent(this, DateRangeActivity::class.java)
         intent.putExtra("country", randomCountry)
+        intent.putExtra("flowType", flowType)  // 진입 경로 전달
         startActivity(intent)
         finish()
     }

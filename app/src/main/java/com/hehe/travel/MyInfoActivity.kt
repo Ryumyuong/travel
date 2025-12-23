@@ -2,6 +2,7 @@ package com.hehe.travel
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
@@ -9,6 +10,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -24,7 +26,13 @@ class MyInfoActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var binding: ActivityMyInfoBinding
     private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var historyAdapter: TravelHistoryAdapter
     private var backPressedTime: Long = 0
+
+    // 여행 기록 리스트
+    private val allHistoryItems = mutableListOf<TravelHistoryItem>()
+    private var historyLoaded = false
+    private var planHistoryLoaded = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,10 +42,130 @@ class MyInfoActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         initAuthAndGoogleClient()
 
+        setupRecyclerView()
         loadUserProfile()
-        loadPlanHistory()
+        loadAllHistory()
         setupClickListeners()
         setupBottomNav(R.id.tab_profile)
+    }
+
+    private fun setupRecyclerView() {
+        historyAdapter = TravelHistoryAdapter { item ->
+            // 아이템 클릭 시 바로 PlanActivity로 이동
+            loadAndNavigateToPlan(item)
+        }
+        binding.rvTravelHistory.layoutManager = LinearLayoutManager(this)
+        binding.rvTravelHistory.adapter = historyAdapter
+    }
+
+    // Firestore에서 상세 데이터 로드 후 적절한 Activity로 이동
+    private fun loadAndNavigateToPlan(item: TravelHistoryItem) {
+        val uid = auth.currentUser?.uid ?: return
+
+        // 로딩 표시
+        Toast.makeText(this, "일정을 불러오는 중...", Toast.LENGTH_SHORT).show()
+
+        // type에 따라 다른 컬렉션에서 로드
+        val docRef = when (item.type) {
+            3 -> Firebase.firestore.collection("planhistory").document(item.documentId)
+            else -> Firebase.firestore.collection("history").document(uid)
+                .collection("trips").document(item.documentId)
+        }
+
+        docRef.get()
+            .addOnSuccessListener { doc ->
+                if (!doc.exists()) {
+                    Toast.makeText(this, "데이터를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
+                    return@addOnSuccessListener
+                }
+
+                val country = doc.getString("country") ?: ""
+                val nickname = doc.getString("nickname") ?: ""
+                val nights = doc.getLong("nights")?.toInt() ?: 0
+                val startDate = doc.getString("startDate") ?: ""
+                val endDate = doc.getString("endDate") ?: ""
+                val travelStyle = doc.getString("travelStyle") ?: ""
+                val keywords = doc.get("keywords") as? List<String> ?: emptyList()
+                val hasSemiPass = doc.getBoolean("hasSemiPass") ?: false
+                val budgetLabel = doc.getString("budgetLabel") ?: ""
+
+                // days 데이터 확인
+                val days = doc.get("days") as? List<Map<String, Any>> ?: emptyList()
+
+                if (days.isNotEmpty()) {
+                    // days 데이터가 있으면 → PlanActivity로 이동
+                    val daysJson = convertDaysToJson(days)
+                    val intent = Intent(this, PlanActivity::class.java).apply {
+                        putExtra("country", country)
+                        putExtra("login", nickname)
+                        putExtra("startDate", startDate)
+                        putExtra("endDate", endDate)
+                        putExtra("nights", nights)
+                        putExtra("travelStyle", travelStyle)
+                        putStringArrayListExtra("keywords", ArrayList(keywords))
+                        putExtra("itineraryJson", daysJson)
+                    }
+                    startActivity(intent)
+                } else {
+                    // days 데이터가 없으면 → TravelResultDetailActivity로 이동 (항공/숙소/맛집)
+                    val flight = doc.getString("flight") ?: ""
+                    val accommodation = doc.getString("accommodation") ?: ""
+                    val restaurant = doc.getString("restaurant") ?: ""
+
+                    val intent = Intent(this, TravelResultDetailActivity::class.java).apply {
+                        putExtra("country", country)
+                        putExtra("nickname", nickname)
+                        putExtra("flight", flight)
+                        putExtra("accommodation", accommodation)
+                        putExtra("restaurant", restaurant)
+                        putExtra("hasSemiPass", hasSemiPass)
+                        putExtra("budgetLabel", budgetLabel)
+                    }
+                    startActivity(intent)
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "불러오기 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    // Firestore days 데이터를 JSON 문자열로 변환
+    private fun convertDaysToJson(days: List<Map<String, Any>>): String {
+        val jsonArray = org.json.JSONArray()
+
+        for (day in days) {
+            val dayObj = org.json.JSONObject()
+            dayObj.put("day", day["day"])
+            dayObj.put("title", day["title"])
+
+            val placesArray = org.json.JSONArray()
+            val places = day["places"] as? List<Map<String, Any>> ?: emptyList()
+
+            for (place in places) {
+                val placeObj = org.json.JSONObject()
+                placeObj.put("name", place["name"] ?: "")
+                placeObj.put("description", place["description"] ?: "")
+                placeObj.put("time", place["time"] ?: "")
+                placeObj.put("duration", place["duration"] ?: "")
+                placeObj.put("tip", place["tip"] ?: "")
+                placesArray.put(placeObj)
+            }
+
+            dayObj.put("places", placesArray)
+            jsonArray.put(dayObj)
+        }
+
+        return jsonArray.toString()
+    }
+
+    // 모든 히스토리 로드 (history + planhistory)
+    private fun loadAllHistory() {
+        allHistoryItems.clear()
+        historyLoaded = false
+        planHistoryLoaded = false
+
+        loadHistoryCollection()
+        loadPlanHistoryCollection()
     }
 
     // 사용자 프로필 로드
@@ -50,6 +178,7 @@ class MyInfoActivity : AppCompatActivity() {
                 if (document != null && document.exists()) {
                     val nickname = document.getString("nickname") ?: "여행자"
                     binding.tvGreeting.text = "$nickname 님"
+                    binding.tvDescription.text = "${nickname}님이 찾은 여행,\n한눈에 보기 쉽게 정리했어요!"
                 }
             }
             .addOnFailureListener { e ->
@@ -57,65 +186,122 @@ class MyInfoActivity : AppCompatActivity() {
             }
     }
 
-    // planhistory에서 최근 여행 로드
-    private fun loadPlanHistory() {
+    // history 컬렉션에서 로드 (AI 생성 일정 - 새미패스 유/무)
+    private fun loadHistoryCollection() {
         val uid = auth.currentUser?.uid ?: return
 
-        android.util.Log.d("MyInfo", "Loading planhistory for uid: $uid")
+        Firebase.firestore.collection("history")
+            .document(uid)
+            .collection("trips")
+            .get()
+            .addOnSuccessListener { documents ->
+                Log.d("MyInfo", "History trips found: ${documents.size()}")
 
-        // orderBy 없이 쿼리 (복합 인덱스 불필요)
+                for (doc in documents) {
+                    // createdAt이 없는 이전 데이터는 건너뛰기
+                    val savedAt = doc.getTimestamp("createdAt")?.toDate() ?: continue
+
+                    val hasSemiPass = doc.getBoolean("hasSemiPass") ?: false
+                    val country = doc.getString("country") ?: ""
+                    val nights = doc.getLong("nights")?.toInt() ?: 0
+                    val daysCount = doc.getLong("daysCount")?.toInt() ?: 0
+                    val startDate = doc.getString("startDate") ?: ""
+                    val endDate = doc.getString("endDate") ?: ""
+                    val travelStyle = doc.getString("travelStyle") ?: ""
+                    val budgetLabel = doc.getString("budgetLabel") ?: ""
+
+                    val type = if (hasSemiPass) 2 else 1  // 2: 새미패스, 1: 일반
+
+                    allHistoryItems.add(
+                        TravelHistoryItem(
+                            documentId = doc.id,
+                            country = country,
+                            nights = nights,
+                            daysCount = daysCount,
+                            startDate = startDate,
+                            endDate = endDate,
+                            travelStyle = travelStyle,
+                            hasSemiPass = hasSemiPass,
+                            type = type,
+                            savedAt = savedAt,
+                            budgetLabel = budgetLabel
+                        )
+                    )
+                }
+
+                historyLoaded = true
+                checkAndDisplayHistory()
+            }
+            .addOnFailureListener { e ->
+                Log.e("MyInfo", "History 로드 실패: ${e.message}")
+                historyLoaded = true
+                checkAndDisplayHistory()
+            }
+    }
+
+    // planhistory 컬렉션에서 로드 (취향맞춤 저장)
+    private fun loadPlanHistoryCollection() {
+        val uid = auth.currentUser?.uid ?: return
+
         Firebase.firestore.collection("planhistory")
             .whereEqualTo("uid", uid)
             .get()
             .addOnSuccessListener { documents ->
-                android.util.Log.d("MyInfo", "Documents found: ${documents.size()}")
+                Log.d("MyInfo", "PlanHistory found: ${documents.size()}")
 
-                if (!documents.isEmpty) {
-                    // savedAt 기준으로 클라이언트에서 정렬 (최신순)
-                    val sortedDocs = documents.documents.sortedByDescending {
-                        it.getTimestamp("savedAt")?.toDate()?.time ?: 0L
-                    }
-                    val doc = sortedDocs.first()
-
+                for (doc in documents) {
                     val country = doc.getString("country") ?: ""
                     val nights = doc.getLong("nights")?.toInt() ?: 0
-                    val daysCount = doc.getLong("daysCount")?.toInt() ?: (nights + 1)
+                    val daysCount = doc.getLong("daysCount")?.toInt() ?: 0
                     val startDate = doc.getString("startDate") ?: ""
                     val endDate = doc.getString("endDate") ?: ""
                     val travelStyle = doc.getString("travelStyle") ?: ""
-                    val savedAt = doc.getTimestamp("savedAt")
+                    val savedAt = doc.getTimestamp("savedAt")?.toDate()
 
-                    android.util.Log.d("MyInfo", "Trip loaded: $country ${nights}박${daysCount}일")
-
-                    // 여행 제목: "발리 4박5일 휴양 여행"
-                    val styleKeyword = extractStyleKeyword(travelStyle)
-                    val tripTitle = "$country ${nights}박${daysCount}일 $styleKeyword 여행"
-                    binding.tvTripTitle.text = tripTitle
-
-                    // 날짜: "2025.08.01 - 2025.08.05"
-                    val formattedDate = formatDateRange(startDate, endDate)
-                    binding.tvTripDate.text = formattedDate
-
-                    // 저장 시간으로부터 얼마나 지났는지
-//                    val timeAgo = getTimeAgo(savedAt?.toDate())
-//                    binding.tvTimeAgo.text = timeAgo
-//                    binding.tvTimeAgo.visibility = if (timeAgo.isNotEmpty()) View.VISIBLE else View.GONE
-
-                    // 카드 표시
-                    binding.tvDescription.visibility = View.VISIBLE
-                    binding.cardHistory.visibility = View.VISIBLE
-
-                } else {
-                    android.util.Log.d("MyInfo", "No planhistory documents found")
-                    // 저장된 여행이 없으면 카드 숨기고 empty state 표시
-                    binding.cardHistory.visibility = View.GONE
-                    binding.layoutEmptyState.visibility = View.VISIBLE
+                    allHistoryItems.add(
+                        TravelHistoryItem(
+                            documentId = doc.id,
+                            country = country,
+                            nights = nights,
+                            daysCount = daysCount,
+                            startDate = startDate,
+                            endDate = endDate,
+                            travelStyle = travelStyle,
+                            hasSemiPass = true,
+                            type = 3,  // 3: 취향맞춤 (planhistory)
+                            savedAt = savedAt
+                        )
+                    )
                 }
+
+                planHistoryLoaded = true
+                checkAndDisplayHistory()
             }
             .addOnFailureListener { e ->
-                android.util.Log.e("MyInfo", "Error: ${e.message}", e)
-                Toast.makeText(this, "여행 기록 불러오기 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                Log.e("MyInfo", "PlanHistory 로드 실패: ${e.message}")
+                planHistoryLoaded = true
+                checkAndDisplayHistory()
             }
+    }
+
+    // 두 컬렉션 모두 로드 완료되면 UI 업데이트
+    private fun checkAndDisplayHistory() {
+        if (!historyLoaded || !planHistoryLoaded) return
+
+        if (allHistoryItems.isEmpty()) {
+            // 저장된 여행 없음
+            binding.layoutEmptyState.visibility = View.VISIBLE
+            binding.tvDescription.visibility = View.GONE
+            binding.rvTravelHistory.visibility = View.GONE
+        } else {
+            // 최신순 정렬
+            val sorted = allHistoryItems.sortedByDescending { it.savedAt?.time ?: 0L }
+            historyAdapter.submitList(sorted)
+
+            binding.layoutEmptyState.visibility = View.GONE
+            binding.tvDescription.visibility = View.VISIBLE
+            binding.rvTravelHistory.visibility = View.VISIBLE
+        }
     }
 
     // 여행 스타일에서 키워드 추출 (예: "계획적인 여행자 • 활동적인..." → "휴양" 또는 첫번째 키워드)
@@ -158,14 +344,9 @@ class MyInfoActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        // 여행 기록 카드 클릭 → 여행 히스토리 목록
-        binding.cardHistory.setOnClickListener {
-            startActivity(Intent(this, TravelHistoryActivity::class.java))
-        }
-
         // 정보수정 클릭 → SammyFirstQuestionActivity로 이동 (기존 내용 수정)
         binding.btnEditInfo.setOnClickListener {
-            val intent = Intent(this, SammyFirstQuestionActivity::class.java)
+            val intent = Intent(this, SammySecondQuestionActivity::class.java)
             intent.putExtra("isEditMode", true)  // 수정 모드 플래그
             startActivity(intent)
             finish()

@@ -29,19 +29,29 @@ class SammySecondQuestionActivity : AppCompatActivity() {
 
     // 현재 스텝 (0부터 시작)
     private var currentStep = 0
-    private val totalSteps = 3
+    private val totalSteps = 8
 
     // 수집할 데이터
     private var companion = "혼자"
+    private var flightTimeLabel = "10시간"
     private var budgetLabel = "적당함"
     private var energyLabel = "보통"
+    private var shoppingLabel = "보통"
+    private var personalityLabel = "보통"
+    private var sleepLabel = "보통"
+    private var accommodationLabel = "5"
 
     private lateinit var tvHeader: TextView
 
     // Step Containers
     private lateinit var stepCompanion: View
+    private lateinit var stepFlightTime: View
     private lateinit var stepBudget: View
     private lateinit var stepEnergy: View
+    private lateinit var stepShopping: View
+    private lateinit var stepPersonality: View
+    private lateinit var stepSleep: View
+    private lateinit var stepAccommodation: View
 
     private lateinit var btnNext: AppCompatButton
     private lateinit var completedQuestionsContainer: LinearLayout
@@ -70,8 +80,13 @@ class SammySecondQuestionActivity : AppCompatActivity() {
         tvHeader = findViewById(R.id.tvHeader)
 
         stepCompanion = findViewById(R.id.stepCompanion)
+        stepFlightTime = findViewById(R.id.stepFlightTime)
         stepBudget = findViewById(R.id.stepBudget)
         stepEnergy = findViewById(R.id.stepEnergy)
+        stepShopping = findViewById(R.id.stepShopping)
+        stepPersonality = findViewById(R.id.stepPersonality)
+        stepSleep = findViewById(R.id.stepSleep)
+        stepAccommodation = findViewById(R.id.stepAccommodation)
 
         btnNext = findViewById(R.id.btnNext)
         completedQuestionsContainer = findViewById(R.id.completedQuestionsContainer)
@@ -101,8 +116,6 @@ class SammySecondQuestionActivity : AppCompatActivity() {
                 R.id.rbFamilyWithKids -> "가족(아이 동반)"
                 else -> "혼자"
             }
-
-            // 자동으로 다음 스텝 이동
             if (checkedId != -1) {
                 android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
                     onNextClicked()
@@ -110,35 +123,60 @@ class SammySecondQuestionActivity : AppCompatActivity() {
             }
         }
 
-        // Step 2: 예산 (5단계) - 터치 끊기면 자동으로 다음 스텝
-        val seekBarBudget = findViewById<SeekBar>(R.id.seekBarBudget)
-        seekBarBudget.max = 4
-        seekBarBudget.progress = 2
-        seekBarBudget.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        // Step 2: 비행 시간
+        setupSeekBar(R.id.seekBarFlightTime, arrayOf("1시간", "10시간", "20시간")) { label ->
+            flightTimeLabel = label
+        }
+
+        // Step 3: 예산
+        setupSeekBar(R.id.seekBarBudget, arrayOf("부족", "적당함", "여유로움")) { label ->
+            budgetLabel = label
+        }
+
+        // Step 4: 에너지
+        setupSeekBar(R.id.seekBarEnergy, arrayOf("쉬고 싶음", "보통", "활동적")) { label ->
+            energyLabel = label
+        }
+
+        // Step 5: 물욕
+        setupSeekBar(R.id.seekBarShopping, arrayOf("없음", "보통", "많음")) { label ->
+            shoppingLabel = label
+        }
+
+        // Step 6: 성향
+        setupSeekBar(R.id.seekBarPersonality, arrayOf("I", "보통", "E")) { label ->
+            personalityLabel = label
+        }
+
+        // Step 7: 잠
+        setupSeekBar(R.id.seekBarSleep, arrayOf("바로 잠", "보통", "잠이 중요")) { label ->
+            sleepLabel = label
+        }
+
+        // Step 8: 숙소 컨디션 - 마지막이라 버튼 표시
+        val seekBarAccommodation = findViewById<SeekBar>(R.id.seekBarAccommodation)
+        seekBarAccommodation.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                budgetLabel = arrayOf("매우 부족", "부족", "적당함", "여유로움", "매우 여유로움")[progress]
+                accommodationLabel = arrayOf("1", "5", "10")[progress]
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                // 자동으로 다음 스텝 이동
+                btnNext.visibility = View.VISIBLE
+            }
+        })
+    }
+
+    private fun setupSeekBar(seekBarId: Int, labels: Array<String>, onChanged: (String) -> Unit) {
+        val seekBar = findViewById<SeekBar>(seekBarId)
+        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                onChanged(labels[progress])
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
                     onNextClicked()
                 }, 300)
-            }
-        })
-
-        // Step 3: 에너지 (5단계) - 버튼 없이 마지막은 저장
-        val seekBarEnergy = findViewById<SeekBar>(R.id.seekBarEnergy)
-        seekBarEnergy.max = 4
-        seekBarEnergy.progress = 2
-        seekBarEnergy.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                energyLabel = arrayOf("많이 쉬고 싶음", "쉬고 싶음", "보통", "활동적", "매우 활동적")[progress]
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                // 버튼을 표시
-                btnNext.visibility = View.VISIBLE
             }
         })
     }
@@ -180,12 +218,32 @@ class SammySecondQuestionActivity : AppCompatActivity() {
                 answerText = companion
             }
             1 -> {
+                questionText = "비행 시간"
+                answerText = flightTimeLabel
+            }
+            2 -> {
                 questionText = "여행 예산이 궁금해요!"
                 answerText = budgetLabel
             }
-            2 -> {
+            3 -> {
                 questionText = "여행 갔을 때 에너지는?"
                 answerText = energyLabel
+            }
+            4 -> {
+                questionText = "물욕"
+                answerText = shoppingLabel
+            }
+            5 -> {
+                questionText = "성향"
+                answerText = personalityLabel
+            }
+            6 -> {
+                questionText = "잠"
+                answerText = sleepLabel
+            }
+            7 -> {
+                questionText = "숙소 컨디션"
+                answerText = accommodationLabel
             }
             else -> return
         }
@@ -272,11 +330,10 @@ class SammySecondQuestionActivity : AppCompatActivity() {
     }
 
     private fun updateUI() {
-
-        // 버튼 visibility - 마지막 스텝에서만 보이기 (에너지 SeekBar 터치 후)
+        // 버튼 visibility - 마지막 스텝에서만 보이기
         btnNext.visibility = View.GONE
 
-        // ScrollView 하단 패딩 조정 (버튼이 보일 때만 여백)
+        // ScrollView 하단 패딩 조정
         val bottomPadding = if (currentStep == totalSteps - 1) dpToPx(120) else dpToPx(40)
         scrollViewQuestions.setPadding(
             scrollViewQuestions.paddingLeft,
@@ -289,14 +346,20 @@ class SammySecondQuestionActivity : AppCompatActivity() {
         btnNext.text = if (currentStep == totalSteps - 1) "여행 시작하기" else "다음"
 
         // 모든 스텝 숨기기
-        listOf(stepCompanion, stepBudget, stepEnergy)
+        listOf(stepCompanion, stepFlightTime, stepBudget, stepEnergy,
+               stepShopping, stepPersonality, stepSleep, stepAccommodation)
             .forEach { it.visibility = View.GONE }
 
         // 현재 스텝만 표시 (애니메이션 적용)
         val currentView = when (currentStep) {
             0 -> stepCompanion
-            1 -> stepBudget
-            2 -> stepEnergy
+            1 -> stepFlightTime
+            2 -> stepBudget
+            3 -> stepEnergy
+            4 -> stepShopping
+            5 -> stepPersonality
+            6 -> stepSleep
+            7 -> stepAccommodation
             else -> stepCompanion
         }
 
@@ -309,8 +372,13 @@ class SammySecondQuestionActivity : AppCompatActivity() {
 
         val data = mapOf(
             "companion" to companion,
+            "flightTimeLabel" to flightTimeLabel,
             "budgetLabel" to budgetLabel,
             "energyLabel" to energyLabel,
+            "shoppingLabel" to shoppingLabel,
+            "personalityLabel" to personalityLabel,
+            "sleepLabel" to sleepLabel,
+            "accommodationLabel" to accommodationLabel,
             "hasSemiPass" to true
         )
 

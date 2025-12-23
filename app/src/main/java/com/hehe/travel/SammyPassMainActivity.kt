@@ -8,6 +8,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.firestore
 
 class SammyPassMainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +43,14 @@ class SammyPassMainActivity : AppCompatActivity() {
         }
 
         btnBrowse.setOnClickListener {
+            // 새미패스 미작성 상태 저장
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+            if (uid != null) {
+                val data = mapOf("hasSemiPass" to false)
+                Firebase.firestore.collection("profiles").document(uid)
+                    .set(data, SetOptions.merge())
+            }
+
             val intent = Intent(this, SearchActivity::class.java)
             startActivity(intent)
         }

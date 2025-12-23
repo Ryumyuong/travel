@@ -14,7 +14,8 @@ class PlanAdapter(
     private val selectedItems: MutableSet<Int>,
     private val onItemClick: (Int) -> Unit,
     private val onRecommendClick: (Int) -> Unit = {},  // 다시추천 콜백
-    private val onDeleteClick: (Int) -> Unit = {}      // 삭제 콜백
+    private val onDeleteClick: (Int) -> Unit = {},     // 삭제 콜백
+    private var country: String = ""                    // 나라명 (사진 검색용)
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     // 동적으로 업데이트되는 아이템 리스트
@@ -30,6 +31,11 @@ class PlanAdapter(
     fun updateItems(newItems: List<PlanItem>) {
         items = newItems.toMutableList()
         notifyDataSetChanged()
+    }
+
+    // 나라명 설정
+    fun setCountry(countryName: String) {
+        country = countryName
     }
 
     // 특정 위치 아이템 교체 (다시추천용)
@@ -95,7 +101,8 @@ class PlanAdapter(
                     isLastItem = position == items.size - 1,
                     onItemClick = onItemClick,
                     onRecommendClick = onRecommendClick,
-                    onDeleteClick = onDeleteClick
+                    onDeleteClick = onDeleteClick,
+                    country = country
                 )
             }
             is SelectionViewHolder -> {
@@ -133,12 +140,17 @@ class PlanAdapter(
             isLastItem: Boolean,
             onItemClick: (Int) -> Unit,
             onRecommendClick: (Int) -> Unit,
-            onDeleteClick: (Int) -> Unit
+            onDeleteClick: (Int) -> Unit,
+            country: String
         ) {
             tvNumber.text = number.toString()
             tvTitle.text = item.title
             tvDescription.text = item.description
 
+            // 장소 사진 로드
+            if (country.isNotEmpty() && item.title.isNotEmpty()) {
+                PlacesPhotoHelper.loadPlacePhoto(item.title, country, ivThumbnail)
+            }
 
             // 마지막 아이템이면 타임라인 숨김
             timelineLine.visibility = if (isLastItem) View.GONE else View.VISIBLE

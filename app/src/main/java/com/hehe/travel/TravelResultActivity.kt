@@ -2,6 +2,8 @@ package com.hehe.travel
 
 import android.util.Log
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
@@ -19,14 +21,26 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 class TravelResultActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
-    private val client = OkHttpClient()
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
+        .build()
 
     // Gemini API Key
     private val GEMINI_API_KEY = BuildConfig.API_KEY
+
+    // 재시도 관련 변수
+    private var retryCount = 0
+    private val maxRetries = 3
+    private val handler = Handler(Looper.getMainLooper())
+    private var currentRetryRunnable: Runnable? = null
+    private lateinit var tvLoadingStatus: TextView
 
     // Views
     private lateinit var tvHeader: TextView
@@ -47,7 +61,8 @@ class TravelResultActivity : AppCompatActivity() {
 
     private var country = ""
     private var nickname = ""
-    private var hasCompanion = false  // ⭐ companion 유무 저장
+    private var hasSemiPass = false  // ⭐ 새미패스 작성 여부
+    private var budgetLevel = ""     // ⭐ 예산 수준 저장
 
     // 저장할 AI 응답 데이터
     private var savedFlightDesc = ""
@@ -77,6 +92,7 @@ class TravelResultActivity : AppCompatActivity() {
         tvHeader = findViewById(R.id.tvHeader)
         loadingContainer = findViewById(R.id.loadingContainer)
         resultContainer = findViewById(R.id.resultContainer)
+        tvLoadingStatus = findViewById(R.id.tvLoadingStatus)
 
         tvFlightTitle = findViewById(R.id.tvFlightTitle)
         tvFlightDesc = findViewById(R.id.tvFlightDesc)
@@ -95,13 +111,14 @@ class TravelResultActivity : AppCompatActivity() {
         }
 
         btnRestart.setOnClickListener {
-            if (hasCompanion) {
-                // companion 있으면 → 여행 다시 시작 (SearchActivity로)
+            if (hasSemiPass) {
+                // 새미패스 O → 여행 다시 시작 (QuestionnaireActivity로)
                 val intent = android.content.Intent(this, QuestionnaireActivity::class.java)
+                intent.putExtra("flowType", "semipass")  // 새미패스 경유 표시
                 intent.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 startActivity(intent)
             } else {
-                // companion 없으면 → 세미 패스 작성하기
+                // 새미패스 X → 새미 패스 작성하기
                 val intent = android.content.Intent(this, SammySecondQuestionActivity::class.java)
                 startActivity(intent)
             }
@@ -109,12 +126,54 @@ class TravelResultActivity : AppCompatActivity() {
         }
     }
 
+    // 새미패스 여부 및 예산에 따라 UI 업데이트
+    private fun updateUIBySemiPassStatus() {
+        if (!hasSemiPass) {
+            // 새미패스 X: 인기순 안내 (고정)
+            tvHeader.text = "${nickname}님의 $country 여행,\n가장 많이 찾은 순으로 안내드려요!"
+            tvFlightTitle.text = "best 비행기 추천"
+            tvAccommodationTitle.text = "best 숙소 추천"
+            tvRestaurantTitle.text = "best 맛집 추천"
+            btnRestart.text = "새미 패스 작성하기 ✔️"
+        } else {
+            // 새미패스 O: 예산에 따라 다른 안내
+            when (budgetLevel) {
+                "매우 부족", "부족" -> {
+                    // 갓성비 추천
+                    tvHeader.text = "${nickname}님의 $country 여행,\n갓성비 있게 안내드려요"
+                    tvFlightTitle.text = "최저가 best 비행기"
+                    tvAccommodationTitle.text = "${country}의 갓성비 best 숙소"
+                    tvRestaurantTitle.text = "가격도 저렴하지만 맛까지 챙긴 실속 맛집"
+                }
+                "여유로움", "매우 여유로움" -> {
+                    // 고급/럭셔리 추천
+                    tvHeader.text = "${nickname}님의 $country 여행,\n고급스럽게 안내드려요"
+                    tvFlightTitle.text = "프리미엄 비행기 추천"
+                    tvAccommodationTitle.text = "${country}의 럭셔리 best 숙소"
+                    tvRestaurantTitle.text = "분위기와 맛 모두 잡은 프리미엄 맛집"
+                }
+                else -> {
+                    // 적당함: 균형 잡힌 추천
+                    tvHeader.text = "${nickname}님의 $country 여행,\n균형 잡힌 일정으로 안내드려요"
+                    tvFlightTitle.text = "가성비 좋은 비행기 추천"
+                    tvAccommodationTitle.text = "${country}의 인기 숙소 추천"
+                    tvRestaurantTitle.text = "현지인이 추천하는 맛집"
+                }
+            }
+            btnRestart.text = "여행 다시 시작하기 ✈️"
+        }
+    }
+
     private fun loadProfileAndGenerateResult() {
         val uid = auth.currentUser?.uid ?: return
+
+        // 재시도 카운트 초기화
+        retryCount = 0
 
         // 로딩 표시
         loadingContainer.visibility = View.VISIBLE
         resultContainer.visibility = View.GONE
+        tvLoadingStatus.text = "맞춤 여행을 준비하고 있어요..."
 
         Firebase.firestore.collection("profiles").document(uid)
             .get()
@@ -128,16 +187,12 @@ class TravelResultActivity : AppCompatActivity() {
                     val energyLabel = document.getString("energyLabel") ?: ""
                     val purposes = document.get("purposes") as? List<String> ?: emptyList()
 
-                    // 헤더 업데이트
-                    tvHeader.text = "${nickname}님의 $country 여행,\n갓성비 있게 안내드려요"
+                    // ⭐ 새미패스 여부 확인
+                    hasSemiPass = document.getBoolean("hasSemiPass") ?: false
+                    budgetLevel = budgetLabel  // 예산 수준 저장
 
-                    // ⭐ companion 유무에 따라 버튼 텍스트 변경
-                    hasCompanion = companion.isNotEmpty()
-                    if (hasCompanion) {
-                        btnRestart.text = "여행 다시 시작하기 ✈️"
-                    } else {
-                        btnRestart.text = "새미 패스 작성하기 ✔️"
-                    }
+                    // 새미패스 여부에 따라 UI 변경
+                    updateUIBySemiPassStatus()
 
                     // AI 호출
                     generateTravelRecommendation(
@@ -151,15 +206,15 @@ class TravelResultActivity : AppCompatActivity() {
                         purposes = purposes
                     )
                 } else {
-                    tvHeader.text = "${country} 여행 추천"
-                    // 프로필이 없으면 세미 패스 작성하기
-                    btnRestart.text = "새미 패스 작성하기 ✔️"
+                    hasSemiPass = false
+                    updateUIBySemiPassStatus()
                     generateTravelRecommendation(country = country)
                 }
             }
             .addOnFailureListener {
                 loadingContainer.visibility = View.GONE
-                btnRestart.text = "새미 패스 작성하기 ✔️"
+                hasSemiPass = false
+                updateUIBySemiPassStatus()
                 Toast.makeText(this, "프로필 불러오기 실패", Toast.LENGTH_SHORT).show()
             }
     }
@@ -188,12 +243,12 @@ class TravelResultActivity : AppCompatActivity() {
             })
             put("generationConfig", JSONObject().apply {
                 put("temperature", 0.7)
-                put("maxOutputTokens", 2048)
+                put("maxOutputTokens", 4096)
             })
         }
 
         val request = Request.Builder()
-            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$GEMINI_API_KEY")
+            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$GEMINI_API_KEY")
             .post(jsonBody.toString().toRequestBody("application/json".toMediaType()))
             .build()
 
@@ -201,11 +256,12 @@ class TravelResultActivity : AppCompatActivity() {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("TravelResult", "Network failure: ${e.message}", e)
                 runOnUiThread {
-                    loadingContainer.visibility = View.GONE
-                    resultContainer.visibility = View.VISIBLE
-                    Toast.makeText(this@TravelResultActivity, "AI 응답 실패: ${e.message}", Toast.LENGTH_SHORT).show()
-                    tvFlightTitle.text = "네트워크 오류"
-                    tvFlightDesc.text = "네트워크 오류가 발생했습니다.\n다시 시도해주세요.\n\n에러: ${e.message}"
+                    // 네트워크 오류 시 재시도
+                    if (retryCount < maxRetries) {
+                        retryWithDelay(country, nickname, gender, ageDecade, companion, budgetLabel, energyLabel, purposes)
+                    } else {
+                        showFinalError("네트워크 오류", "네트워크 연결을 확인해주세요.\n\n에러: ${e.message}")
+                    }
                 }
             }
 
@@ -215,16 +271,30 @@ class TravelResultActivity : AppCompatActivity() {
                 Log.d("TravelResult", "Response body: $responseBody")
 
                 runOnUiThread {
-                    loadingContainer.visibility = View.GONE
-                    resultContainer.visibility = View.VISIBLE
-
-                    if (response.isSuccessful && responseBody != null) {
-                        parseAndDisplayResult(responseBody)
-                    } else {
-                        Log.e("TravelResult", "API Error: ${response.code}")
-                        Toast.makeText(this@TravelResultActivity, "AI 응답 오류: ${response.code}", Toast.LENGTH_SHORT).show()
-                        tvFlightTitle.text = "오류 발생"
-                        tvFlightDesc.text = "응답 오류: ${response.code}\n\n${responseBody ?: "응답 없음"}"
+                    when {
+                        response.isSuccessful && responseBody != null -> {
+                            // 성공 - 재시도 카운트 초기화
+                            retryCount = 0
+                            loadingContainer.visibility = View.GONE
+                            resultContainer.visibility = View.VISIBLE
+                            parseAndDisplayResult(responseBody)
+                        }
+                        response.code == 429 -> {
+                            // Rate Limit 초과 - 재시도
+                            Log.w("TravelResult", "Rate limit exceeded (429), retry: $retryCount")
+                            if (retryCount < maxRetries) {
+                                retryWithDelay(country, nickname, gender, ageDecade, companion, budgetLabel, energyLabel, purposes)
+                            } else {
+                                showFinalError(
+                                    "요청 한도 초과",
+                                    "잠시 후 다시 시도해주세요.\n\nAI 서버가 많은 요청을 처리 중입니다.\n약 1분 후에 다시 검색해주세요."
+                                )
+                            }
+                        }
+                        else -> {
+                            Log.e("TravelResult", "API Error: ${response.code}")
+                            showFinalError("오류 발생", "응답 오류: ${response.code}\n\n잠시 후 다시 시도해주세요.")
+                        }
                     }
                 }
             }
@@ -243,39 +313,52 @@ class TravelResultActivity : AppCompatActivity() {
     ): String {
         val purposeText = if (purposes.isNotEmpty()) purposes.joinToString(", ") else "일반 여행"
 
+        // 새미패스 여부 및 예산에 따라 추천 기준 변경
+        val (recommendationCriteria, flightTitle, accommodationTitle, restaurantTitle) = if (!hasSemiPass) {
+            // 새미패스 X: 인기순
+            arrayOf(
+                "가장 인기 있고 많이 찾는 순으로 추천해주세요. 리뷰가 많고 평점이 높은 옵션을 우선 추천합니다.",
+                "best 비행기 추천",
+                "best 숙소 추천",
+                "best 맛집 추천"
+            )
+        } else {
+            when (budgetLevel) {
+                "매우 부족", "부족" -> {
+                    // 갓성비 추천
+                    arrayOf(
+                        "가격 대비 성능이 좋은 갓성비 위주로 추천해주세요. 저렴하면서도 품질 좋은 옵션을 우선 추천합니다.",
+                        "최저가 best 비행기",
+                        "${country}의 갓성비 best 숙소",
+                        "가격도 저렴하지만 맛까지 챙긴 실속 맛집"
+                    )
+                }
+                "여유로움", "매우 여유로움" -> {
+                    // 고급/럭셔리 추천
+                    arrayOf(
+                        "고급스럽고 럭셔리한 옵션 위주로 추천해주세요. 프리미엄 서비스와 최고급 시설을 우선 추천합니다.",
+                        "프리미엄 비행기 추천",
+                        "${country}의 럭셔리 best 숙소",
+                        "분위기와 맛 모두 잡은 프리미엄 맛집"
+                    )
+                }
+                else -> {
+                    // 균형 잡힌 추천
+                    arrayOf(
+                        "가격과 품질의 균형이 좋은 옵션 위주로 추천해주세요. 합리적인 가격에 만족스러운 품질을 제공하는 옵션을 추천합니다.",
+                        "가성비 좋은 비행기 추천",
+                        "${country}의 인기 숙소 추천",
+                        "현지인이 추천하는 맛집"
+                    )
+                }
+            }
+        }
+
         return """
-당신은 전문 여행 플래너입니다. 다음 사용자 정보를 바탕으로 ${country} 여행을 추천해주세요.
+${country} 여행 추천. $recommendationCriteria
 
-[사용자 정보]
-- 이름: $nickname
-- 성별: $gender
-- 연령대: ${ageDecade}대
-- 동행: $companion
-- 예산: $budgetLabel
-- 에너지/활동성: $energyLabel
-- 여행 목적: $purposeText
-
-[요청 형식]
-다음 JSON 형식으로만 응답해주세요. 다른 텍스트 없이 JSON만 출력하세요:
-
-{
-    "flight": {
-        "title": "최저가 best 비행기",
-        "description": "추천 항공편 정보 (항공사, 예상 가격대, 팁)"
-    },
-    "accommodation": {
-        "title": "${country}의 갓성비 best 숙소",
-        "description": "예산과 스타일에 맞는 숙소 추천 3개 (이름, 가격대, 특징)"
-    },
-    "restaurant": {
-        "title": "가격도 저렴하지만 맛까지 챙긴 실속 맛집",
-        "description": "현지 맛집 추천 3개 (이름, 대표 메뉴, 가격대)"
-    },
-    "itinerary": {
-        "title": "추천 일정",
-        "description": "3박 4일 추천 일정 (일차별 간단 요약)"
-    }
-}
+아래 JSON 형식으로만 응답 (마크다운 없이, 모든 값은 문자열):
+{"flight":"항공사명 ex) 대한항공","accommodation":"숙소1, 숙소2","restaurant":"맛집1, 맛집2"}
         """.trimIndent()
     }
 
@@ -292,39 +375,28 @@ class TravelResultActivity : AppCompatActivity() {
 
             Log.d("TravelResult", "AI Response text: $content")
 
-            // JSON 파싱 (```json ... ``` 제거)
-            val cleanJson = content
-                .replace("```json", "")
-                .replace("```", "")
-                .trim()
+            // JSON 추출 (여러 형식 지원)
+            val cleanJson = extractJson(content)
 
             Log.d("TravelResult", "Clean JSON: $cleanJson")
 
             val result = JSONObject(cleanJson)
 
-            // 비행기 (문장마다 줄바꿈)
-            val flight = result.getJSONObject("flight")
-            tvFlightTitle.text = flight.getString("title")
-            savedFlightDesc = flight.getString("description")
-            tvFlightDesc.text = formatFlight(savedFlightDesc)
+            // 비행기
+            savedFlightDesc = getStringOrArray(result, "flight")
+            tvFlightDesc.text = savedFlightDesc
 
-            // 숙소 (1, 2, 3 숫자마다 줄바꿈)
-            val accommodation = result.getJSONObject("accommodation")
-            tvAccommodationTitle.text = accommodation.getString("title")
-            savedAccommodationDesc = accommodation.getString("description")
-            tvAccommodationDesc.text = formatNumberedList(savedAccommodationDesc)
+            // 숙소
+            savedAccommodationDesc = getStringOrArray(result, "accommodation")
+            tvAccommodationDesc.text = savedAccommodationDesc
 
-            // 맛집 (1, 2, 3 숫자마다 줄바꿈)
-            val restaurant = result.getJSONObject("restaurant")
-            tvRestaurantTitle.text = restaurant.getString("title")
-            savedRestaurantDesc = restaurant.getString("description")
-            tvRestaurantDesc.text = formatNumberedList(savedRestaurantDesc)
+            // 맛집
+            savedRestaurantDesc = getStringOrArray(result, "restaurant")
+            tvRestaurantDesc.text = savedRestaurantDesc
 
-            // 일정 (* 제거, 일차별 줄바꿈)
-            val itinerary = result.getJSONObject("itinerary")
-            tvItineraryTitle.text = itinerary.getString("title")
-            savedItineraryDesc = itinerary.getString("description")
-            tvItineraryDesc.text = formatItinerary(savedItineraryDesc)
+            // 일정 섹션 숨기기
+            tvItineraryTitle.visibility = View.GONE
+            tvItineraryDesc.visibility = View.GONE
 
             Log.d("TravelResult", "Successfully parsed and displayed all sections")
 
@@ -357,6 +429,40 @@ class TravelResultActivity : AppCompatActivity() {
         }
     }
 
+    // JSON 값이 문자열 또는 배열일 때 처리
+    private fun getStringOrArray(json: JSONObject, key: String): String {
+        return try {
+            // 먼저 문자열로 시도
+            json.getString(key)
+        } catch (e: Exception) {
+            try {
+                // 배열이면 쉼표로 연결
+                val arr = json.getJSONArray(key)
+                (0 until arr.length()).joinToString(", ") { arr.getString(it) }
+            } catch (e2: Exception) {
+                ""
+            }
+        }
+    }
+
+    // JSON 추출 함수 (여러 형식 지원)
+    private fun extractJson(text: String): String {
+        Log.d("TravelResult", "extractJson input: $text")
+
+        // { 와 } 사이의 JSON만 추출
+        val jsonStart = text.indexOf("{")
+        val jsonEnd = text.lastIndexOf("}")
+
+        if (jsonStart >= 0 && jsonEnd > jsonStart) {
+            val result = text.substring(jsonStart, jsonEnd + 1).trim()
+            Log.d("TravelResult", "extractJson output: $result")
+            return result
+        }
+
+        Log.e("TravelResult", "extractJson failed - no JSON found")
+        return text.trim()
+    }
+
     // 비행기: 문장마다 줄바꿈
     private fun formatFlight(text: String): String {
         return text
@@ -385,6 +491,84 @@ class TravelResultActivity : AppCompatActivity() {
             .trim()
     }
 
+    // 재시도 로직 (지수 백오프)
+    private fun retryWithDelay(
+        country: String,
+        nickname: String = "여행자",
+        gender: String = "",
+        ageDecade: Int = 30,
+        companion: String = "",
+        budgetLabel: String = "",
+        energyLabel: String = "",
+        purposes: List<String> = emptyList()
+    ) {
+        retryCount++
+        // 지수 백오프: 10초, 20초, 40초
+        val delaySeconds = 10 * (1 shl (retryCount - 1))
+
+        Log.d("TravelResult", "Retrying in ${delaySeconds}s (attempt $retryCount/$maxRetries)")
+
+        // 카운트다운 시작
+        startCountdown(delaySeconds) {
+            generateTravelRecommendation(country, nickname, gender, ageDecade, companion, budgetLabel, energyLabel, purposes)
+        }
+    }
+
+    // 카운트다운 타이머
+    private fun startCountdown(seconds: Int, onComplete: () -> Unit) {
+        var remaining = seconds
+
+        currentRetryRunnable?.let { handler.removeCallbacks(it) }
+
+        fun tick() {
+            if (remaining > 0) {
+                updateLoadingStatus("AI 서버 대기 중... ${remaining}초 후 재시도 ($retryCount/$maxRetries)")
+                remaining--
+                currentRetryRunnable = Runnable { tick() }
+                handler.postDelayed(currentRetryRunnable!!, 1000)
+            } else {
+                updateLoadingStatus("AI에게 여행 추천 요청 중...")
+                onComplete()
+            }
+        }
+        tick()
+    }
+
+    // 로딩 상태 메시지 업데이트
+    private fun updateLoadingStatus(message: String) {
+        if (::tvLoadingStatus.isInitialized) {
+            tvLoadingStatus.text = message
+        }
+    }
+
+    // 최종 에러 표시 (재시도 모두 실패)
+    private fun showFinalError(title: String, message: String) {
+        loadingContainer.visibility = View.GONE
+        resultContainer.visibility = View.VISIBLE
+
+        tvFlightTitle.text = title
+        tvFlightDesc.text = message
+
+        // 다른 섹션 숨기기
+        tvAccommodationTitle.visibility = View.GONE
+        tvAccommodationDesc.visibility = View.GONE
+        tvRestaurantTitle.visibility = View.GONE
+        tvRestaurantDesc.visibility = View.GONE
+        tvItineraryTitle.visibility = View.GONE
+        tvItineraryDesc.visibility = View.GONE
+
+        // 저장 버튼 비활성화
+        btnSaveTrip.visibility = View.GONE
+
+        Toast.makeText(this, "잠시 후 다시 시도해주세요", Toast.LENGTH_LONG).show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // 핸들러 콜백 정리
+        currentRetryRunnable?.let { handler.removeCallbacks(it) }
+    }
+
     // Firebase history에 저장
     private fun saveToHistory() {
         val uid = auth.currentUser?.uid
@@ -401,7 +585,14 @@ class TravelResultActivity : AppCompatActivity() {
             "accommodation" to savedAccommodationDesc,
             "restaurant" to savedRestaurantDesc,
             "itinerary" to savedItineraryDesc,
-            "savedAt" to com.google.firebase.Timestamp.now()
+            "hasSemiPass" to hasSemiPass,
+            "budgetLabel" to budgetLevel,
+            "nights" to 0,  // SearchActivity에서는 날짜 선택 없음
+            "daysCount" to 0,
+            "startDate" to "",
+            "endDate" to "",
+            "travelStyle" to "",
+            "createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()
         )
 
         Firebase.firestore

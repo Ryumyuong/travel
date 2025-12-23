@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.cardview.widget.CardView
@@ -58,6 +59,10 @@ class MainActivity : AppCompatActivity() {
 
         initViews()
         setupClickListeners()
+
+        binding.tvSignUp.setOnClickListener {
+            Toast.makeText(this, "회원가입 창", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun initFirebase() {
@@ -94,6 +99,8 @@ class MainActivity : AppCompatActivity() {
             startGoogleSignIn()
 
         }
+
+
     }
 
     private fun startGoogleSignIn() {

@@ -47,6 +47,8 @@ class DateRangeActivity : AppCompatActivity() {
     private var gender: String = ""
     private var age: Int = 0
     private var profileTags: List<String> = emptyList()
+    private var hasSemiPass: Boolean = false
+    private var budgetLabel: String = ""
 
     // 여행 취향 데이터
     private var travelStyle: String = ""
@@ -54,6 +56,9 @@ class DateRangeActivity : AppCompatActivity() {
 
     // 로딩 상태
     private var isLoading = false
+
+    // 진입 경로 (semipass: 새미패스 경유 → type 2, taste: 취향맞춤 → type 3)
+    private var flowType: String = "taste"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +71,7 @@ class DateRangeActivity : AppCompatActivity() {
 
         countryName = intent.getStringExtra("country") ?: ""
         userName = intent.getStringExtra("login") ?: ""
+        flowType = intent.getStringExtra("flowType") ?: "taste"
 
         // Profile + 여행취향 데이터 로드
         loadUserData()
@@ -86,7 +92,9 @@ class DateRangeActivity : AppCompatActivity() {
                     age = doc.getLong("ageDecade")?.toInt() ?: 0
                     profileTags = doc.get("purposes") as? List<String> ?: emptyList()
                     userName = doc.getString("nickname") ?: userName
-                    Log.d("DateRange", "Profile 로드: gender=$gender, age=$age")
+                    hasSemiPass = doc.getBoolean("hasSemiPass") ?: false
+                    budgetLabel = doc.getString("budgetLabel") ?: ""
+                    Log.d("DateRange", "Profile 로드: hasSemiPass=$hasSemiPass, budgetLabel=$budgetLabel")
                 }
             }
 
@@ -228,12 +236,12 @@ class DateRangeActivity : AppCompatActivity() {
             })
             put("generationConfig", JSONObject().apply {
                 put("temperature", 0.7)
-                put("maxOutputTokens", 4096)
+                put("maxOutputTokens", 8192)
             })
         }
 
         val request = Request.Builder()
-            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$GEMINI_API_KEY")
+            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$GEMINI_API_KEY")
             .post(jsonBody.toString().toRequestBody("application/json".toMediaType()))
             .build()
 
@@ -283,48 +291,12 @@ class DateRangeActivity : AppCompatActivity() {
         val travelStyleDesc = buildTravelStyleDesc()
 
         return """
-당신은 전문 여행 플래너입니다. 다음 사용자 정보를 바탕으로 ${country} ${nights}박 ${days}일 여행 일정을 생성해주세요.
+${country} ${nights}박${days}일 여행. 키워드: $keywordText
 
-[사용자 정보]
-- 이름: $userName
-- 성별: $gender
-- 연령대: ${age}대
-- 여행지: $country
-- 기간: $startDate ~ $endDate (${nights}박 ${days}일)
-- 선호 키워드: $keywordText
+JSON만 응답 (마크다운 없이):
+[{"day":1,"title":"테마","places":[{"name":"장소명","description":"15자 이내 한줄 설명","time":"09:00","duration":"2시간","tip":"팁"}]}]
 
-[여행 취향]
-$travelStyleDesc
-
-[요청 형식]
-다음 JSON 형식으로만 응답해주세요. 다른 텍스트 없이 JSON만 출력하세요:
-
-```json
-[
-    {
-        "day": 1,
-        "title": "1일차 테마 제목",
-        "places": [
-            {
-                "name": "장소명",
-                "description": "장소 설명 (20자 내외)",
-                "time": "09:00",
-                "duration": "2시간",
-                "tip": "꿀팁"
-            }
-        ]
-    },
-    {
-        "day": 2,
-        "title": "2일차 테마 제목",
-        "places": [...]
-    }
-]
-```
-
-각 일차별로 3~5개 장소를 추천해주세요.
-사용자의 여행 취향과 선호 키워드에 맞는 장소를 추천해주세요.
-실제 존재하는 장소만 추천해주세요.
+각 일차 4개 장소. description은 "석양이 아름다운 해변" 같이 15자 이내로.
         """.trimIndent()
     }
 
@@ -425,7 +397,7 @@ $travelStyleDesc
         }
     }
 
-    // Firebase history에 저장
+    // Firebase history에 저장 (새미패스 경유인 경우만)
     private fun saveItineraryToHistory(
         country: String,
         startDate: String,
@@ -434,6 +406,12 @@ $travelStyleDesc
         days: List<DayPlanData>,
         keywords: List<String>
     ) {
+        // 취향맞춤 흐름이면 여기서 저장하지 않음 (PlanActivity에서 "내 일정에 추가" 시 저장)
+        if (flowType == "taste") {
+            Log.d("Gemini", "취향맞춤 흐름 - history 저장 스킵 (PlanActivity에서 저장)")
+            return
+        }
+
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
         val daysMap = days.map { d ->
@@ -462,6 +440,8 @@ $travelStyleDesc
             "days" to daysMap,
             "travelStyle" to travelStyle,
             "keywords" to keywords,
+            "hasSemiPass" to hasSemiPass,
+            "budgetLabel" to budgetLabel,
             "createdAt" to FieldValue.serverTimestamp()
         )
 
@@ -471,7 +451,7 @@ $travelStyleDesc
             .collection("trips")
             .add(doc)
             .addOnSuccessListener { ref ->
-                Log.d("Gemini", "히스토리 저장 완료: ${ref.id}")
+                Log.d("Gemini", "새미패스 히스토리 저장 완료: ${ref.id}")
             }
             .addOnFailureListener { e ->
                 Log.e("Gemini", "히스토리 저장 실패: ${e.message}")
