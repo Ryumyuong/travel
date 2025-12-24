@@ -57,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="40dp"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="visible">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -153,13 +153,24 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="48dp"
-                    android:max="2"
-                    android:progress="1"
+                    android:max="100"
+                    android:progress="50"
                     android:progressDrawable="@drawable/seekbar_track_black"
                     android:thumb="@drawable/seekbar_thumb_blue"
                     android:thumbOffset="-10dp"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"/>
+
+                <TextView
+                    android:id="@+id/tvFlightTimeValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="10.5시간"
+                    android:textAlignment="center"
+                    android:textColor="#3653AE"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -205,7 +216,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="40dp"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="visible">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -220,13 +231,24 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="48dp"
-                    android:max="2"
-                    android:progress="1"
+                    android:max="100"
+                    android:progress="50"
                     android:progressDrawable="@drawable/seekbar_track_black"
                     android:thumb="@drawable/seekbar_thumb_blue"
                     android:thumbOffset="-10dp"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"/>
+
+                <TextView
+                    android:id="@+id/tvBudgetValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="적당함"
+                    android:textAlignment="center"
+                    android:textColor="#3653AE"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -272,7 +294,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="40dp"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="visible">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -287,13 +309,24 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="48dp"
-                    android:max="2"
-                    android:progress="1"
+                    android:max="100"
+                    android:progress="50"
                     android:progressDrawable="@drawable/seekbar_track_black"
                     android:thumb="@drawable/seekbar_thumb_blue"
                     android:thumbOffset="-10dp"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"/>
+
+                <TextView
+                    android:id="@+id/tvEnergyValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="보통 50%"
+                    android:textAlignment="center"
+                    android:textColor="#3653AE"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -339,7 +372,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="40dp"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="visible">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -354,13 +387,24 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="48dp"
-                    android:max="2"
-                    android:progress="1"
+                    android:max="100"
+                    android:progress="50"
                     android:progressDrawable="@drawable/seekbar_track_black"
                     android:thumb="@drawable/seekbar_thumb_blue"
                     android:thumbOffset="-10dp"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"/>
+
+                <TextView
+                    android:id="@+id/tvShoppingValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="보통 50%"
+                    android:textAlignment="center"
+                    android:textColor="#3653AE"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -406,7 +450,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="40dp"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="visible">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -421,13 +465,24 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="48dp"
-                    android:max="2"
-                    android:progress="1"
+                    android:max="100"
+                    android:progress="50"
                     android:progressDrawable="@drawable/seekbar_track_black"
                     android:thumb="@drawable/seekbar_thumb_blue"
                     android:thumbOffset="-10dp"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"/>
+
+                <TextView
+                    android:id="@+id/tvPersonalityValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="보통 50%"
+                    android:textAlignment="center"
+                    android:textColor="#3653AE"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -473,7 +528,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="40dp"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="visible">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -488,13 +543,24 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="48dp"
-                    android:max="2"
-                    android:progress="1"
+                    android:max="100"
+                    android:progress="50"
                     android:progressDrawable="@drawable/seekbar_track_black"
                     android:thumb="@drawable/seekbar_thumb_blue"
                     android:thumbOffset="-10dp"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"/>
+
+                <TextView
+                    android:id="@+id/tvSleepValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="보통 50%"
+                    android:textAlignment="center"
+                    android:textColor="#3653AE"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -540,7 +606,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="40dp"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="visible">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -555,13 +621,24 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="48dp"
-                    android:max="2"
-                    android:progress="1"
+                    android:max="100"
+                    android:progress="50"
                     android:progressDrawable="@drawable/seekbar_track_black"
                     android:thumb="@drawable/seekbar_thumb_blue"
                     android:thumbOffset="-10dp"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"/>
+
+                <TextView
+                    android:id="@+id/tvAccommodationValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="5.5"
+                    android:textAlignment="center"
+                    android:textColor="#3653AE"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
