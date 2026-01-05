@@ -362,20 +362,91 @@ class QuestionnaireActivity : AppCompatActivity() {
     }
 
     private fun navigateToCountryGuide() {
-        val countries = listOf(
-            "italy", "france", "japan", "korea", "usa", "spain", "germany", "uk",
-            "thailand", "australia", "vietnam", "greece", "turkey", "switzerland",
-            "portugal", "egypt"
-        )
+        val uid = auth.currentUser?.uid
+        if (uid == null) {
+            navigateWithRandomCountry()
+            return
+        }
 
-        // 랜덤 선택
-        val randomCountry = countries.random()
+        // Firebase에서 비행시간 선호도 가져오기
+        Firebase.firestore.collection("profiles").document(uid)
+            .get()
+            .addOnSuccessListener { doc ->
+                val flightTimeValue = doc.getDouble("flightTimeValue") ?: 10.0
+                val filteredCountries = getCountriesByFlightTime(flightTimeValue)
+                val selectedCountry = filteredCountries.random()
+
+                val intent = Intent(this, DateRangeActivity::class.java)
+                intent.putExtra("country", selectedCountry)
+                intent.putExtra("flowType", flowType)
+                startActivity(intent)
+                finish()
+            }
+            .addOnFailureListener {
+                navigateWithRandomCountry()
+            }
+    }
+
+    private fun navigateWithRandomCountry() {
+        val countries = listOf(
+            "japan", "thailand", "vietnam", "taiwan", "philippines",
+            "italy", "france", "spain", "germany", "uk",
+            "australia", "usa", "switzerland", "greece", "turkey"
+        )
+        val selectedCountry = countries.random()
 
         val intent = Intent(this, DateRangeActivity::class.java)
-        intent.putExtra("country", randomCountry)
-        intent.putExtra("flowType", flowType)  // 진입 경로 전달
+        intent.putExtra("country", selectedCountry)
+        intent.putExtra("flowType", flowType)
         startActivity(intent)
         finish()
+    }
+
+    // 한국에서 각 나라까지 비행시간 기준 필터링
+    private fun getCountriesByFlightTime(preferredHours: Double): List<String> {
+        // 나라별 대략적인 비행시간 (한국 출발 기준)
+        val countryFlightTimes = mapOf(
+            "japan" to 2.0,
+            "taiwan" to 2.5,
+            "hongkong" to 3.5,
+            "philippines" to 4.0,
+            "guam" to 4.0,
+            "vietnam" to 5.0,
+            "thailand" to 5.5,
+            "singapore" to 6.5,
+            "malaysia" to 6.5,
+            "indonesia" to 7.0,
+            "india" to 8.0,
+            "australia" to 10.0,
+            "dubai" to 10.0,
+            "turkey" to 11.0,
+            "greece" to 12.0,
+            "italy" to 12.0,
+            "switzerland" to 12.0,
+            "germany" to 12.0,
+            "france" to 12.5,
+            "spain" to 13.0,
+            "uk" to 13.0,
+            "portugal" to 14.0,
+            "egypt" to 14.0,
+            "usa" to 14.0
+        )
+
+        // 선호 비행시간 ±3시간 범위 내의 나라들 필터링
+        val tolerance = 3.0
+        val filtered = countryFlightTimes.filter { (_, hours) ->
+            hours >= (preferredHours - tolerance) && hours <= (preferredHours + tolerance)
+        }.keys.toList()
+
+        // 필터링된 나라가 없으면 가장 가까운 비행시간의 나라들 반환
+        return if (filtered.isNotEmpty()) {
+            filtered
+        } else {
+            countryFlightTimes.entries
+                .sortedBy { kotlin.math.abs(it.value - preferredHours) }
+                .take(5)
+                .map { it.key }
+        }
     }
 
     private fun initAuthAndGoogleClient() {

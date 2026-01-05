@@ -175,36 +175,79 @@ class TravelResultActivity : AppCompatActivity() {
         resultContainer.visibility = View.GONE
         tvLoadingStatus.text = "맞춤 여행을 준비하고 있어요..."
 
-        Firebase.firestore.collection("profiles").document(uid)
-            .get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    nickname = document.getString("nickname") ?: "여행자"
-                    val gender = document.getString("gender") ?: ""
-                    val ageDecade = document.getLong("ageDecade")?.toInt() ?: 30
-                    val companion = document.getString("companion") ?: ""
-                    val budgetLabel = document.getString("budgetLabel") ?: ""
-                    val energyLabel = document.getString("energyLabel") ?: ""
-                    val purposes = document.get("purposes") as? List<String> ?: emptyList()
+        // profiles와 mbti 데이터를 동시에 가져오기
+        val db = Firebase.firestore
+        val profileRef = db.collection("profiles").document(uid)
+        val mbtiRef = db.collection("mbti").document(uid)
+
+        profileRef.get()
+            .addOnSuccessListener { profileDoc ->
+                if (profileDoc.exists()) {
+                    nickname = profileDoc.getString("nickname") ?: "여행자"
+                    val gender = profileDoc.getString("gender") ?: ""
+                    val ageDecade = profileDoc.getLong("ageDecade")?.toInt() ?: 30
+                    val companion = profileDoc.getString("companion") ?: ""
+                    val budgetLabel = profileDoc.getString("budgetLabel") ?: ""
+                    val energyLabel = profileDoc.getString("energyLabel") ?: ""
+                    val purposes = profileDoc.get("purposes") as? List<String> ?: emptyList()
+
+                    // 추가 프로필 필드들
+                    val flightTimeLabel = profileDoc.getString("flightTimeLabel") ?: ""
+                    val personalityLabel = profileDoc.getString("personalityLabel") ?: ""
+                    val shoppingLabel = profileDoc.getString("shoppingLabel") ?: ""
+                    val sleepLabel = profileDoc.getString("sleepLabel") ?: ""
 
                     // ⭐ 새미패스 여부 확인
-                    hasSemiPass = document.getBoolean("hasSemiPass") ?: false
+                    hasSemiPass = profileDoc.getBoolean("hasSemiPass") ?: false
                     budgetLevel = budgetLabel  // 예산 수준 저장
 
                     // 새미패스 여부에 따라 UI 변경
                     updateUIBySemiPassStatus()
 
-                    // AI 호출
-                    generateTravelRecommendation(
-                        country = country,
-                        nickname = nickname,
-                        gender = gender,
-                        ageDecade = ageDecade,
-                        companion = companion,
-                        budgetLabel = budgetLabel,
-                        energyLabel = energyLabel,
-                        purposes = purposes
-                    )
+                    // MBTI 데이터 가져오기
+                    mbtiRef.get()
+                        .addOnSuccessListener { mbtiDoc ->
+                            val mbtiAnswers = if (mbtiDoc.exists()) {
+                                parseMbtiAnswers(mbtiDoc)
+                            } else {
+                                emptyList()
+                            }
+
+                            // AI 호출 (프로필 + MBTI 포함)
+                            generateTravelRecommendation(
+                                country = country,
+                                nickname = nickname,
+                                gender = gender,
+                                ageDecade = ageDecade,
+                                companion = companion,
+                                budgetLabel = budgetLabel,
+                                energyLabel = energyLabel,
+                                purposes = purposes,
+                                flightTimeLabel = flightTimeLabel,
+                                personalityLabel = personalityLabel,
+                                shoppingLabel = shoppingLabel,
+                                sleepLabel = sleepLabel,
+                                mbtiAnswers = mbtiAnswers
+                            )
+                        }
+                        .addOnFailureListener {
+                            // MBTI 실패해도 프로필만으로 진행
+                            generateTravelRecommendation(
+                                country = country,
+                                nickname = nickname,
+                                gender = gender,
+                                ageDecade = ageDecade,
+                                companion = companion,
+                                budgetLabel = budgetLabel,
+                                energyLabel = energyLabel,
+                                purposes = purposes,
+                                flightTimeLabel = flightTimeLabel,
+                                personalityLabel = personalityLabel,
+                                shoppingLabel = shoppingLabel,
+                                sleepLabel = sleepLabel,
+                                mbtiAnswers = emptyList()
+                            )
+                        }
                 } else {
                     hasSemiPass = false
                     updateUIBySemiPassStatus()
@@ -219,6 +262,24 @@ class TravelResultActivity : AppCompatActivity() {
             }
     }
 
+    // MBTI selectedAnswers 파싱
+    private fun parseMbtiAnswers(mbtiDoc: com.google.firebase.firestore.DocumentSnapshot): List<String> {
+        val answers = mutableListOf<String>()
+        try {
+            val selectedAnswers = mbtiDoc.get("selectedAnswers") as? List<Map<String, Any>> ?: return emptyList()
+            for (answer in selectedAnswers) {
+                val questionTag = answer["questionTag"] as? String ?: ""
+                val selectedText = answer["selectedText"] as? String ?: ""
+                if (questionTag.isNotEmpty() && selectedText.isNotEmpty()) {
+                    answers.add("$questionTag: $selectedText")
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("TravelResult", "MBTI 파싱 오류: ${e.message}")
+        }
+        return answers
+    }
+
     private fun generateTravelRecommendation(
         country: String,
         nickname: String = "여행자",
@@ -227,9 +288,17 @@ class TravelResultActivity : AppCompatActivity() {
         companion: String = "",
         budgetLabel: String = "",
         energyLabel: String = "",
-        purposes: List<String> = emptyList()
+        purposes: List<String> = emptyList(),
+        flightTimeLabel: String = "",
+        personalityLabel: String = "",
+        shoppingLabel: String = "",
+        sleepLabel: String = "",
+        mbtiAnswers: List<String> = emptyList()
     ) {
-        val prompt = buildPrompt(country, nickname, gender, ageDecade, companion, budgetLabel, energyLabel, purposes)
+        val prompt = buildPrompt(
+            country, nickname, gender, ageDecade, companion, budgetLabel, energyLabel, purposes,
+            flightTimeLabel, personalityLabel, shoppingLabel, sleepLabel, mbtiAnswers
+        )
 
         val jsonBody = JSONObject().apply {
             put("contents", JSONArray().apply {
@@ -258,7 +327,7 @@ class TravelResultActivity : AppCompatActivity() {
                 runOnUiThread {
                     // 네트워크 오류 시 재시도
                     if (retryCount < maxRetries) {
-                        retryWithDelay(country, nickname, gender, ageDecade, companion, budgetLabel, energyLabel, purposes)
+                        retryWithDelay(country, nickname, gender, ageDecade, companion, budgetLabel, energyLabel, purposes, flightTimeLabel, personalityLabel, shoppingLabel, sleepLabel, mbtiAnswers)
                     } else {
                         showFinalError("네트워크 오류", "네트워크 연결을 확인해주세요.\n\n에러: ${e.message}")
                     }
@@ -283,7 +352,7 @@ class TravelResultActivity : AppCompatActivity() {
                             // Rate Limit 초과 - 재시도
                             Log.w("TravelResult", "Rate limit exceeded (429), retry: $retryCount")
                             if (retryCount < maxRetries) {
-                                retryWithDelay(country, nickname, gender, ageDecade, companion, budgetLabel, energyLabel, purposes)
+                                retryWithDelay(country, nickname, gender, ageDecade, companion, budgetLabel, energyLabel, purposes, flightTimeLabel, personalityLabel, shoppingLabel, sleepLabel, mbtiAnswers)
                             } else {
                                 showFinalError(
                                     "요청 한도 초과",
@@ -309,7 +378,12 @@ class TravelResultActivity : AppCompatActivity() {
         companion: String,
         budgetLabel: String,
         energyLabel: String,
-        purposes: List<String>
+        purposes: List<String>,
+        flightTimeLabel: String = "",
+        personalityLabel: String = "",
+        shoppingLabel: String = "",
+        sleepLabel: String = "",
+        mbtiAnswers: List<String> = emptyList()
     ): String {
         val purposeText = if (purposes.isNotEmpty()) purposes.joinToString(", ") else "일반 여행"
 
@@ -354,8 +428,36 @@ class TravelResultActivity : AppCompatActivity() {
             }
         }
 
+        // 프로필 정보 구성
+        val profileInfo = buildString {
+            append("여행자 프로필:\n")
+            if (gender.isNotEmpty()) append("- 성별: $gender\n")
+            if (ageDecade > 0) append("- 나이대: ${ageDecade}대\n")
+            if (companion.isNotEmpty()) append("- 동행: $companion\n")
+            if (budgetLabel.isNotEmpty()) append("- 예산: $budgetLabel\n")
+            if (energyLabel.isNotEmpty()) append("- 활동량: $energyLabel\n")
+            if (purposeText.isNotEmpty()) append("- 여행 목적: $purposeText\n")
+            if (flightTimeLabel.isNotEmpty()) append("- 선호 비행시간: $flightTimeLabel\n")
+            if (personalityLabel.isNotEmpty()) append("- 성격: $personalityLabel\n")
+            if (shoppingLabel.isNotEmpty()) append("- 쇼핑 선호도: $shoppingLabel\n")
+            if (sleepLabel.isNotEmpty()) append("- 수면 스타일: $sleepLabel\n")
+        }
+
+        // MBTI 성향 정보 구성
+        val mbtiInfo = if (mbtiAnswers.isNotEmpty()) {
+            buildString {
+                append("\n여행 성향 분석 (MBTI 기반):\n")
+                mbtiAnswers.forEach { answer ->
+                    append("- $answer\n")
+                }
+            }
+        } else ""
+
         return """
 ${country} 여행 추천. $recommendationCriteria
+
+$profileInfo$mbtiInfo
+위 여행자의 프로필과 성향을 고려하여 맞춤 추천해주세요.
 
 아래 JSON 형식으로만 응답 (마크다운 없이, 모든 값은 문자열):
 {"flight":"항공사명 ex) 대한항공","accommodation":"숙소1, 숙소2","restaurant":"맛집1, 맛집2"}
@@ -500,7 +602,12 @@ ${country} 여행 추천. $recommendationCriteria
         companion: String = "",
         budgetLabel: String = "",
         energyLabel: String = "",
-        purposes: List<String> = emptyList()
+        purposes: List<String> = emptyList(),
+        flightTimeLabel: String = "",
+        personalityLabel: String = "",
+        shoppingLabel: String = "",
+        sleepLabel: String = "",
+        mbtiAnswers: List<String> = emptyList()
     ) {
         retryCount++
         // 지수 백오프: 10초, 20초, 40초
@@ -510,7 +617,7 @@ ${country} 여행 추천. $recommendationCriteria
 
         // 카운트다운 시작
         startCountdown(delaySeconds) {
-            generateTravelRecommendation(country, nickname, gender, ageDecade, companion, budgetLabel, energyLabel, purposes)
+            generateTravelRecommendation(country, nickname, gender, ageDecade, companion, budgetLabel, energyLabel, purposes, flightTimeLabel, personalityLabel, shoppingLabel, sleepLabel, mbtiAnswers)
         }
     }
 

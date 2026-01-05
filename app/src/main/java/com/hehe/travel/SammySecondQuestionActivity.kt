@@ -33,13 +33,29 @@ class SammySecondQuestionActivity : AppCompatActivity() {
 
     // 수집할 데이터
     private var companion = "혼자"
+    private var flightTimeValue = 10.0      // 1~20시간
     private var flightTimeLabel = "10시간"
+    private var budgetValue = 50            // 0~100
     private var budgetLabel = "적당함"
+    private var energyValue = 50            // 0~100
     private var energyLabel = "보통"
+    private var shoppingValue = 50          // 0~100
     private var shoppingLabel = "보통"
+    private var personalityValue = 50       // 0~100
     private var personalityLabel = "보통"
+    private var sleepValue = 50             // 0~100
     private var sleepLabel = "보통"
+    private var accommodationValue = 5.0    // 1~10
     private var accommodationLabel = "5"
+
+    // TextView 참조
+    private lateinit var tvFlightTimeValue: TextView
+    private lateinit var tvBudgetValue: TextView
+    private lateinit var tvEnergyValue: TextView
+    private lateinit var tvShoppingValue: TextView
+    private lateinit var tvPersonalityValue: TextView
+    private lateinit var tvSleepValue: TextView
+    private lateinit var tvAccommodationValue: TextView
 
     private lateinit var tvHeader: TextView
 
@@ -88,6 +104,15 @@ class SammySecondQuestionActivity : AppCompatActivity() {
         stepSleep = findViewById(R.id.stepSleep)
         stepAccommodation = findViewById(R.id.stepAccommodation)
 
+        // TextView 초기화
+        tvFlightTimeValue = findViewById(R.id.tvFlightTimeValue)
+        tvBudgetValue = findViewById(R.id.tvBudgetValue)
+        tvEnergyValue = findViewById(R.id.tvEnergyValue)
+        tvShoppingValue = findViewById(R.id.tvShoppingValue)
+        tvPersonalityValue = findViewById(R.id.tvPersonalityValue)
+        tvSleepValue = findViewById(R.id.tvSleepValue)
+        tvAccommodationValue = findViewById(R.id.tvAccommodationValue)
+
         btnNext = findViewById(R.id.btnNext)
         completedQuestionsContainer = findViewById(R.id.completedQuestionsContainer)
         scrollViewQuestions = findViewById(R.id.scrollViewQuestions)
@@ -123,54 +148,13 @@ class SammySecondQuestionActivity : AppCompatActivity() {
             }
         }
 
-        // Step 2: 비행 시간
-        setupSeekBar(R.id.seekBarFlightTime, arrayOf("1시간", "10시간", "20시간")) { label ->
-            flightTimeLabel = label
-        }
-
-        // Step 3: 예산
-        setupSeekBar(R.id.seekBarBudget, arrayOf("부족", "적당함", "여유로움")) { label ->
-            budgetLabel = label
-        }
-
-        // Step 4: 에너지
-        setupSeekBar(R.id.seekBarEnergy, arrayOf("쉬고 싶음", "보통", "활동적")) { label ->
-            energyLabel = label
-        }
-
-        // Step 5: 물욕
-        setupSeekBar(R.id.seekBarShopping, arrayOf("없음", "보통", "많음")) { label ->
-            shoppingLabel = label
-        }
-
-        // Step 6: 성향
-        setupSeekBar(R.id.seekBarPersonality, arrayOf("I", "보통", "E")) { label ->
-            personalityLabel = label
-        }
-
-        // Step 7: 잠
-        setupSeekBar(R.id.seekBarSleep, arrayOf("바로 잠", "보통", "잠이 중요")) { label ->
-            sleepLabel = label
-        }
-
-        // Step 8: 숙소 컨디션 - 마지막이라 버튼 표시
-        val seekBarAccommodation = findViewById<SeekBar>(R.id.seekBarAccommodation)
-        seekBarAccommodation.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        // Step 2: 비행 시간 (1~20시간)
+        val seekBarFlightTime = findViewById<SeekBar>(R.id.seekBarFlightTime)
+        // 초기값 표시
+        updateFlightTimeDisplay(seekBarFlightTime.progress)
+        seekBarFlightTime.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                accommodationLabel = arrayOf("1", "5", "10")[progress]
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                btnNext.visibility = View.VISIBLE
-            }
-        })
-    }
-
-    private fun setupSeekBar(seekBarId: Int, labels: Array<String>, onChanged: (String) -> Unit) {
-        val seekBar = findViewById<SeekBar>(seekBarId)
-        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                onChanged(labels[progress])
+                updateFlightTimeDisplay(progress)
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
@@ -179,6 +163,172 @@ class SammySecondQuestionActivity : AppCompatActivity() {
                 }, 300)
             }
         })
+
+        // Step 3: 예산 (매우 부족 ~ 매우 여유로움)
+        val seekBarBudget = findViewById<SeekBar>(R.id.seekBarBudget)
+        updateBudgetDisplay(seekBarBudget.progress)
+        seekBarBudget.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                updateBudgetDisplay(progress)
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    onNextClicked()
+                }, 300)
+            }
+        })
+
+        // Step 4: 에너지 (쉬고 싶음 ~ 활동적)
+        val seekBarEnergy = findViewById<SeekBar>(R.id.seekBarEnergy)
+        updateEnergyDisplay(seekBarEnergy.progress)
+        seekBarEnergy.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                updateEnergyDisplay(progress)
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    onNextClicked()
+                }, 300)
+            }
+        })
+
+        // Step 5: 물욕 (없음 ~ 많음)
+        val seekBarShopping = findViewById<SeekBar>(R.id.seekBarShopping)
+        updateShoppingDisplay(seekBarShopping.progress)
+        seekBarShopping.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                updateShoppingDisplay(progress)
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    onNextClicked()
+                }, 300)
+            }
+        })
+
+        // Step 6: 성향 (I ~ E)
+        val seekBarPersonality = findViewById<SeekBar>(R.id.seekBarPersonality)
+        updatePersonalityDisplay(seekBarPersonality.progress)
+        seekBarPersonality.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                updatePersonalityDisplay(progress)
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    onNextClicked()
+                }, 300)
+            }
+        })
+
+        // Step 7: 잠 (바로 잠 ~ 잠이 중요)
+        val seekBarSleep = findViewById<SeekBar>(R.id.seekBarSleep)
+        updateSleepDisplay(seekBarSleep.progress)
+        seekBarSleep.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                updateSleepDisplay(progress)
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    onNextClicked()
+                }, 300)
+            }
+        })
+
+        // Step 8: 숙소 컨디션 (1~10점)
+        val seekBarAccommodation = findViewById<SeekBar>(R.id.seekBarAccommodation)
+        updateAccommodationDisplay(seekBarAccommodation.progress)
+        seekBarAccommodation.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                updateAccommodationDisplay(progress)
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                btnNext.visibility = View.VISIBLE
+            }
+        })
+    }
+
+    // ===== 각 SeekBar 값 업데이트 함수 =====
+
+    private fun updateFlightTimeDisplay(progress: Int) {
+        // 0~100 → 1~20시간
+        flightTimeValue = 1.0 + (progress / 100.0) * 19.0
+        val displayValue = String.format("%.1f", flightTimeValue)
+        tvFlightTimeValue.text = "${displayValue}시간"
+        flightTimeLabel = "${displayValue}시간"
+    }
+
+    private fun updateBudgetDisplay(progress: Int) {
+        budgetValue = progress
+        budgetLabel = when {
+            progress < 20 -> "매우 부족"
+            progress < 40 -> "부족"
+            progress < 60 -> "적당함"
+            progress < 80 -> "여유로움"
+            else -> "매우 여유로움"
+        }
+        tvBudgetValue.text = budgetLabel
+    }
+
+    private fun updateEnergyDisplay(progress: Int) {
+        energyValue = progress
+        energyLabel = when {
+            progress < 25 -> "많이 쉬고 싶음"
+            progress < 45 -> "쉬고 싶음"
+            progress < 55 -> "보통"
+            progress < 75 -> "활동적"
+            else -> "매우 활동적"
+        }
+        tvEnergyValue.text = "$energyLabel (${progress}%)"
+    }
+
+    private fun updateShoppingDisplay(progress: Int) {
+        shoppingValue = progress
+        shoppingLabel = when {
+            progress < 25 -> "거의 없음"
+            progress < 45 -> "조금"
+            progress < 55 -> "보통"
+            progress < 75 -> "많음"
+            else -> "매우 많음"
+        }
+        tvShoppingValue.text = "$shoppingLabel (${progress}%)"
+    }
+
+    private fun updatePersonalityDisplay(progress: Int) {
+        personalityValue = progress
+        personalityLabel = when {
+            progress < 20 -> "완전 I"
+            progress < 40 -> "I 성향"
+            progress < 60 -> "중간"
+            progress < 80 -> "E 성향"
+            else -> "완전 E"
+        }
+        tvPersonalityValue.text = personalityLabel
+    }
+
+    private fun updateSleepDisplay(progress: Int) {
+        sleepValue = progress
+        sleepLabel = when {
+            progress < 25 -> "바로 잠"
+            progress < 45 -> "잠 잘 옴"
+            progress < 55 -> "보통"
+            progress < 75 -> "잠이 중요"
+            else -> "숙면 필수"
+        }
+        tvSleepValue.text = sleepLabel
+    }
+
+    private fun updateAccommodationDisplay(progress: Int) {
+        // 0~100 → 1.0~10.0
+        accommodationValue = 1.0 + (progress / 100.0) * 9.0
+        val displayValue = String.format("%.1f", accommodationValue)
+        tvAccommodationValue.text = displayValue
+        accommodationLabel = displayValue
     }
 
     private fun onNextClicked() {
@@ -372,12 +522,19 @@ class SammySecondQuestionActivity : AppCompatActivity() {
 
         val data = mapOf(
             "companion" to companion,
+            "flightTimeValue" to flightTimeValue,
             "flightTimeLabel" to flightTimeLabel,
+            "budgetValue" to budgetValue,
             "budgetLabel" to budgetLabel,
+            "energyValue" to energyValue,
             "energyLabel" to energyLabel,
+            "shoppingValue" to shoppingValue,
             "shoppingLabel" to shoppingLabel,
+            "personalityValue" to personalityValue,
             "personalityLabel" to personalityLabel,
+            "sleepValue" to sleepValue,
             "sleepLabel" to sleepLabel,
+            "accommodationValue" to accommodationValue,
             "accommodationLabel" to accommodationLabel,
             "hasSemiPass" to true
         )
