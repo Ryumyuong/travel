@@ -69,8 +69,8 @@ class SearchActivity : AppCompatActivity() {
 
             hideKeyboard()
 
-            // TravelResultActivity로 이동 (AI 결과 화면)
-            val intent = Intent(this, TravelResultActivity::class.java)
+            // SearchCountryResult로 이동 (AI 결과 화면)
+            val intent = Intent(this, SearchCountryResult::class.java)
             intent.putExtra("country", country)
             startActivity(intent)
         }
