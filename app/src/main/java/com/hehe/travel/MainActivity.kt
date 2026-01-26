@@ -35,6 +35,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var welcomeDesc: TextView
     private lateinit var googleSignInButton: Button
 
+    // 게스트 플로우에서 진입 여부
+    private var fromGuestFlow = false
+
     companion object {
         private const val RC_SIGN_IN = 9001
     }
@@ -44,11 +47,14 @@ class MainActivity : AppCompatActivity() {
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
+        // 게스트 플로우에서 진입 여부 확인
+        fromGuestFlow = intent.getBooleanExtra("fromGuestFlow", false)
+
         // Firebase 초기화 먼저
         initFirebase()
 
-        // 이미 로그인된 상태면 UI 표시 없이 바로 이동
-        if (auth.currentUser != null) {
+        // 이미 로그인된 상태면 UI 표시 없이 바로 이동 (게스트 플로우가 아닐 때만)
+        if (auth.currentUser != null && !fromGuestFlow) {
             routeAfterLogin()
             return
         }
@@ -97,10 +103,14 @@ class MainActivity : AppCompatActivity() {
         googleSignInButton.setOnClickListener {
             Log.d("lmj","버튼 클릭")
             startGoogleSignIn()
-
         }
 
-
+        // 비회원 로그인 버튼
+        binding.btnGuestLogin.setOnClickListener {
+            GuestProfileData.clear()
+            val intent = Intent(this, SammyPassMainActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun startGoogleSignIn() {
@@ -148,12 +158,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun routeAfterLogin() {
         val uid = auth.currentUser?.uid ?: return
+
+        // 게스트 플로우에서 진입한 경우: 게스트 데이터를 Firebase에 저장
+        if (fromGuestFlow && GuestProfileData.hasProfile()) {
+            saveGuestDataToFirebase(uid)
+            return
+        }
+
         Firebase.firestore.collection("profiles").document(uid)
             .get()
             .addOnSuccessListener { doc ->
                 if (doc.exists()) {
                     // 이미 한 번 등록 완료 → 바로 검색 화면
-                    startActivity(Intent(this, SearchActivity::class.java))
+                    startActivity(Intent(this, MainContainerActivity::class.java))
                 } else {
                     // 첫 로그인(아직 프로필 없음) → 패스/첫 질문 화면
                     startActivity(Intent(this, SammyPassMainActivity::class.java))
@@ -164,6 +181,55 @@ class MainActivity : AppCompatActivity() {
                 Log.e("lmj", "프로필 조회 실패", e)
                 // 실패 시 보수적으로 프로필 화면으로 보냄
                 startActivity(Intent(this, SammyPassMainActivity::class.java))
+                finish()
+            }
+    }
+
+    // 게스트 데이터를 Firebase에 저장
+    private fun saveGuestDataToFirebase(uid: String) {
+        val hasSemiPass = GuestProfileData.hasSemiPass()
+
+        val profileData = mutableMapOf<String, Any>(
+            "nickname" to GuestProfileData.nickname,
+            "gender" to GuestProfileData.gender,
+            "ageDecade" to GuestProfileData.ageDecade,
+            "purposes" to GuestProfileData.purposes,
+            "hasSemiPass" to hasSemiPass
+        )
+
+        // SemiPass 데이터가 있으면 추가
+        if (hasSemiPass) {
+            profileData["companion"] = GuestProfileData.companion
+            profileData["flightTimeValue"] = GuestProfileData.flightTimeValue
+            profileData["flightTimeLabel"] = GuestProfileData.flightTimeLabel
+            profileData["budgetValue"] = GuestProfileData.budgetValue
+            profileData["budgetLabel"] = GuestProfileData.budgetLabel
+            profileData["energyValue"] = GuestProfileData.energyValue
+            profileData["energyLabel"] = GuestProfileData.energyLabel
+            profileData["shoppingValue"] = GuestProfileData.shoppingValue
+            profileData["shoppingLabel"] = GuestProfileData.shoppingLabel
+            profileData["personalityValue"] = GuestProfileData.personalityValue
+            profileData["personalityLabel"] = GuestProfileData.personalityLabel
+            profileData["sleepValue"] = GuestProfileData.sleepValue
+            profileData["sleepLabel"] = GuestProfileData.sleepLabel
+            profileData["accommodationValue"] = GuestProfileData.accommodationValue
+            profileData["accommodationLabel"] = GuestProfileData.accommodationLabel
+        }
+
+        Firebase.firestore.collection("profiles").document(uid)
+            .set(profileData, com.google.firebase.firestore.SetOptions.merge())
+            .addOnSuccessListener {
+                Log.d("lmj", "게스트 프로필 저장 완료 (hasSemiPass=$hasSemiPass)")
+                // 게스트 데이터 초기화
+                GuestProfileData.clear()
+                // SearchActivity로 이동
+                startActivity(Intent(this, MainContainerActivity::class.java))
+                finish()
+            }
+            .addOnFailureListener { e ->
+                Log.e("lmj", "게스트 프로필 저장 실패", e)
+                // 실패해도 SearchActivity로 이동
+                startActivity(Intent(this, MainContainerActivity::class.java))
                 finish()
             }
     }

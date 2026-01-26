@@ -26,46 +26,16 @@
             android:name=".SearchCountryResult"
             android:exported="false" />
         <activity
-            android:name=".TravelResultActivity"
-            android:exported="false" />
-        <activity
             android:name=".TravelResultDetailActivity"
             android:exported="false" />
         <activity
             android:name=".SemiPassChoiceActivity"
             android:exported="false" />
         <activity
-            android:name=".MyInfoDetailActivity"
-            android:exported="false" />
-        <activity
             android:name=".PlanActivity"
             android:exported="false" />
         <activity
             android:name=".DateRangeActivity"
-            android:exported="false" />
-        <activity
-            android:name=".StartActivity"
-            android:exported="false" />
-        <activity
-            android:name=".PreferenceRecommendActivity"
-            android:exported="false" />
-        <activity
-            android:name=".MapActivity"
-            android:exported="false" />
-        <activity
-            android:name=".TravelHistoryActivity"
-            android:exported="false" />
-        <activity
-            android:name=".MyInfoActivity"
-            android:exported="false" />
-        <activity
-            android:name=".SearchActivity"
-            android:exported="false" />
-        <activity
-            android:name=".CuisineActivity"
-            android:exported="false" />
-        <activity
-            android:name=".DestinationActivity"
             android:exported="false" />
         <activity
             android:name=".QuestionnaireActivity"
@@ -81,7 +51,14 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="false" />
+        <activity
+            android:name=".MainContainerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".IntroActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Travel.Fullscreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

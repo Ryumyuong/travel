@@ -31,6 +31,12 @@ class SammySecondQuestionActivity : AppCompatActivity() {
     private var currentStep = 0
     private val totalSteps = 8
 
+    // 비회원 여부
+    private var isGuest = false
+
+    // 수정 모드 플래그
+    private var isEditMode = false
+
     // 수집할 데이터
     private var companion = "혼자"
     private var flightTimeValue = 10.0      // 1~20시간
@@ -80,9 +86,21 @@ class SammySecondQuestionActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
+        // 비회원 여부 확인
+        isGuest = auth.currentUser == null
+
+        // 수정 모드 확인 (MyInfoActivity에서 진입 시)
+        isEditMode = intent.getBooleanExtra("isEditMode", false)
+
         initViews()
         setupStepViews()
         loadNicknameAndUpdateHeader()
+
+        // 수정 모드면 기존 데이터 로드
+        if (isEditMode) {
+            loadExistingProfile()
+        }
+
         updateUI()
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -121,12 +139,93 @@ class SammySecondQuestionActivity : AppCompatActivity() {
     }
 
     private fun loadNicknameAndUpdateHeader() {
+        // 비회원인 경우 GuestProfileData에서 닉네임 가져오기
+        if (isGuest) {
+            val nickname = GuestProfileData.nickname.ifEmpty { "여행자" }
+            tvHeader.text = "${nickname}님께 여행 일정을 추천드리기 전,\n여행 상태는 어때요?"
+            return
+        }
+
         val uid = auth.currentUser?.uid ?: return
         Firebase.firestore.collection("profiles").document(uid)
             .get()
             .addOnSuccessListener { document ->
                 val nickname = document.getString("nickname") ?: "여행자"
                 tvHeader.text = "${nickname}님께 여행 일정을 추천드리기 전,\n여행 상태는 어때요?"
+            }
+    }
+
+    // 기존 프로필 데이터 로드 (수정 모드용)
+    private fun loadExistingProfile() {
+        val uid = auth.currentUser?.uid ?: return
+
+        Firebase.firestore.collection("profiles").document(uid)
+            .get()
+            .addOnSuccessListener { doc ->
+                if (doc.exists()) {
+                    // 동행자
+                    companion = doc.getString("companion") ?: "혼자"
+                    val rgCompanion = findViewById<RadioGroup>(R.id.rgCompanion)
+                    when (companion) {
+                        "혼자" -> rgCompanion.check(R.id.rbAlone)
+                        "연인" -> rgCompanion.check(R.id.rbCouple)
+                        "친구" -> rgCompanion.check(R.id.rbFriend)
+                        "가족" -> rgCompanion.check(R.id.rbFamily)
+                        "가족(아이 동반)" -> rgCompanion.check(R.id.rbFamilyWithKids)
+                    }
+
+                    // 비행 시간
+                    flightTimeValue = doc.getDouble("flightTimeValue") ?: 10.0
+                    flightTimeLabel = doc.getString("flightTimeLabel") ?: "10시간"
+                    val seekBarFlightTime = findViewById<SeekBar>(R.id.seekBarFlightTime)
+                    seekBarFlightTime.progress = ((flightTimeValue - 1.0) / 19.0 * 100).toInt()
+                    updateFlightTimeDisplay(seekBarFlightTime.progress)
+
+                    // 예산
+                    budgetValue = doc.getLong("budgetValue")?.toInt() ?: 50
+                    budgetLabel = doc.getString("budgetLabel") ?: "적당함"
+                    val seekBarBudget = findViewById<SeekBar>(R.id.seekBarBudget)
+                    seekBarBudget.progress = budgetValue
+                    updateBudgetDisplay(budgetValue)
+
+                    // 에너지
+                    energyValue = doc.getLong("energyValue")?.toInt() ?: 50
+                    energyLabel = doc.getString("energyLabel") ?: "보통"
+                    val seekBarEnergy = findViewById<SeekBar>(R.id.seekBarEnergy)
+                    seekBarEnergy.progress = energyValue
+                    updateEnergyDisplay(energyValue)
+
+                    // 쇼핑
+                    shoppingValue = doc.getLong("shoppingValue")?.toInt() ?: 50
+                    shoppingLabel = doc.getString("shoppingLabel") ?: "보통"
+                    val seekBarShopping = findViewById<SeekBar>(R.id.seekBarShopping)
+                    seekBarShopping.progress = shoppingValue
+                    updateShoppingDisplay(shoppingValue)
+
+                    // 성향
+                    personalityValue = doc.getLong("personalityValue")?.toInt() ?: 50
+                    personalityLabel = doc.getString("personalityLabel") ?: "보통"
+                    val seekBarPersonality = findViewById<SeekBar>(R.id.seekBarPersonality)
+                    seekBarPersonality.progress = personalityValue
+                    updatePersonalityDisplay(personalityValue)
+
+                    // 잠
+                    sleepValue = doc.getLong("sleepValue")?.toInt() ?: 50
+                    sleepLabel = doc.getString("sleepLabel") ?: "보통"
+                    val seekBarSleep = findViewById<SeekBar>(R.id.seekBarSleep)
+                    seekBarSleep.progress = sleepValue
+                    updateSleepDisplay(sleepValue)
+
+                    // 숙소 컨디션
+                    accommodationValue = doc.getDouble("accommodationValue") ?: 5.0
+                    accommodationLabel = doc.getString("accommodationLabel") ?: "5"
+                    val seekBarAccommodation = findViewById<SeekBar>(R.id.seekBarAccommodation)
+                    seekBarAccommodation.progress = ((accommodationValue - 1.0) / 9.0 * 100).toInt()
+                    updateAccommodationDisplay(seekBarAccommodation.progress)
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "프로필 로드 실패: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -492,8 +591,12 @@ class SammySecondQuestionActivity : AppCompatActivity() {
             bottomPadding
         )
 
-        // 버튼 텍스트 변경
-        btnNext.text = if (currentStep == totalSteps - 1) "여행 시작하기" else "다음"
+        // 버튼 텍스트 변경 (수정 모드면 "수정 완료")
+        btnNext.text = when {
+            currentStep == totalSteps - 1 && isEditMode -> "수정 완료"
+            currentStep == totalSteps - 1 -> "여행 시작하기"
+            else -> "다음"
+        }
 
         // 모든 스텝 숨기기
         listOf(stepCompanion, stepFlightTime, stepBudget, stepEnergy,
@@ -518,6 +621,33 @@ class SammySecondQuestionActivity : AppCompatActivity() {
     }
 
     private fun saveAndNavigate() {
+        // 비회원인 경우: GuestProfileData에 저장 후 TravelResultActivity로 이동
+        if (isGuest) {
+            GuestProfileData.companion = companion
+            GuestProfileData.flightTimeValue = flightTimeValue
+            GuestProfileData.flightTimeLabel = flightTimeLabel
+            GuestProfileData.budgetValue = budgetValue
+            GuestProfileData.budgetLabel = budgetLabel
+            GuestProfileData.energyValue = energyValue
+            GuestProfileData.energyLabel = energyLabel
+            GuestProfileData.shoppingValue = shoppingValue
+            GuestProfileData.shoppingLabel = shoppingLabel
+            GuestProfileData.personalityValue = personalityValue
+            GuestProfileData.personalityLabel = personalityLabel
+            GuestProfileData.sleepValue = sleepValue
+            GuestProfileData.sleepLabel = sleepLabel
+            GuestProfileData.accommodationValue = accommodationValue
+            GuestProfileData.accommodationLabel = accommodationLabel
+
+            // SearchCountryResult로 이동 (AI 추천)
+            val intent = Intent(this, SearchCountryResult::class.java)
+            intent.putExtra("isGuest", true)
+            intent.putExtra("hasSemiPass", true)
+            startActivity(intent)
+            finish()
+            return
+        }
+
         val uid = auth.currentUser?.uid ?: return
 
         val data = mapOf(
@@ -546,12 +676,24 @@ class SammySecondQuestionActivity : AppCompatActivity() {
         Firebase.firestore.collection("profiles").document(uid)
             .set(data, SetOptions.merge())
             .addOnSuccessListener {
-                startActivity(Intent(this, SearchActivity::class.java))
+                // 수정 모드면 MainContainerActivity의 내정보 탭으로
+                if (isEditMode) {
+                    Toast.makeText(this, "프로필이 수정되었습니다!", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this, MainContainerActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    intent.putExtra("initialTab", R.id.tab_profile)
+                    startActivity(intent)
+                } else {
+                    // SearchCountryResult로 이동 (AI 추천)
+                    val intent = Intent(this, SearchCountryResult::class.java)
+                    intent.putExtra("hasSemiPass", true)
+                    startActivity(intent)
+                }
                 finish()
             }
             .addOnFailureListener { e ->
                 btnNext.isEnabled = true
-                btnNext.text = "여행 시작하기"
+                btnNext.text = if (isEditMode) "수정 완료" else "여행 시작하기"
                 Toast.makeText(this, "저장 실패: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }

@@ -44,6 +44,9 @@ class SammyFirstQuestionActivity : AppCompatActivity() {
     // ⭐ 수정 모드 플래그
     private var isEditMode = false
 
+    // ⭐ 둘러보기 모드 (비회원 지원)
+    private var isFromBrowse = false
+
     // Step Containers
     private lateinit var stepNickname: View
     private lateinit var stepGender: View
@@ -63,6 +66,9 @@ class SammyFirstQuestionActivity : AppCompatActivity() {
 
         // ⭐ 수정 모드 확인
         isEditMode = intent.getBooleanExtra("isEditMode", false)
+
+        // ⭐ 둘러보기 모드 확인 (비회원 지원)
+        isFromBrowse = intent.getBooleanExtra("fromBrowse", false)
 
         initViews()
         setupStepViews()
@@ -94,9 +100,13 @@ class SammyFirstQuestionActivity : AppCompatActivity() {
 
         // 기본 닉네임 설정 (수정 모드가 아닐 때만)
         if (!isEditMode) {
-            auth.currentUser?.displayName?.let {
-                nickname = it
-                findViewById<EditText>(R.id.etNickname).setText(it)
+            val displayName = auth.currentUser?.displayName
+            if (!displayName.isNullOrEmpty()) {
+                nickname = displayName
+                findViewById<EditText>(R.id.etNickname).setText(displayName)
+            } else {
+                // 비회원인 경우 빈 값으로 시작
+                nickname = ""
             }
         }
 
@@ -397,7 +407,22 @@ class SammyFirstQuestionActivity : AppCompatActivity() {
     }
 
     private fun saveAndNavigate() {
-        val uid = auth.currentUser?.uid ?: return
+        val uid = auth.currentUser?.uid
+
+        // 비회원인 경우: GuestProfileData에 저장 후 MainContainerActivity로 이동
+        if (uid == null) {
+            GuestProfileData.nickname = nickname
+            GuestProfileData.gender = gender
+            GuestProfileData.ageDecade = ageDecade
+            GuestProfileData.purposes = selectedPurposes.toList()
+
+            // MainContainerActivity로 이동 (나라 검색 탭)
+            val intent = Intent(this, MainContainerActivity::class.java)
+            intent.putExtra("isGuest", true)
+            startActivity(intent)
+            finish()
+            return
+        }
 
         val data = mapOf(
             "nickname" to nickname,
@@ -413,13 +438,16 @@ class SammyFirstQuestionActivity : AppCompatActivity() {
         Firebase.firestore.collection("profiles").document(uid)
             .set(data, SetOptions.merge())
             .addOnSuccessListener {
-                // ⭐ 수정 모드면 MyInfoActivity로, 아니면 SemiPassChoiceActivity로
+                // ⭐ 수정 모드면 MainContainerActivity의 내정보 탭으로
                 if (isEditMode) {
-                    Toast.makeText(this, "프로필이 수정되었습니다! ✅", Toast.LENGTH_SHORT).show()
-                    // MyInfoActivity로 돌아가기 (스택 정리)
-                    val intent = Intent(this, MyInfoActivity::class.java)
+                    Toast.makeText(this, "프로필이 수정되었습니다!", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this, MainContainerActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    intent.putExtra("initialTab", R.id.tab_profile)
                     startActivity(intent)
+                } else if (isFromBrowse) {
+                    // ⭐ 둘러보기 모드: MainContainerActivity로 이동 (SemiPassChoice 스킵)
+                    startActivity(Intent(this, MainContainerActivity::class.java))
                 } else {
                     // 세미패스 선택 화면으로 이동
                     startActivity(Intent(this, SemiPassChoiceActivity::class.java))

@@ -43,8 +43,8 @@ class SemiPassChoiceActivity : AppCompatActivity() {
                     .set(data, SetOptions.merge())
             }
 
-            // SearchActivity로 이동
-            startActivity(Intent(this, SearchActivity::class.java))
+            // MainContainerActivity로 이동
+            startActivity(Intent(this, MainContainerActivity::class.java))
             finish()
         }
 

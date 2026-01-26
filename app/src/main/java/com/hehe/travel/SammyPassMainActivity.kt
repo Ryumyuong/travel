@@ -14,6 +14,9 @@ import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
 
 class SammyPassMainActivity : AppCompatActivity() {
+
+    private var isEditMode = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -34,25 +37,45 @@ class SammyPassMainActivity : AppCompatActivity() {
             insets
         }
 
+        // 수정 모드 플래그 확인 (MyInfoActivity에서 진입 시)
+        isEditMode = intent.getBooleanExtra("isEditMode", false)
+
         val btnStart = findViewById<Button>(R.id.btnStart)
         val btnBrowse = findViewById<Button>(R.id.btnBrowse)
 
         btnStart.setOnClickListener {
-            val intent = Intent(this, SammyFirstQuestionActivity::class.java)
+            // SammySecondQuestionActivity로 이동 (새미패스 질문)
+            val intent = Intent(this, SammySecondQuestionActivity::class.java)
+            intent.putExtra("isEditMode", isEditMode)  // 수정 모드 전달
             startActivity(intent)
+            if (isEditMode) finish()  // 수정 모드에서는 뒤로가기 시 MyInfo로 돌아가도록
         }
 
         btnBrowse.setOnClickListener {
-            // 새미패스 미작성 상태 저장
             val uid = FirebaseAuth.getInstance().currentUser?.uid
-            if (uid != null) {
+
+            // 비회원인 경우: MainContainerActivity로 바로 이동
+            if (uid == null) {
+                val intent = Intent(this, MainContainerActivity::class.java)
+                intent.putExtra("isGuest", true)
+                startActivity(intent)
+                return@setOnClickListener
+            }
+
+            // 회원인 경우
+            if (!isEditMode) {
+                // 수정 모드가 아닐 때: 새미패스 미작성 상태 저장
                 val data = mapOf("hasSemiPass" to false)
                 Firebase.firestore.collection("profiles").document(uid)
                     .set(data, SetOptions.merge())
             }
 
-            val intent = Intent(this, SearchActivity::class.java)
+            // SammyFirstQuestionActivity로 이동 (프로필 질문)
+            val intent = Intent(this, SammyFirstQuestionActivity::class.java)
+            intent.putExtra("fromBrowse", true)  // 둘러보기에서 진입 표시
+            intent.putExtra("isEditMode", isEditMode)  // 수정 모드 전달
             startActivity(intent)
+            if (isEditMode) finish()  // 수정 모드에서는 뒤로가기 시 MyInfo로 돌아가도록
         }
     }
 }

@@ -41,6 +41,9 @@ class QuestionnaireActivity : AppCompatActivity() {
     // 진입 경로 (semipass: 새미패스 경유, taste: 취향맞춤)
     private var flowType: String = "taste"
 
+    // 비회원 여부
+    private var isGuest = false
+
     // 질문 리스트 정의
     data class QuestionData(
         val tag: String,
@@ -130,6 +133,9 @@ class QuestionnaireActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
+
+        // 비회원 여부 확인
+        isGuest = auth.currentUser == null
 
         // 진입 경로 확인 (TravelResultActivity에서 온 경우 "semipass")
         flowType = intent.getStringExtra("flowType") ?: "taste"
@@ -246,8 +252,9 @@ class QuestionnaireActivity : AppCompatActivity() {
     // Firebase mbti 컬렉션에 저장
     private fun saveMbtiToFirebase() {
         val uid = auth.currentUser?.uid
-        if (uid == null) {
-            Toast.makeText(this, "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
+
+        // 비회원인 경우 Firebase 저장 건너뛰고 바로 이동
+        if (uid == null || isGuest) {
             navigateToCountryGuide()
             return
         }
@@ -363,8 +370,24 @@ class QuestionnaireActivity : AppCompatActivity() {
 
     private fun navigateToCountryGuide() {
         val uid = auth.currentUser?.uid
-        if (uid == null) {
-            navigateWithRandomCountry()
+
+        // 비회원인 경우
+        if (uid == null || isGuest) {
+            // GuestProfileData에서 비행시간 선호도 가져오기
+            val flightTimeValue = GuestProfileData.flightTimeValue
+            if (flightTimeValue > 0) {
+                val filteredCountries = getCountriesByFlightTime(flightTimeValue)
+                val selectedCountry = filteredCountries.random()
+
+                val intent = Intent(this, DateRangeActivity::class.java)
+                intent.putExtra("country", selectedCountry)
+                intent.putExtra("flowType", flowType)
+                intent.putExtra("isGuest", true)
+                startActivity(intent)
+                finish()
+            } else {
+                navigateWithRandomCountry()
+            }
             return
         }
 
@@ -398,6 +421,7 @@ class QuestionnaireActivity : AppCompatActivity() {
         val intent = Intent(this, DateRangeActivity::class.java)
         intent.putExtra("country", selectedCountry)
         intent.putExtra("flowType", flowType)
+        intent.putExtra("isGuest", isGuest)
         startActivity(intent)
         finish()
     }
@@ -458,7 +482,7 @@ class QuestionnaireActivity : AppCompatActivity() {
         googleSignInClient = GoogleSignIn.getClient(this, gso)
     }
 
-    private fun AppCompatActivity.setupBottomNav(selectedId: Int) {
+    private fun setupBottomNav(selectedId: Int) {
         val bottom = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottomNav)
         bottom.selectedItemId = selectedId
 
@@ -467,17 +491,27 @@ class QuestionnaireActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.tab_country -> {
                     startActivity(
-                        Intent(this, SearchActivity::class.java)
+                        Intent(this, MainContainerActivity::class.java)
                             .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
                     true
                 }
                 R.id.tab_search -> {
-                    startActivity(Intent(this, QuestionnaireActivity::class.java)
+                    startActivity(Intent(this, MainContainerActivity::class.java)
+                        .putExtra("initialTab", R.id.tab_search)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
                     true
                 }
                 R.id.tab_profile -> {
-                    startActivity(Intent(this, MyInfoActivity::class.java)
+                    // 비회원인 경우 로그인 유도
+                    if (isGuest) {
+                        Toast.makeText(this, "로그인이 필요한 기능입니다.", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(this, MainActivity::class.java)
+                        intent.putExtra("fromGuestFlow", true)
+                        startActivity(intent)
+                        return@setOnItemSelectedListener false
+                    }
+                    startActivity(Intent(this, MainContainerActivity::class.java)
+                        .putExtra("initialTab", R.id.tab_profile)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
                     true
                 }

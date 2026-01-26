@@ -31,9 +31,9 @@ class SearchCountryResult : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private val client = OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .writeTimeout(30, TimeUnit.SECONDS)
+        .connectTimeout(60, TimeUnit.SECONDS)
+        .readTimeout(60, TimeUnit.SECONDS)
+        .writeTimeout(60, TimeUnit.SECONDS)
         .build()
 
     // Gemini API Key
@@ -621,8 +621,59 @@ $profileInfo$mbtiInfo
             return result
         }
 
+        // } 가 없으면 불완전한 JSON - 복구 시도
+        if (jsonStart >= 0) {
+            var fixed = text.substring(jsonStart).trim()
+            fixed = tryFixIncompleteJson(fixed)
+            Log.d("TravelResult", "extractJson fixed: $fixed")
+            return fixed
+        }
+
         Log.e("TravelResult", "extractJson failed - no JSON found")
         return text.trim()
+    }
+
+    // 불완전한 JSON 복구 시도
+    private fun tryFixIncompleteJson(json: String): String {
+        var fixed = json.trim()
+
+        // 이미 완전한 JSON인지 확인
+        try {
+            JSONObject(fixed)
+            return fixed
+        } catch (e: Exception) {
+            // 불완전한 JSON - 복구 시도
+        }
+
+        // 열린 괄호 카운트
+        var braceCount = 0
+        var inString = false
+
+        for (i in fixed.indices) {
+            val c = fixed[i]
+            if (c == '"' && (i == 0 || fixed[i - 1] != '\\')) {
+                inString = !inString
+            }
+            if (!inString) {
+                when (c) {
+                    '{' -> braceCount++
+                    '}' -> braceCount--
+                }
+            }
+        }
+
+        // 닫히지 않은 괄호 닫기
+        while (braceCount > 0) {
+            // 문자열이 닫히지 않았으면 먼저 닫기
+            if (inString) {
+                fixed += "\""
+                inString = false
+            }
+            fixed += "}"
+            braceCount--
+        }
+
+        return fixed
     }
 
     // 비행기: 문장마다 줄바꿈
@@ -962,21 +1013,23 @@ $jsonFormat
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.tab_country -> {
-                    val intent = android.content.Intent(this, SearchActivity::class.java)
+                    val intent = android.content.Intent(this, MainContainerActivity::class.java)
                     intent.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     startActivity(intent)
                     finish()
                     true
                 }
                 R.id.tab_search -> {
-                    val intent = android.content.Intent(this, StartActivity::class.java)
+                    val intent = android.content.Intent(this, MainContainerActivity::class.java)
+                    intent.putExtra("initialTab", R.id.tab_search)
                     intent.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     startActivity(intent)
                     finish()
                     true
                 }
                 R.id.tab_profile -> {
-                    val intent = android.content.Intent(this, MyInfoActivity::class.java)
+                    val intent = android.content.Intent(this, MainContainerActivity::class.java)
+                    intent.putExtra("initialTab", R.id.tab_profile)
                     intent.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     startActivity(intent)
                     finish()

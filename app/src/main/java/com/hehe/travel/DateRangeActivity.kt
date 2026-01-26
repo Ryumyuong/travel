@@ -23,6 +23,7 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
+import android.view.View
 
 class DateRangeActivity : AppCompatActivity() {
 
@@ -57,8 +58,11 @@ class DateRangeActivity : AppCompatActivity() {
     // 로딩 상태
     private var isLoading = false
 
-    // 진입 경로 (semipass: 새미패스 경유 → type 2, taste: 취향맞춤 → type 3)
+    // 진입 경로 (semipass: 새미패스 경유 → type 2, taste: 취향맞춤 → type 3, guest: 비회원)
     private var flowType: String = "taste"
+
+    // 비회원 여부
+    private var isGuest: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +76,7 @@ class DateRangeActivity : AppCompatActivity() {
         countryName = intent.getStringExtra("country") ?: ""
         userName = intent.getStringExtra("login") ?: ""
         flowType = intent.getStringExtra("flowType") ?: "taste"
+        isGuest = intent.getBooleanExtra("isGuest", false) || FirebaseAuth.getInstance().currentUser == null
 
         // Profile + 여행취향 데이터 로드
         loadUserData()
@@ -81,6 +86,18 @@ class DateRangeActivity : AppCompatActivity() {
 
     // Profile과 여행취향 데이터 함께 로드
     private fun loadUserData() {
+        // 비회원인 경우 GuestProfileData에서 로드
+        if (isGuest) {
+            gender = GuestProfileData.gender
+            age = GuestProfileData.ageDecade
+            profileTags = GuestProfileData.purposes
+            userName = GuestProfileData.nickname.ifEmpty { "여행자" }
+            hasSemiPass = false
+            budgetLabel = ""
+            Log.d("DateRange", "Guest Profile 로드: nickname=$userName")
+            return
+        }
+
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
         // 1. Profile 로드
@@ -219,11 +236,103 @@ class DateRangeActivity : AppCompatActivity() {
         keywords: List<String>
     ) {
         isLoading = true
-        binding.btnConfirm.text = "AI가 일정 생성 중..."
-        binding.btnConfirm.isEnabled = false
+        val days = nights + 1
 
-        val prompt = buildPrompt(country, startDate, endDate, nights, keywords)
+        // 로딩 오버레이 표시
+        binding.loadingOverlay.visibility = View.VISIBLE
+        binding.tvLoadingTitle.text = "AI가 ${days}일 일정을 생성하고 있어요"
+        binding.tvLoadingSubtitle.text = "잠시만 기다려주세요..."
 
+        // 5일 이상이면 병렬 요청으로 분할
+        if (days > 5) {
+            generateItineraryParallel(country, startDate, endDate, days, keywords)
+        } else {
+            generateItinerarySingle(country, startDate, endDate, days, keywords)
+        }
+    }
+
+    // 단일 요청 (5일 이하)
+    private fun generateItinerarySingle(
+        country: String,
+        startDate: String,
+        endDate: String,
+        days: Int,
+        keywords: List<String>
+    ) {
+        val prompt = buildPrompt(country, 1, days, keywords)
+
+        callGeminiApi(prompt) { responseBody ->
+            if (responseBody != null) {
+                binding.tvLoadingSubtitle.text = "일정 준비 중..."
+                parseAndNavigate(responseBody, country, startDate, endDate, days - 1, keywords)
+            } else {
+                binding.loadingOverlay.visibility = View.GONE
+                Toast.makeText(this, "AI 응답 실패", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // 병렬 요청 (6일 이상)
+    private fun generateItineraryParallel(
+        country: String,
+        startDate: String,
+        endDate: String,
+        totalDays: Int,
+        keywords: List<String>
+    ) {
+        // 5일씩 분할
+        val chunkSize = 5
+        val chunks = mutableListOf<Pair<Int, Int>>() // (startDay, endDay)
+
+        var currentDay = 1
+        while (currentDay <= totalDays) {
+            val endDay = minOf(currentDay + chunkSize - 1, totalDays)
+            chunks.add(Pair(currentDay, endDay))
+            currentDay = endDay + 1
+        }
+
+        val results = Array<String?>(chunks.size) { null }
+        val completedCount = java.util.concurrent.atomic.AtomicInteger(0)
+        val hasError = java.util.concurrent.atomic.AtomicBoolean(false)
+
+        binding.tvLoadingSubtitle.text = "0 / ${chunks.size} 파트 완료"
+
+        chunks.forEachIndexed { index, (startDay, endDay) ->
+            val daysInChunk = endDay - startDay + 1
+            val prompt = buildPrompt(country, startDay, endDay, keywords)
+
+            callGeminiApi(prompt) { responseBody ->
+                if (hasError.get()) return@callGeminiApi
+
+                if (responseBody != null) {
+                    results[index] = responseBody
+                    val completed = completedCount.incrementAndGet()
+
+                    runOnUiThread {
+                        binding.tvLoadingSubtitle.text = "$completed / ${chunks.size} 파트 완료"
+                    }
+
+                    // 모든 파트 완료
+                    if (completed == chunks.size) {
+                        runOnUiThread {
+                            binding.tvLoadingSubtitle.text = "일정 합치는 중..."
+                            mergeAndNavigate(results, country, startDate, endDate, totalDays - 1, keywords)
+                        }
+                    }
+                } else {
+                    if (hasError.compareAndSet(false, true)) {
+                        runOnUiThread {
+                            binding.loadingOverlay.visibility = View.GONE
+                            Toast.makeText(this, "AI 응답 실패", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Gemini API 호출 공통 함수
+    private fun callGeminiApi(prompt: String, callback: (String?) -> Unit) {
         val jsonBody = JSONObject().apply {
             put("contents", JSONArray().apply {
                 put(JSONObject().apply {
@@ -248,56 +357,250 @@ class DateRangeActivity : AppCompatActivity() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("Gemini", "API 호출 실패: ${e.message}")
-                runOnUiThread {
-                    isLoading = false
-                    binding.btnConfirm.text = "선택완료"
-                    binding.btnConfirm.isEnabled = true
-                    Toast.makeText(this@DateRangeActivity, "AI 호출 실패: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
+                runOnUiThread { callback(null) }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string()
                 Log.d("Gemini", "응답 코드: ${response.code}")
-                Log.d("Gemini", "응답: $responseBody")
 
                 runOnUiThread {
-                    isLoading = false
-                    binding.btnConfirm.text = "선택완료"
-                    binding.btnConfirm.isEnabled = true
-
                     if (response.isSuccessful && responseBody != null) {
-                        parseAndNavigate(responseBody, country, startDate, endDate, nights, keywords)
+                        callback(responseBody)
                     } else {
-                        Toast.makeText(this@DateRangeActivity, "AI 응답 오류: ${response.code}", Toast.LENGTH_SHORT).show()
+                        callback(null)
                     }
                 }
             }
         })
     }
 
-    // AI 프롬프트 생성
-    private fun buildPrompt(
+    // 여러 응답을 합쳐서 처리
+    private fun mergeAndNavigate(
+        responses: Array<String?>,
         country: String,
         startDate: String,
         endDate: String,
         nights: Int,
         keywords: List<String>
+    ) {
+        try {
+            val allDays = mutableListOf<JSONObject>()
+
+            responses.forEach { responseBody ->
+                if (responseBody == null) return@forEach
+
+                val json = JSONObject(responseBody)
+                val candidates = json.getJSONArray("candidates")
+                val content = candidates.getJSONObject(0)
+                    .getJSONObject("content")
+                    .getJSONArray("parts")
+                    .getJSONObject(0)
+                    .getString("text")
+
+                var cleanJson = content
+                    .replace("```json", "")
+                    .replace("```", "")
+                    .trim()
+
+                cleanJson = tryFixIncompleteJson(cleanJson)
+
+                val daysArray = JSONArray(cleanJson)
+                for (i in 0 until daysArray.length()) {
+                    allDays.add(daysArray.getJSONObject(i))
+                }
+            }
+
+            // 합쳐진 JSON 생성
+            val mergedArray = JSONArray()
+            allDays.forEachIndexed { index, dayObj ->
+                dayObj.put("day", index + 1) // day 번호 재정렬
+                mergedArray.put(dayObj)
+            }
+
+            val mergedJson = mergedArray.toString()
+            Log.d("Gemini", "합쳐진 일정: ${allDays.size}일")
+
+            // 기존 parseAndNavigate 로직 재사용
+            parseAndNavigateDirect(mergedJson, country, startDate, endDate, nights, keywords)
+
+        } catch (e: Exception) {
+            Log.e("Gemini", "병합 실패: ${e.message}")
+            e.printStackTrace()
+            binding.loadingOverlay.visibility = View.GONE
+            Toast.makeText(this, "일정 생성 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // JSON 직접 파싱 (병합된 결과용)
+    private fun parseAndNavigateDirect(
+        cleanJson: String,
+        country: String,
+        startDate: String,
+        endDate: String,
+        nights: Int,
+        keywords: List<String>
+    ) {
+        try {
+            val daysArray = JSONArray(cleanJson)
+            val daysList = mutableListOf<DayPlanData>()
+
+            for (i in 0 until daysArray.length()) {
+                val dayObj = daysArray.getJSONObject(i)
+                val day = dayObj.getInt("day")
+                val title = dayObj.getString("title")
+                val placesArray = dayObj.getJSONArray("places")
+
+                val places = mutableListOf<PlaceData>()
+                for (j in 0 until placesArray.length()) {
+                    val placeObj = placesArray.getJSONObject(j)
+                    places.add(PlaceData(
+                        name = placeObj.getString("name"),
+                        description = placeObj.optString("description", ""),
+                        time = placeObj.optString("time", ""),
+                        duration = placeObj.optString("duration", ""),
+                        tip = placeObj.optString("tip", "")
+                    ))
+                }
+
+                daysList.add(DayPlanData(day, title, places))
+            }
+
+            // Firebase에 저장 (비회원이 아닌 경우에만)
+            if (!isGuest) {
+                saveItineraryToHistory(country, startDate, endDate, nights, daysList, keywords)
+            }
+
+            // 화면 이동
+            if (flowType == "taste") {
+                val intent = Intent(this, PlanActivity::class.java).apply {
+                    putExtra("country", country)
+                    putExtra("login", userName)
+                    putExtra("startDate", startDate)
+                    putExtra("endDate", endDate)
+                    putExtra("nights", nights)
+                    putExtra("travelStyle", travelStyle)
+                    putStringArrayListExtra("keywords", ArrayList(keywords))
+                    putExtra("itineraryJson", cleanJson)
+                    putExtra("isGuest", isGuest)
+                }
+                startActivity(intent)
+            } else {
+                val intent = Intent(this, SearchCountryResult::class.java).apply {
+                    putExtra("country", country)
+                    putExtra("login", userName)
+                    putExtra("startDate", startDate)
+                    putExtra("endDate", endDate)
+                    putExtra("nights", nights)
+                    putExtra("travelStyle", travelStyle)
+                    putStringArrayListExtra("keywords", ArrayList(keywords))
+                    putExtra("itineraryJson", cleanJson)
+                    putExtra("isGuest", isGuest)
+                }
+                startActivity(intent)
+            }
+
+        } catch (e: Exception) {
+            Log.e("Gemini", "파싱 실패: ${e.message}")
+            binding.loadingOverlay.visibility = View.GONE
+            Toast.makeText(this, "일정 생성 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // AI 프롬프트 생성 (일차 범위 지정)
+    private fun buildPrompt(
+        country: String,
+        startDay: Int,
+        endDay: Int,
+        keywords: List<String>
     ): String {
         val keywordText = if (keywords.isNotEmpty()) keywords.joinToString(", ") else "일반 관광"
-        val days = nights + 1
-
-        // 여행 취향 설명
-        val travelStyleDesc = buildTravelStyleDesc()
+        val daysCount = endDay - startDay + 1
 
         return """
-${country} ${nights}박${days}일 여행. 키워드: $keywordText
-
-JSON만 응답 (마크다운 없이):
-[{"day":1,"title":"테마","places":[{"name":"장소명","description":"15자 이내 한줄 설명","time":"09:00","duration":"2시간","tip":"팁"}]}]
-
-각 일차 4개 장소. description은 "석양이 아름다운 해변" 같이 15자 이내로.
+${country} 여행 ${startDay}~${endDay}일차. 키워드:$keywordText
+JSON만:[{"day":${startDay},"title":"테마","places":[{"name":"장소","description":"10자","time":"09:00","duration":"2시간","tip":"팁"}]}]
+${daysCount}일분, 일차당 3개 장소.
         """.trimIndent()
+    }
+
+    // 불완전한 JSON 복구 시도
+    private fun tryFixIncompleteJson(json: String): String {
+        var fixed = json.trim()
+
+        // [ 로 시작하는지 확인
+        if (!fixed.startsWith("[")) {
+            val startIndex = fixed.indexOf("[")
+            if (startIndex != -1) {
+                fixed = fixed.substring(startIndex)
+            } else {
+                return fixed
+            }
+        }
+
+        // 이미 완전한 JSON인지 확인
+        try {
+            JSONArray(fixed)
+            return fixed
+        } catch (e: Exception) {
+            // 불완전한 JSON - 복구 시도
+        }
+
+        // 열린 괄호 카운트
+        var braceCount = 0  // {}
+        var bracketCount = 0  // []
+        var inString = false
+        var lastValidIndex = 0
+
+        for (i in fixed.indices) {
+            val c = fixed[i]
+
+            if (c == '"' && (i == 0 || fixed[i - 1] != '\\')) {
+                inString = !inString
+            }
+
+            if (!inString) {
+                when (c) {
+                    '{' -> braceCount++
+                    '}' -> {
+                        braceCount--
+                        if (braceCount == 0 && bracketCount == 1) {
+                            // 하나의 day 객체가 완료됨
+                            lastValidIndex = i
+                        }
+                    }
+                    '[' -> bracketCount++
+                    ']' -> {
+                        bracketCount--
+                        if (bracketCount == 0) {
+                            lastValidIndex = i
+                        }
+                    }
+                }
+            }
+        }
+
+        // 마지막 유효한 day 객체까지 자르고 닫기
+        if (lastValidIndex > 0 && lastValidIndex < fixed.length - 1) {
+            fixed = fixed.substring(0, lastValidIndex + 1)
+
+            // 배열 닫기
+            if (!fixed.endsWith("]")) {
+                fixed += "]"
+            }
+        } else {
+            // 강제로 닫기 시도
+            while (braceCount > 0) {
+                fixed += "}"
+                braceCount--
+            }
+            while (bracketCount > 0) {
+                fixed += "]"
+                bracketCount--
+            }
+        }
+
+        return fixed
     }
 
     // 여행 취향 설명 생성
@@ -343,12 +646,16 @@ JSON만 응답 (마크다운 없이):
                 .getString("text")
 
             // JSON 파싱 (```json ... ``` 제거)
-            val cleanJson = content
+            var cleanJson = content
                 .replace("```json", "")
                 .replace("```", "")
                 .trim()
 
             Log.d("Gemini", "파싱된 JSON: $cleanJson")
+
+            // 불완전한 JSON 복구 시도
+            cleanJson = tryFixIncompleteJson(cleanJson)
+            Log.d("Gemini", "복구된 JSON: $cleanJson")
 
             val daysArray = JSONArray(cleanJson)
             val daysList = mutableListOf<DayPlanData>()
@@ -374,25 +681,51 @@ JSON만 응답 (마크다운 없이):
                 daysList.add(DayPlanData(day, title, places))
             }
 
-            // Firebase에 저장
-            saveItineraryToHistory(country, startDate, endDate, nights, daysList, keywords)
-
-            // PlanActivity로 이동
-            val intent = Intent(this, PlanActivity::class.java).apply {
-                putExtra("country", country)
-                putExtra("login", userName)
-                putExtra("startDate", startDate)
-                putExtra("endDate", endDate)
-                putExtra("nights", nights)
-                putExtra("travelStyle", travelStyle)
-                putStringArrayListExtra("keywords", ArrayList(keywords))
-                putExtra("itineraryJson", cleanJson)
+            // Firebase에 저장 (비회원이 아닌 경우에만)
+            if (!isGuest) {
+                saveItineraryToHistory(country, startDate, endDate, nights, daysList, keywords)
+            } else {
+                // 비회원인 경우 GuestProfileData에 저장
+                GuestProfileData.startDate = startDate
+                GuestProfileData.endDate = endDate
+                GuestProfileData.keywords = keywords
             }
-            startActivity(intent)
+
+            // flowType에 따라 다른 화면으로 이동
+            if (flowType == "taste") {
+                // 취향찾기 흐름 → PlanActivity로 이동
+                val intent = Intent(this, PlanActivity::class.java).apply {
+                    putExtra("country", country)
+                    putExtra("login", userName)
+                    putExtra("startDate", startDate)
+                    putExtra("endDate", endDate)
+                    putExtra("nights", nights)
+                    putExtra("travelStyle", travelStyle)
+                    putStringArrayListExtra("keywords", ArrayList(keywords))
+                    putExtra("itineraryJson", cleanJson)
+                    putExtra("isGuest", isGuest)
+                }
+                startActivity(intent)
+            } else {
+                // guest/semipass 흐름 → SearchCountryResult로 이동
+                val intent = Intent(this, SearchCountryResult::class.java).apply {
+                    putExtra("country", country)
+                    putExtra("login", userName)
+                    putExtra("startDate", startDate)
+                    putExtra("endDate", endDate)
+                    putExtra("nights", nights)
+                    putExtra("travelStyle", travelStyle)
+                    putStringArrayListExtra("keywords", ArrayList(keywords))
+                    putExtra("itineraryJson", cleanJson)
+                    putExtra("isGuest", isGuest)
+                }
+                startActivity(intent)
+            }
 
         } catch (e: Exception) {
             Log.e("Gemini", "파싱 실패: ${e.message}")
             e.printStackTrace()
+            binding.loadingOverlay.visibility = View.GONE
             Toast.makeText(this, "일정 생성 실패: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
@@ -465,12 +798,22 @@ JSON만 응답 (마크다운 없이):
             when (item.itemId) {
                 R.id.tab_country -> true
                 R.id.tab_search -> {
-                    startActivity(Intent(this, QuestionnaireActivity::class.java)
+                    startActivity(Intent(this, MainContainerActivity::class.java)
+                        .putExtra("initialTab", R.id.tab_search)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
                     true
                 }
                 R.id.tab_profile -> {
-                    startActivity(Intent(this, MyInfoActivity::class.java)
+                    // 비회원인 경우 로그인 유도
+                    if (isGuest) {
+                        android.widget.Toast.makeText(this, "로그인이 필요한 기능입니다.", android.widget.Toast.LENGTH_SHORT).show()
+                        val intent = Intent(this, MainActivity::class.java)
+                        intent.putExtra("fromGuestFlow", true)
+                        startActivity(intent)
+                        return@setOnItemSelectedListener false
+                    }
+                    startActivity(Intent(this, MainContainerActivity::class.java)
+                        .putExtra("initialTab", R.id.tab_profile)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
                     true
                 }

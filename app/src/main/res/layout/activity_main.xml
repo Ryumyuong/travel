@@ -89,6 +89,19 @@
 
                 </RelativeLayout>
 
+                <!-- Guest Login Button -->
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_guest_login"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/btn_gray_border"
+                    android:text="비회원으로 둘러보기"
+                    android:textStyle="bold"
+                    android:textSize="15sp"
+                    android:textColor="#6B7280" />
+
                 <!-- Divider with "or 이메일로 로그인" -->
 
                 <LinearLayout

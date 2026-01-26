@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -48,6 +49,12 @@ class PlanActivity : AppCompatActivity() {
     private var allDaysData: MutableList<DayPlanData> = mutableListOf()
     private var currentDayIndex: Int = 0
 
+    // 비회원 여부
+    private var isGuest = false
+
+    // 탭 변경 중 플래그 (스크롤 리스너와 탭 클릭 충돌 방지)
+    private var isTabChanging = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPlanBinding.inflate(layoutInflater)
@@ -61,6 +68,9 @@ class PlanActivity : AppCompatActivity() {
         nights = intent.getIntExtra("nights", 0)
         startDate = intent.getStringExtra("startDate") ?: ""
         endDate = intent.getStringExtra("endDate") ?: ""
+
+        // 비회원 여부 확인
+        isGuest = intent.getBooleanExtra("isGuest", false) || FirebaseAuth.getInstance().currentUser == null
 
         val itineraryJson = intent.getStringExtra("itineraryJson") ?: ""
 
@@ -89,24 +99,32 @@ class PlanActivity : AppCompatActivity() {
 
         // 로딩 오버레이 표시
         binding.loadingOverlay.visibility = View.VISIBLE
-        binding.tvLoadingProgress.text = "0 / ${allDaysData.sumOf { it.places.size }}"
+        val firstDayCount = allDaysData.firstOrNull()?.places?.size ?: 0
+        binding.tvLoadingProgress.text = "0 / $firstDayCount"
 
-        // 이미지 프리로드
-        PlacesPhotoHelper.preloadAllDays(
+        // 이미지 프리로드 (1일차 우선 + 병렬 로딩)
+        PlacesPhotoHelper.preloadWithPriority(
             context = this,
             allDays = allDaysData,
             country = country,
-            onComplete = {
-                // 로딩 완료 - 화면 표시
+            onFirstDayComplete = {
+                // 1일차 로딩 완료 - 화면 표시
                 binding.loadingOverlay.visibility = View.GONE
 
-                // 첫 번째 탭 데이터 로드
+                // 모든 일차 데이터를 어댑터에 로드 (연속 스크롤)
                 if (allDaysData.isNotEmpty()) {
-                    loadDayData(0)
+                    adapter.updateAllDays(allDaysData)
                 }
             },
+            onAllComplete = {
+                // 나머지 일차도 완료 (백그라운드에서 조용히 완료)
+                Log.d("PlanActivity", "모든 이미지 로드 완료")
+            },
             onProgress = { current, total ->
-                binding.tvLoadingProgress.text = "$current / $total"
+                // 1일차 로딩 중일 때만 프로그레스 표시
+                if (current <= firstDayCount) {
+                    binding.tvLoadingProgress.text = "$current / $firstDayCount"
+                }
             }
         )
     }
@@ -194,34 +212,23 @@ class PlanActivity : AppCompatActivity() {
 
         tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
+                if (isTabChanging) return  // 스크롤로 인한 탭 변경 시 무시
+
                 currentDayIndex = tab.position
-                loadDayData(currentDayIndex)
+                // 해당 일차 위치로 스크롤
+                val targetPosition = adapter.getDayStartPosition(currentDayIndex)
+                isTabChanging = true
+                (binding.recyclerView.layoutManager as? LinearLayoutManager)?.scrollToPositionWithOffset(targetPosition, 0)
+                // 스크롤 완료 후 플래그 해제
+                binding.recyclerView.post {
+                    isTabChanging = false
+                }
             }
             override fun onTabUnselected(tab: TabLayout.Tab) {}
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
 
         binding.tabDays.visibility = if (allDaysData.size <= 1) View.GONE else View.VISIBLE
-    }
-
-    // 특정 일차 데이터 로드
-    private fun loadDayData(dayIndex: Int) {
-        if (dayIndex < 0 || dayIndex >= allDaysData.size) return
-
-        val dayData = allDaysData[dayIndex]
-
-        val planItems = dayData.places.map { place ->
-            PlanItem(
-                title = place.name,
-                description = place.description,
-                time = place.time,
-                duration = place.duration,
-                tip = place.tip
-            )
-        }
-
-        adapter.updateItems(planItems)
-        Log.d("PlanActivity", "${dayIndex + 1}일차 로드: ${planItems.size}개 장소")
     }
 
     private fun setupRecyclerView() {
@@ -231,40 +238,59 @@ class PlanActivity : AppCompatActivity() {
             onItemClick = { position ->
                 if (isSelectionMode) {
                     toggleSelection(position)
-                } else {
-                    handleNormalClick(position)
                 }
             },
-            onRecommendClick = { position ->
+            onRecommendClick = { dayIndex, placeIndex ->
                 // 다시추천 클릭
-                showRecommendDialog(position)
+                showRecommendDialog(dayIndex, placeIndex)
             },
-            onDeleteClick = { position ->
+            onDeleteClick = { dayIndex, placeIndex ->
                 // 삭제 클릭
-                showDeleteDialog(position)
+                showDeleteDialog(dayIndex, placeIndex)
             },
             country = country
         )
         binding.recyclerView.adapter = adapter
+
+        // 스크롤 리스너 추가 - 현재 보이는 일차에 따라 탭 업데이트
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (isTabChanging) return  // 탭 클릭으로 인한 스크롤 중에는 무시
+
+                val layoutManager = recyclerView.layoutManager as? LinearLayoutManager ?: return
+                val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
+                if (firstVisiblePosition != RecyclerView.NO_POSITION) {
+                    val dayIndex = adapter.getDayIndexForPosition(firstVisiblePosition)
+                    if (dayIndex != currentDayIndex) {
+                        currentDayIndex = dayIndex
+                        // 탭 업데이트 (리스너 트리거 방지)
+                        isTabChanging = true
+                        binding.tabDays.getTabAt(dayIndex)?.select()
+                        isTabChanging = false
+                    }
+                }
+            }
+        })
     }
 
     // 다시추천 다이얼로그
-    private fun showRecommendDialog(position: Int) {
-        if (currentDayIndex >= allDaysData.size) return
-        val currentPlace = allDaysData[currentDayIndex].places.getOrNull(position) ?: return
+    private fun showRecommendDialog(dayIndex: Int, placeIndex: Int) {
+        if (dayIndex >= allDaysData.size) return
+        val currentPlace = allDaysData[dayIndex].places.getOrNull(placeIndex) ?: return
 
         AlertDialog.Builder(this)
             .setTitle("다시 추천")
             .setMessage("'${currentPlace.name}'을(를) 다른 장소로 변경할까요?")
             .setPositiveButton("변경") { _, _ ->
-                recommendNewPlace(position, currentPlace)
+                recommendNewPlace(dayIndex, placeIndex, currentPlace)
             }
             .setNegativeButton("취소", null)
             .show()
     }
 
     // Gemini AI로 새로운 장소 추천 (재시도 로직 포함)
-    private fun recommendNewPlace(position: Int, currentPlace: PlaceData, retryCount: Int = 0) {
+    private fun recommendNewPlace(dayIndex: Int, placeIndex: Int, currentPlace: PlaceData, retryCount: Int = 0) {
         val maxRetries = 3
         val retryDelays = listOf(10000L, 20000L, 40000L) // 10초, 20초, 40초
 
@@ -272,11 +298,11 @@ class PlanActivity : AppCompatActivity() {
             Toast.makeText(this, "새로운 장소를 찾는 중...", Toast.LENGTH_SHORT).show()
         }
 
-        val dayData = allDaysData[currentDayIndex]
+        val dayData = allDaysData[dayIndex]
         val existingPlaces = dayData.places.map { it.name }.joinToString(", ")
 
         val prompt = """
-${country} ${currentDayIndex + 1}일차에서 "${currentPlace.name}" 대체 장소 1개.
+${country} ${dayIndex + 1}일차에서 "${currentPlace.name}" 대체 장소 1개.
 기존: $existingPlaces (중복X)
 
 JSON만 응답:
@@ -316,7 +342,7 @@ JSON만 응답:
                 runOnUiThread {
                     when {
                         response.isSuccessful && responseBody != null -> {
-                            parseAndReplacePlace(position, responseBody)
+                            parseAndReplacePlace(dayIndex, placeIndex, responseBody)
                         }
                         response.code == 429 && retryCount < maxRetries -> {
                             // 429 에러: 재시도
@@ -329,7 +355,7 @@ JSON만 응답:
                             ).show()
 
                             android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                                recommendNewPlace(position, currentPlace, retryCount + 1)
+                                recommendNewPlace(dayIndex, placeIndex, currentPlace, retryCount + 1)
                             }, delay)
                         }
                         response.code == 429 -> {
@@ -349,7 +375,7 @@ JSON만 응답:
     }
 
     // 응답 파싱 및 장소 교체
-    private fun parseAndReplacePlace(position: Int, responseBody: String) {
+    private fun parseAndReplacePlace(dayIndex: Int, placeIndex: Int, responseBody: String) {
         try {
             val json = JSONObject(responseBody)
             val content = json.getJSONArray("candidates")
@@ -375,17 +401,10 @@ JSON만 응답:
             )
 
             // 데이터 업데이트
-            allDaysData[currentDayIndex].places[position] = newPlace
+            allDaysData[dayIndex].places[placeIndex] = newPlace
 
             // UI 업데이트
-            val newItem = PlanItem(
-                title = newPlace.name,
-                description = newPlace.description,
-                time = newPlace.time,
-                duration = newPlace.duration,
-                tip = newPlace.tip
-            )
-            adapter.replaceItem(position, newItem)
+            adapter.replacePlace(dayIndex, placeIndex, newPlace)
 
             Toast.makeText(this, "'${newPlace.name}'으로 변경되었습니다!", Toast.LENGTH_SHORT).show()
 
@@ -452,16 +471,16 @@ JSON만 응답:
     }
 
     // 삭제 다이얼로그
-    private fun showDeleteDialog(position: Int) {
-        if (currentDayIndex >= allDaysData.size) return
-        val currentPlace = allDaysData[currentDayIndex].places.getOrNull(position) ?: return
+    private fun showDeleteDialog(dayIndex: Int, placeIndex: Int) {
+        if (dayIndex >= allDaysData.size) return
+        val currentPlace = allDaysData[dayIndex].places.getOrNull(placeIndex) ?: return
 
-        val dayPlaces = allDaysData[currentDayIndex].places
+        val dayPlaces = allDaysData[dayIndex].places
         val isLastPlaceInDay = dayPlaces.size == 1
         val totalDays = allDaysData.size
 
         val message = if (isLastPlaceInDay && totalDays > 1) {
-            "'${currentPlace.name}'을(를) 삭제하면 ${currentDayIndex + 1}일차 전체가 삭제됩니다.\n\n${totalDays}박${totalDays}일 → ${totalDays - 1}박${totalDays - 1}일로 변경됩니다.\n\n삭제할까요?"
+            "'${currentPlace.name}'을(를) 삭제하면 ${dayIndex + 1}일차 전체가 삭제됩니다.\n\n${totalDays}박${totalDays}일 → ${totalDays - 1}박${totalDays - 1}일로 변경됩니다.\n\n삭제할까요?"
         } else if (isLastPlaceInDay && totalDays == 1) {
             "'${currentPlace.name}'을(를) 삭제하면 일정이 비어있게 됩니다.\n\n삭제할까요?"
         } else {
@@ -472,25 +491,26 @@ JSON만 응답:
             .setTitle("일정 삭제")
             .setMessage(message)
             .setPositiveButton("삭제") { _, _ ->
-                deletePlace(position)
+                deletePlace(dayIndex, placeIndex)
             }
             .setNegativeButton("취소", null)
             .show()
     }
 
     // 장소 삭제
-    private fun deletePlace(position: Int) {
-        if (currentDayIndex >= allDaysData.size) return
+    private fun deletePlace(dayIndex: Int, placeIndex: Int) {
+        if (dayIndex >= allDaysData.size) return
 
-        val dayPlaces = allDaysData[currentDayIndex].places
+        val dayPlaces = allDaysData[dayIndex].places
 
         if (dayPlaces.size == 1) {
             // 마지막 장소 삭제 → 일차 전체 삭제
-            deleteDayAndReorder(currentDayIndex)
+            deleteDayAndReorder(dayIndex)
         } else {
             // 장소만 삭제
-            dayPlaces.removeAt(position)
-            adapter.removeItem(position)
+            dayPlaces.removeAt(placeIndex)
+            // 어댑터 전체 업데이트
+            adapter.updateAllDays(allDaysData)
             Toast.makeText(this, "삭제되었습니다.", Toast.LENGTH_SHORT).show()
         }
 
@@ -503,7 +523,7 @@ JSON만 응답:
         if (allDaysData.size <= 1) {
             // 마지막 일차면 일정 비우기
             allDaysData[dayIndex].places.clear()
-            adapter.updateItems(emptyList())
+            adapter.updateAllDays(allDaysData)
             Toast.makeText(this, "모든 일정이 삭제되었습니다.", Toast.LENGTH_SHORT).show()
             return
         }
@@ -513,7 +533,6 @@ JSON만 응답:
 
         // 일차 번호 재정렬
         allDaysData.forEachIndexed { index, dayData ->
-            // day 필드 업데이트 (DayPlanData가 data class면 copy 사용)
             allDaysData[index] = dayData.copy(day = index + 1)
         }
 
@@ -526,10 +545,14 @@ JSON만 응답:
         // 현재 탭 인덱스 조정
         currentDayIndex = if (dayIndex >= allDaysData.size) allDaysData.size - 1 else dayIndex
 
-        // 데이터 로드
+        // 어댑터 전체 업데이트
+        adapter.updateAllDays(allDaysData)
+
+        // 탭 선택
         if (allDaysData.isNotEmpty()) {
+            isTabChanging = true
             binding.tabDays.getTabAt(currentDayIndex)?.select()
-            loadDayData(currentDayIndex)
+            isTabChanging = false
         }
 
         // 날짜 표시 업데이트
@@ -610,8 +633,13 @@ JSON만 응답:
     // planhistory 컬렉션에 저장
     private fun saveToPlanHistory() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
-        if (uid == null) {
-            Toast.makeText(this, "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
+
+        // 비회원인 경우 로그인 화면으로 이동
+        if (uid == null || isGuest) {
+            Toast.makeText(this, "일정을 저장하려면 로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("fromGuestFlow", true)
+            startActivity(intent)
             return
         }
 
@@ -709,7 +737,7 @@ JSON만 응답:
             .addOnSuccessListener { docRef ->
                 Log.d("PlanActivity", "내 일정 저장 완료: ${docRef.id}")
                 Toast.makeText(this, "내 일정에 저장되었습니다! ✅", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this, SearchActivity::class.java)
+                val intent = Intent(this, MainContainerActivity::class.java)
                 startActivity(intent)
                 finish()
 
@@ -782,14 +810,28 @@ JSON만 응답:
         bottom.selectedItemId = R.id.tab_search
         bottom.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.tab_country -> true
+                R.id.tab_country -> {
+                    startActivity(Intent(this, MainContainerActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+                    true
+                }
                 R.id.tab_search -> {
-                    startActivity(Intent(this, QuestionnaireActivity::class.java)
+                    startActivity(Intent(this, MainContainerActivity::class.java)
+                        .putExtra("initialTab", R.id.tab_search)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
                     true
                 }
                 R.id.tab_profile -> {
-                    startActivity(Intent(this, MyInfoActivity::class.java)
+                    // 비회원인 경우 로그인 유도
+                    if (isGuest) {
+                        Toast.makeText(this, "로그인이 필요한 기능입니다.", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(this, MainActivity::class.java)
+                        intent.putExtra("fromGuestFlow", true)
+                        startActivity(intent)
+                        return@setOnItemSelectedListener false
+                    }
+                    startActivity(Intent(this, MainContainerActivity::class.java)
+                        .putExtra("initialTab", R.id.tab_profile)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
                     true
                 }

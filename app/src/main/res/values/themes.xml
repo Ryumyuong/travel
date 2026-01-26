@@ -36,4 +36,14 @@
     </style>
 
     <style name="Theme.Travel" parent="Base.Theme.Travel" />
+
+    <!-- IntroActivity 전체화면 테마 -->
+    <style name="Theme.Travel.Fullscreen" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:statusBarColor">#1E3A6E</item>
+        <item name="android:navigationBarColor">#1E3A6E</item>
+        <item name="android:windowBackground">#1E3A6E</item>
+    </style>
 </resources>
