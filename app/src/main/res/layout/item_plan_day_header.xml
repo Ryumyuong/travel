@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="24dp"
+    android:paddingBottom="16dp"
+    android:paddingHorizontal="16dp">
+
+    <TextView
+        android:id="@+id/tvDayNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1일차"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#3653AE" />
+
+    <TextView
+        android:id="@+id/tvDayTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="도착 및 휴식"
+        android:textSize="14sp"
+        android:textColor="#666666" />
+
+</LinearLayout>
