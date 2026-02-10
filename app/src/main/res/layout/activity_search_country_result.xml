@@ -16,21 +16,32 @@
         android:background="@color/white"
         android:visibility="visible">
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:indeterminateTint="#3653AE" />
-
         <TextView
             android:id="@+id/tvLoadingStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="맞춤 여행을 준비하고 있어요..."
-            android:textColor="#666666"
-            android:textSize="16sp"
-            android:gravity="center" />
+            android:fontFamily="@font/noto_sans_kr"
+            android:gravity="center"
+            android:text="맞춤 여행을\n준비하고 있어요"
+            android:textColor="#1B1B1B"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:lineSpacingExtra="4dp" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginTop="24dp"
+            android:indeterminateDrawable="@drawable/spinner_loading" />
+
+        <ImageView
+            android:layout_width="240dp"
+            android:layout_height="240dp"
+            android:layout_marginTop="24dp"
+            android:contentDescription="로딩 캐릭터"
+            android:src="@drawable/ic_loading" />
+
     </LinearLayout>
 
     <!-- 결과 컨테이너 -->

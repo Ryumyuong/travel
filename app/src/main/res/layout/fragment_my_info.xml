@@ -112,7 +112,7 @@
                     android:layout_height="50dp"
                     android:layout_marginStart="16dp"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/ic_avatar" />
+                    android:src="@drawable/ic_profile1" />
 
             </LinearLayout>
 
@@ -145,7 +145,6 @@
                 android:text="님이 찾은 여행, \n한눈에 보기 쉽게 정리했어요!"
                 android:textColor="@android:color/black"
                 android:textSize="18sp"
-                android:textStyle="bold"
                 android:visibility="gone" />
 
             <!-- 여행 기록 RecyclerView -->

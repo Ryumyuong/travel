@@ -27,6 +27,7 @@ import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
 import com.hehe.travel.*
+import com.hehe.travel.ProfileEditDialogFragment
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
@@ -455,7 +456,7 @@ class MyInfoFragment : Fragment() {
         }
 
         ivProfile.setOnClickListener {
-            galleryLauncher.launch("image/*")
+            ProfileEditDialogFragment().show(childFragmentManager, "profileEdit")
         }
     }
 

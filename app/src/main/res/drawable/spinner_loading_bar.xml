@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- 0° (top) - active blue -->
+    <group
+        android:pivotX="24"
+        android:pivotY="24"
+        android:rotation="0">
+        <path
+            android:pathData="M24,10 L24,16"
+            android:strokeColor="#3653AE"
+            android:strokeLineCap="round"
+            android:strokeWidth="3" />
+    </group>
+
+    <!-- 45° -->
+    <group
+        android:pivotX="24"
+        android:pivotY="24"
+        android:rotation="45">
+        <path
+            android:pathData="M24,10 L24,16"
+            android:strokeColor="#6B7DC0"
+            android:strokeLineCap="round"
+            android:strokeWidth="3" />
+    </group>
+
+    <!-- 90° -->
+    <group
+        android:pivotX="24"
+        android:pivotY="24"
+        android:rotation="90">
+        <path
+            android:pathData="M24,10 L24,16"
+            android:strokeColor="#9AA5D0"
+            android:strokeLineCap="round"
+            android:strokeWidth="3" />
+    </group>
+
+    <!-- 135° -->
+    <group
+        android:pivotX="24"
+        android:pivotY="24"
+        android:rotation="135">
+        <path
+            android:pathData="M24,10 L24,16"
+            android:strokeColor="#B8BFDE"
+            android:strokeLineCap="round"
+            android:strokeWidth="3" />
+    </group>
+
+    <!-- 180° -->
+    <group
+        android:pivotX="24"
+        android:pivotY="24"
+        android:rotation="180">
+        <path
+            android:pathData="M24,10 L24,16"
+            android:strokeColor="#CBCFE4"
+            android:strokeLineCap="round"
+            android:strokeWidth="3" />
+    </group>
+
+    <!-- 225° -->
+    <group
+        android:pivotX="24"
+        android:pivotY="24"
+        android:rotation="225">
+        <path
+            android:pathData="M24,10 L24,16"
+            android:strokeColor="#D8DBE8"
+            android:strokeLineCap="round"
+            android:strokeWidth="3" />
+    </group>
+
+    <!-- 270° -->
+    <group
+        android:pivotX="24"
+        android:pivotY="24"
+        android:rotation="270">
+        <path
+            android:pathData="M24,10 L24,16"
+            android:strokeColor="#E0E3EC"
+            android:strokeLineCap="round"
+            android:strokeWidth="3" />
+    </group>
+
+    <!-- 315° -->
+    <group
+        android:pivotX="24"
+        android:pivotY="24"
+        android:rotation="315">
+        <path
+            android:pathData="M24,10 L24,16"
+            android:strokeColor="#E8EAF0"
+            android:strokeLineCap="round"
+            android:strokeWidth="3" />
+    </group>
+
+</vector>
