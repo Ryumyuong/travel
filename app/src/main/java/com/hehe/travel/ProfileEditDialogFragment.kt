@@ -14,7 +14,7 @@ class ProfileEditDialogFragment : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.dialog_profile_edit, container, false)
+        return inflater.inflate(R.layout.fragment_profile_edit, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
